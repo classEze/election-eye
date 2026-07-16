@@ -3,12 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleModule } from './role/role.module';
-import {ConfigModule} from "@nestjs/config";
+import { ConfigModule } from '@nestjs/config';
 import { AppDataSource } from './data-source';
 
 @Module({
   imports: [
-    
     ConfigModule.forRoot({
       isGlobal: true,
     }),
