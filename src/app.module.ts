@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleModule } from './role/role.module';
 import { ConfigModule } from '@nestjs/config';
 import { AppDataSource } from './data-source';
+import { StateModule } from './state/state.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AppDataSource } from './data-source';
       }),
     }),
     RoleModule,
+    StateModule,
   ],
   controllers: [AppController],
   providers: [AppService],

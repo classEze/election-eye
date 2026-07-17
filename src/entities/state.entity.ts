@@ -1,11 +1,12 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index, UpdateDateColumn, CreateDateColumn } from 'typeorm';
 
 @Entity()
-export class Role {
+export class State {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Column()
+  @Index({ unique: true })
   name!: string;
 
   @Column()
@@ -13,17 +14,11 @@ export class Role {
   code!: string;
 
   @Column()
-  type!: string;
-
-  @Column()
-  description!: string;
-
-  @Column({ default: true })
-  status!: boolean;
+  geoPoliticalZone!: string;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt!: Date;
+    createdAt!: Date;
+  
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt!: Date;
 }

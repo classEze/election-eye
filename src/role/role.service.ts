@@ -10,10 +10,8 @@ export class RoleService {
     private readonly roleRepository: Repository<Role>,
   ) {}
 
-  find(type: string, status: string): Promise<Role[]> {
-    type = type.toUpperCase();
-    const dbStatus = status.trim().toLowerCase() === 'true';
-
-    return this.roleRepository.find({ where: { type, status: dbStatus } });
+  find(type: string, status: boolean): Promise<Role[]> {
+    console.log(type, status);
+    return this.roleRepository.find({ where: { type, status } });
   }
 }
