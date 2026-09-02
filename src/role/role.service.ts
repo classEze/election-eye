@@ -11,7 +11,6 @@ export class RoleService {
   ) {}
 
   find(type: string, status: boolean): Promise<Role[]> {
-    console.log(type, status);
     return this.roleRepository.find({ where: { type, status } });
   }
 }

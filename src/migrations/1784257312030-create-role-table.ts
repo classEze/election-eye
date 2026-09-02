@@ -1,15 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateRoleTable1784055753438 implements MigrationInterface {
-  name = 'CreateRoleTable1784055753438';
+export class CreateRoleTable1784257312030 implements MigrationInterface {
+  name = 'CreateRoleTable1784257312030';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `CREATE TABLE "role" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, "code" character varying NOT NULL, "type" character varying NOT NULL, "description" character varying NOT NULL, "status" boolean NOT NULL DEFAULT true, CONSTRAINT "PK_b36bcfe02fc8de3c57a8b2391c2" PRIMARY KEY ("id"))`,
-    );
-    await queryRunner.query(
-      `CREATE UNIQUE INDEX "IDX_ee999bb389d7ac0fd967172c41" ON "role"  ("code") `,
-    );
     await queryRunner.query(
       `INSERT INTO "role" ("name", "code", "type", "description") VALUES ('Admin', 'CLI_ADM', 'client', 'Client System Administrator')`,
     );
@@ -34,9 +28,6 @@ export class CreateRoleTable1784055753438 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_ee999bb389d7ac0fd967172c41"`,
-    );
-    await queryRunner.query(`DROP TABLE "role"`);
+    await queryRunner.query(`DELETE * FROM "role"`);
   }
 }

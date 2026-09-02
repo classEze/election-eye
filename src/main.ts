@@ -1,9 +1,17 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
+import { AllExceptionsFilter } from './exceptions-filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({
+      json: true,
+      timestamp: true,
+    }),
+  });
+
+  const { httpAdapter } = app.get<HttpAdapterHost>(HttpAdapterHost);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -11,9 +19,18 @@ async function bootstrap() {
       transform: true, // transforms payloads into DTO instances
     }),
   );
+
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
   // await app.get(DataSource).runMigrations();
   // // If migrations dont run automatically, uncomment this line to run them manually
 
   await app.listen(process.env.PORT ?? 5000);
 }
-bootstrap();
+bootstrap()
+  .then(() => {
+    console.log(`Server is running on port ${process.env.PORT ?? 5000}`);
+  })
+  .catch((error) => {
+    console.error('Error starting server:', error);
+    process.exit(1);
+  });

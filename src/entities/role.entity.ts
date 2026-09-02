@@ -1,4 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index, UpdateDateColumn, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  Index,
+  UpdateDateColumn,
+  CreateDateColumn,
+  OneToMany,
+} from 'typeorm';
+import { User } from './user.entity';
 
 @Entity()
 export class Role {
@@ -20,6 +29,9 @@ export class Role {
 
   @Column({ default: true })
   status!: boolean;
+
+  @OneToMany(() => User, (user: User) => user.role)
+  users!: User[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;

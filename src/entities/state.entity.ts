@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index, UpdateDateColumn, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  Index,
+  UpdateDateColumn,
+  CreateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class State {
@@ -13,12 +20,12 @@ export class State {
   @Index({ unique: true })
   code!: string;
 
-  @Column()
+  @Column({ name: 'geo_political_zone' })
   geoPoliticalZone!: string;
 
   @CreateDateColumn({ name: 'created_at' })
-    createdAt!: Date;
-  
-    @UpdateDateColumn({ name: 'updated_at' })
-    updatedAt!: Date;
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt!: Date;
 }

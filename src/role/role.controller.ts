@@ -9,7 +9,6 @@ export class RoleController {
 
   @Get()
   async findRoles(@Query() query: GetRoleDTO): Promise<Role[]> {
-    console.log(query.status);
     return await this.roleService.find(query.type, query.status);
   }
 }
