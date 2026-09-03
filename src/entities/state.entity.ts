@@ -5,33 +5,23 @@ import {
   Index,
   UpdateDateColumn,
   CreateDateColumn,
-  OneToMany,
 } from 'typeorm';
-import { User } from './user.entity';
 
 @Entity()
-export class Role {
+export class State {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Column()
+  @Index({ unique: true })
   name!: string;
 
   @Column()
   @Index({ unique: true })
   code!: string;
 
-  @Column()
-  type!: string;
-
-  @Column()
-  description!: string;
-
-  @Column({ default: true })
-  status!: boolean;
-
-  @OneToMany(() => User, (user: User) => user.role)
-  users!: User[];
+  @Column({ name: 'geo_political_zone' })
+  geoPoliticalZone!: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
