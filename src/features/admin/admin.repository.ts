@@ -1,0 +1,75 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Admin } from './admin.entity';
+import { CreateAdminDto } from './admin.dto';
+
+@Injectable()
+export class AdminRepository {
+  constructor(
+    @InjectRepository(Admin)
+    private readonly repo: Repository<Admin>,
+  ) {}
+
+  async insertOne(
+    admin: CreateAdminDto,
+    password: string,
+    role: Admin['role'],
+  ): Promise<Admin> {
+    const newAdmin = this.repo.create({
+      firstName: admin.firstName,
+      lastName: admin.lastName,
+      emailAddress: admin.emailAddress,
+      phoneNumber: admin.phoneNumber,
+      password,
+      role,
+      isActive: false,
+    });
+
+    await this.repo.save(newAdmin);
+
+    return this.repo.findOneOrFail({
+      where: { emailAddress: admin.emailAddress },
+      relations: { role: true },
+    });
+  }
+
+  async findOneByEmail(email: string): Promise<Admin | null> {
+    return this.repo
+      .createQueryBuilder('admin')
+      .innerJoinAndSelect('admin.role', 'role')
+      .where('admin.emailAddress = :email', { email })
+      .select([
+        'admin.id',
+        'admin.firstName',
+        'admin.lastName',
+        'admin.emailAddress',
+        'admin.password',
+        'admin.isActive',
+        'admin.isVerified',
+        'admin.forcePasswordReset',
+        'admin.loginCount',
+        'admin.lastLogin',
+        'role.id',
+        'role.name',
+        'role.code',
+        'role.type',
+      ])
+      .getOne();
+  }
+
+  async updateLoginFields(id: number): Promise<void> {
+    await this.repo.update(
+      { id },
+      {
+        forcePasswordReset: false,
+        loginCount: () => 'login_count + 1',
+        lastLogin: new Date(),
+      },
+    );
+  }
+
+  async updatePassword(id: number, password: string): Promise<void> {
+    await this.repo.update({ id }, { password, forcePasswordReset: false });
+  }
+}

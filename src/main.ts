@@ -21,8 +21,6 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
-  // await app.get(DataSource).runMigrations();
-  // // If migrations dont run automatically, uncomment this line to run them manually
 
   await app.listen(process.env.PORT ?? 5000);
 }

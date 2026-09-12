@@ -2,26 +2,33 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RoleModule } from './role/role.module';
+import { RoleModule } from './features/role/role.module';
 import { ConfigModule } from '@nestjs/config';
 import { AppDataSource } from './data-source';
-import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
-import { AuthenticationGuard } from './guards/authentication.guard';
+import { UserModule } from './features/user/user.module';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthorizationGuard } from './guards/authorization.guard';
-import { NotificationModule } from './notification/notification.module';
+import { NotificationModule } from './shared/notification/notification.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { config } from 'dotenv';
-import { HttpClientModule } from './default-modules/http.module';
-import { JwtDefaultModule } from './default-modules/jwt.module';
+import { HttpClientModule } from './shared/default-modules/http.module';
+import { JwtDefaultModule } from './shared/default-modules/jwt.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AuthModule } from './features/auth/auth.module';
+import { AdminModule } from './features/admin/admin.module';
+import { AspirantModule } from './features/aspirant/aspirant.module';
+import { AuthenticationGuard } from './shared/guards/authentication.guard';
+import { AuthorizationGuard } from './shared/guards/authorization.guard';
 
-config();
+const loadEnv = config as unknown as () => void;
+loadEnv();
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60_000, limit: 20 }],
     }),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
@@ -47,6 +54,8 @@ config();
     UserModule,
     AuthModule,
     NotificationModule,
+    AdminModule,
+    AspirantModule,
   ],
   controllers: [AppController],
   providers: [
@@ -58,6 +67,10 @@ config();
     {
       provide: APP_GUARD,
       useClass: AuthorizationGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })
