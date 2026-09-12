@@ -9,9 +9,7 @@ import {
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto, UpdateAdminDto } from './admin.dto';
-import { Public } from 'src/shared/decorators/public.decorator';
 
-@Public()
 @Controller('admins')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}

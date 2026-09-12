@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Admin } from './admin.entity';
-import { CreateAdminDto } from './admin.dto';
+import { CreateAdminDto, UpdateAdminDto } from './admin.dto';
 
 @Injectable()
 export class AdminRepository {
@@ -71,5 +71,35 @@ export class AdminRepository {
 
   async updatePassword(id: number, password: string): Promise<void> {
     await this.repo.update({ id }, { password, forcePasswordReset: false });
+  }
+
+  async findAll(): Promise<Admin[]> {
+    return this.repo
+      .createQueryBuilder('admin')
+      .innerJoinAndSelect('admin.role', 'role')
+      .select([
+        'admin.id',
+        'admin.firstName',
+        'admin.lastName',
+        'admin.emailAddress',
+        'admin.isActive',
+        'admin.isVerified',
+        'role.id',
+        'role.name',
+        'role.code',
+      ])
+      .getMany();
+  }
+
+  async findOneById(id: number): Promise<Admin | null> {
+    return await this.repo.findOneBy({ id });
+  }
+
+  async update(
+    id: number,
+    updateAdminDto: UpdateAdminDto,
+  ): Promise<Admin | null> {
+    await this.repo.update({ id }, updateAdminDto);
+    return await this.findOneById(id);
   }
 }

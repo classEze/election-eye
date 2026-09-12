@@ -62,15 +62,15 @@ export class AdminService {
   }
 
   findAll() {
-    return `This action returns all admin`;
+    return this.adminRepo.findAll();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} admin`;
+    return this.adminRepo.findOneById(id);
   }
 
   update(_id: number, _updateAdminDto: UpdateAdminDto) {
-    return `This action updates a #${_id} admin`;
+    return this.adminRepo.update(_id, _updateAdminDto);
   }
 
   remove(id: number) {

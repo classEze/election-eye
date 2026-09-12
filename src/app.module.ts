@@ -19,6 +19,8 @@ import { AspirantModule } from './features/aspirant/aspirant.module';
 import { AuthenticationGuard } from './shared/guards/authentication.guard';
 import { AuthorizationGuard } from './shared/guards/authorization.guard';
 
+import { StateModule } from './features/state/state.module';
+
 const loadEnv = config as unknown as () => void;
 loadEnv();
 
@@ -45,7 +47,7 @@ loadEnv();
         },
       },
       defaults: {
-        from: '"No Reply" <noreply@innbase.com>',
+        from: '"No Reply" <noreply@election-eye.com>',
       },
     }),
     JwtDefaultModule,
@@ -56,6 +58,7 @@ loadEnv();
     NotificationModule,
     AdminModule,
     AspirantModule,
+    StateModule,
   ],
   controllers: [AppController],
   providers: [

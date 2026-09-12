@@ -13,6 +13,8 @@ async function bootstrap() {
 
   const { httpAdapter } = app.get<HttpAdapterHost>(HttpAdapterHost);
 
+  app.enableCors();
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // strips properties not in DTO
