@@ -2,45 +2,101 @@ import {
   Controller,
   Get,
   Post,
-  Body,
+  Put,
   Patch,
+  Body,
   Param,
   Delete,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipeBuilder,
+  HttpStatus,
+  HttpCode,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { StateService } from './state.service';
 import { CreateStateDto, UpdateStateDto } from './state.dto';
+import { Allowed } from 'src/shared/decorators/allowed.decorator';
+import { RoleCode } from '../role/role.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { State } from './state.entity';
+import { Public } from 'src/shared/decorators/public.decorator';
 
-@Controller('state')
+@Controller('states')
+@Public()
 export class StateController {
   constructor(private readonly stateService: StateService) {}
 
+  @Get('template')
+  downloadTemplate(@Res({ passthrough: true }) res: Response): string {
+    const csv = this.stateService.generateTemplate();
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-Disposition':
+        'attachment; filename="states_upload_template.csv"',
+    });
+    return csv;
+  }
+
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
   @Post()
-  create(@Body() createStateDto: CreateStateDto) {
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createStateDto: CreateStateDto): Promise<State> {
     return this.stateService.create(createStateDto);
   }
 
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
   @Post('upload')
-  uploadState(@Body() createStateDto: CreateStateDto) {
-    return this.stateService.create(createStateDto);
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadState(
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addMaxSizeValidator({
+          maxSize: 5 * 1024 * 1024, // 5MB
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: true,
+        }),
+    )
+    file: Express.Multer.File,
+  ): Promise<State[]> {
+    return this.stateService.uploadStates(file);
   }
 
   @Get()
-  findAll() {
+  async findAll(): Promise<State[]> {
     return this.stateService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<State> {
     return this.stateService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStateDto: UpdateStateDto) {
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateStateDto: UpdateStateDto,
+  ): Promise<State> {
     return this.stateService.update(+id, updateStateDto);
   }
 
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Patch(':id')
+  async patchUpdate(
+    @Param('id') id: string,
+    @Body() updateStateDto: UpdateStateDto,
+  ): Promise<State> {
+    return this.stateService.update(+id, updateStateDto);
+  }
+
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<State> {
     return this.stateService.remove(+id);
   }
 }

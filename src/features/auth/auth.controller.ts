@@ -2,6 +2,8 @@ import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from 'src/shared/decorators/public.decorator';
 import {
+  EmailAddressDto,
+  LoginDto,
   ResendVerificationDto,
   ResetPasswordDto,
   VerifyEmailDto,
@@ -15,24 +17,20 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('login')
-  async signIn(
-    @Body() loginUserObj: { emailAddress: string; password: string },
-  ) {
-    return this.authService.signIn(loginUserObj);
+  async signIn(@Body() dto: LoginDto) {
+    return this.authService.signIn(dto);
   }
 
   @HttpCode(200)
   @Post('admin-login')
-  adminSignIn(
-    @Body() loginAdminObj: { emailAddress: string; password: string },
-  ) {
-    return this.authService.adminSignIn(loginAdminObj);
+  adminSignIn(@Body() dto: LoginDto) {
+    return this.authService.adminSignIn(dto);
   }
 
   @Post('reset-password-token')
   @Throttle({ default: { limit: 3, ttl: 60_000 } })
-  async requestPasswordResetToken(@Body('emailAddress') emailAddress: string) {
-    return this.authService.requestPasswordResetToken(emailAddress);
+  async requestPasswordResetToken(@Body() dto: EmailAddressDto) {
+    return this.authService.requestPasswordResetToken(dto.emailAddress);
   }
 
   @Post('reset-password')
@@ -46,10 +44,8 @@ export class AuthController {
 
   @Post('admin-reset-password-token')
   @Throttle({ default: { limit: 3, ttl: 60_000 } })
-  async requestAdminPasswordResetToken(
-    @Body('emailAddress') emailAddress: string,
-  ) {
-    return this.authService.requestAdminPasswordResetToken(emailAddress);
+  async requestAdminPasswordResetToken(@Body() dto: EmailAddressDto) {
+    return this.authService.requestAdminPasswordResetToken(dto.emailAddress);
   }
 
   @Post('admin-reset-password')

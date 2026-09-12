@@ -26,15 +26,15 @@ export class UserService {
 
     await this.notify.sendMailTrap({
       to: user.emailAddress,
-      subject: 'Welcome to Innbase',
+      subject: 'Welcome to Election Eye',
       message: `Dear ${user.firstName} ${user.lastName}, 
-      Welcome to Innbase. Use the password below to login.
+      Welcome to Election Eye. Use the password below to login.
       password: ${randomPassword}
       `,
       html: `
-      <p>Welcome to Innbase</p>
+      <p>Welcome to Election Eye</p>
       Dear ${user.firstName} ${user.lastName}, 
-      You were added to Innbase. Use the password below to login.
+      You were added to Election Eye. Use the password below to login.
       password: ${randomPassword}
       <a href="http://localhost:3000/login">Login</a>
       `,

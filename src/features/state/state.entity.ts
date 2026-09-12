@@ -17,6 +17,9 @@ export class State {
   @Column({ unique: true })
   name!: string;
 
+  @Column({ unique: true })
+  code!: string;
+
   @OneToMany(() => Lga, (lga) => lga.state)
   lgas!: Lga[];
 

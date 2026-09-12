@@ -1,4 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+import { RoleCode } from '../features/role/role.enum';
 
 export class SeedInitialSystemData20260906000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -7,13 +8,13 @@ export class SeedInitialSystemData20260906000000 implements MigrationInterface {
     // ==========================================
     await queryRunner.query(`
       INSERT INTO "roles" (name, code, type, description, status, created_at, updated_at) VALUES
-      ('LGA Coordinator', 'LGA_COORDINATOR', 'CLIENT', 'Manages results and monitors incidents across an entire Local Government Area.', true, NOW(), NOW()),
-      ('Ward Coordinator', 'WARD_COORDINATOR', 'CLIENT', 'Supervises polling unit agents and verifies incoming results within a specific Ward.', true, NOW(), NOW()),
-      ('Polling Unit Agent', 'PU_AGENT', 'CLIENT', 'Submits real-time polling unit results and logs field incidents directly at the booth.', true, NOW(), NOW()),
-      ('Client Administrator', 'CLIENT_ADMIN', 'CLIENT', 'Manages client-side operations and user accounts.', true, NOW(), NOW()),
-      ('System Administrator', 'SYSTEM_ADMIN', 'ADMIN', 'Oversees the entire system and manages user accounts.', true, NOW(), NOW()),
-      ('Super Administrator', 'SUPER_ADMIN', 'ADMIN', 'Has full access to all system functionalities and can manage other administrators.', true, NOW(), NOW()),
-      ('Aspirant', 'ASPIRANT', 'CLIENT', 'Aspirant account', true, NOW(), NOW())
+      ('LGA Coordinator', '${RoleCode.LGA_COORDINATOR}', 'CLIENT', 'Manages results and monitors incidents across an entire Local Government Area.', true, NOW(), NOW()),
+      ('Ward Coordinator', '${RoleCode.WARD_COORDINATOR}', 'CLIENT', 'Supervises polling unit agents and verifies incoming results within a specific Ward.', true, NOW(), NOW()),
+      ('Polling Unit Agent', '${RoleCode.PU_AGENT}', 'CLIENT', 'Submits real-time polling unit results and logs field incidents directly at the booth.', true, NOW(), NOW()),
+      ('Client Administrator', '${RoleCode.CLIENT_ADMIN}', 'CLIENT', 'Manages client-side operations and user accounts.', true, NOW(), NOW()),
+      ('System Administrator', '${RoleCode.SYSTEM_ADMIN}', 'ADMIN', 'Oversees the entire system and manages user accounts.', true, NOW(), NOW()),
+      ('Super Administrator', '${RoleCode.SUPER_ADMIN}', 'ADMIN', 'Has full access to all system functionalities and can manage other administrators.', true, NOW(), NOW()),
+      ('Aspirant', '${RoleCode.ASPIRANT}', 'CLIENT', 'Aspirant account', true, NOW(), NOW())
       ON CONFLICT (code) DO NOTHING;
     `);
 
@@ -23,7 +24,7 @@ export class SeedInitialSystemData20260906000000 implements MigrationInterface {
     await queryRunner.query(`
       INSERT INTO "admins" (first_name, last_name, email_address, phone_number, password, role_id, is_active, is_verified, force_password_reset, created_at, updated_at) VALUES
       ('Chibeze', 'Ochonogor', 'chibeze.ochonogor@gmail.com', '2348160245148', '$2b$12$ojS9n48YBNyir4EKgHfEru5LYODXaDnCBmiS1Va0ai3wmNc5hXnV2',
-      (SELECT id FROM "roles" WHERE code = 'SUPER_ADMIN'), true, true, false, NOW(), NOW())
+      (SELECT id FROM "roles" WHERE code = '${RoleCode.SUPER_ADMIN}'), true, true, false, NOW(), NOW())
       ON CONFLICT (email_address) DO NOTHING;
     `);
 
@@ -82,9 +83,9 @@ export class SeedInitialSystemData20260906000000 implements MigrationInterface {
       `DELETE FROM "incident_categories" WHERE code IN ('BALLOT_SNATCHING', 'VOTE_BUYING', 'BVAS_MALFUNCTION', 'LATE_START', 'VIOLENCE', 'PROTEST', 'OTHER');`,
     );
     await queryRunner.query(
-      `DELETE FROM "roles" WHERE code IN ('LGA_COORDINATOR', 'WARD_COORDINATOR', 'PU_AGENT');`,
+      `DELETE FROM "roles" WHERE code IN ('${RoleCode.LGA_COORDINATOR}', '${RoleCode.WARD_COORDINATOR}', '${RoleCode.PU_AGENT}');`,
     );
 
-    await queryRunner.query(`DELETE FROM "users" WHERE id = 1;`);
+    await queryRunner.query(`DELETE FROM "admins" WHERE id = 1;`);
   }
 }

@@ -56,6 +56,5 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       `Exception caught: myResObj: ${JSON.stringify(myResObj)}`,
     );
     response.status(myResObj.responseCode).json(myResObj);
-    super.catch(exception, host);
   }
 }

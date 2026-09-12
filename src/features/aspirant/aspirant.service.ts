@@ -4,6 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { Aspirant } from './aspirant.entity';
 import { CreateAspirantDto } from './aspirant.dto';
 import { Role } from '../role/role.entity';
+import { RoleCode } from '../role/role.enum';
 import { EmailVerificationService } from 'src/shared/verification/email-verification.service';
 import { User } from '../user/user.entity';
 import PasswordHelper from 'src/shared/helpers/password.helper';
@@ -30,7 +31,7 @@ export class AspirantService {
       this.parties.findOne({ where: { id: dto.politicalPartyId } }),
       this.offices.findOne({ where: { id: dto.electoralOfficeId } }),
       this.roles.findOne({
-        where: { code: 'ASPIRANT', type: 'CLIENT', status: true },
+        where: { code: RoleCode.ASPIRANT, type: 'CLIENT', status: true },
       }),
     ]);
 
