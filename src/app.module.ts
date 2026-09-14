@@ -19,12 +19,14 @@ import { AuthorizationGuard } from './shared/guards/authorization.guard';
 import { StateModule } from './features/state/state.module';
 import { MailerDefaultModule } from './shared/default-modules/mail.module';
 import { envValidationSchema } from './config/env.validation';
+import configuration from './config/configuration';
 import { RedisDefaultModule } from './shared/default-modules/cache.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [configuration],
       validationSchema: envValidationSchema,
     }),
 
