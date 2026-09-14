@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,22 +20,31 @@ import { PasswordResets } from 'src/shared/entities/password-resets.entity';
 import { AdminRepository } from 'src/features/admin/admin.repository';
 import { AdminPasswordResets } from 'src/features/admin/admin-password-resets.entity';
 import { Admin } from 'src/features/admin/admin.entity';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
+import { ConfigService } from '@nestjs/config';
+import {
+  CacheTTL,
+  getUserInfoCacheKey,
+  getAdminInfoCacheKey,
+} from 'src/shared/constants/cache.constant';
 
 @Injectable()
 export class AuthService {
   private readonly passwordHelper = new PasswordHelper();
 
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly userRepo: UserRepository,
     private readonly jwtService: JwtService,
     private readonly notify: NotificationService,
-
     @InjectRepository(PasswordResets)
     private readonly passwordResetsRepo: Repository<PasswordResets>,
     @InjectRepository(AdminPasswordResets)
     private readonly adminPasswordResetsRepo: Repository<AdminPasswordResets>,
     private readonly verification: EmailVerificationService,
     private readonly adminRepo: AdminRepository,
+    private readonly configService: ConfigService,
   ) {}
 
   async signIn(LoginUserObj: {
@@ -79,11 +89,19 @@ export class AuthService {
       role: validUser.role.id,
       code: validUser.role.code,
       email: validUser.emailAddress,
+      type: this.configService.get<string>('app.client') ?? 'client',
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
     await this.userRepo.updateLoginFields(validUser.id);
-    return { ...validUser, accessToken };
+
+    const userWithRelations =
+      (await this.userRepo.findByIdWithRelations(validUser.id)) ?? validUser;
+
+    const cacheKey = getUserInfoCacheKey(validUser.id);
+    await this.cacheManager.set(cacheKey, userWithRelations, CacheTTL.ONE_DAY);
+
+    return { ...userWithRelations, accessToken };
   }
 
   async adminSignIn(loginAdminObj: {
@@ -128,11 +146,17 @@ export class AuthService {
       role: admin.role.id,
       code: admin.role.code,
       email: admin.emailAddress,
-      accountType: 'admin',
+      type: this.configService.get<string>('app.admin') ?? 'admin',
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
     await this.adminRepo.updateLoginFields(admin.id);
+
+    const adminWithRelations =
+      (await this.adminRepo.findByIdWithRelations(admin.id)) ?? admin;
+
+    const cacheKey = getAdminInfoCacheKey(admin.id);
+    await this.cacheManager.set(cacheKey, adminWithRelations, CacheTTL.ONE_DAY);
 
     return {
       id: admin.id,

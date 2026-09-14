@@ -116,6 +116,86 @@ export class UserRepository {
     }
   }
 
+  async findById(id: number): Promise<User | null> {
+    try {
+      return await this.repo
+        .createQueryBuilder('user')
+        .where('user.id = :id', { id })
+        .select([
+          'user.id',
+          'user.firstName',
+          'user.lastName',
+          'user.emailAddress',
+          'user.phoneNumber',
+          'user.isActive',
+          'user.isVerified',
+          'user.forcePasswordReset',
+          'user.loginCount',
+          'user.lastLogin',
+          'user.deviceImei',
+          'user.fcmToken',
+          'user.createdAt',
+          'user.updatedAt',
+        ])
+        .getOne();
+    } catch (error) {
+      console.error('Error finding user by id:', error);
+      return null;
+    }
+  }
+
+  async findByIdWithRelations(id: number): Promise<User | null> {
+    try {
+      return await this.repo
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
+        .leftJoinAndSelect('user.aspirant', 'aspirant')
+        .leftJoinAndSelect('user.assignedLga', 'assignedLga')
+        .leftJoinAndSelect('user.assignedWard', 'assignedWard')
+        .leftJoinAndSelect('user.assignedPu', 'assignedPu')
+        .leftJoinAndSelect('user.onboardedByUser', 'onboardedByUser')
+        .where('user.id = :id', { id })
+        .select([
+          'user.id',
+          'user.firstName',
+          'user.lastName',
+          'user.emailAddress',
+          'user.phoneNumber',
+          'user.isActive',
+          'user.isVerified',
+          'user.forcePasswordReset',
+          'user.loginCount',
+          'user.lastLogin',
+          'user.deviceImei',
+          'user.fcmToken',
+          'user.createdAt',
+          'user.updatedAt',
+          'role.id',
+          'role.name',
+          'role.code',
+          'role.type',
+          'role.description',
+          'role.status',
+          'aspirant.id',
+          'aspirant.firstName',
+          'aspirant.lastName',
+          'assignedLga.id',
+          'assignedLga.name',
+          'assignedWard.id',
+          'assignedWard.name',
+          'assignedPu.id',
+          'assignedPu.name',
+          'onboardedByUser.id',
+          'onboardedByUser.firstName',
+          'onboardedByUser.lastName',
+        ])
+        .getOne();
+    } catch (error) {
+      console.error('Error finding user by id with relations:', error);
+      return null;
+    }
+  }
+
   async updateLoginFields(id: number): Promise<void> {
     try {
       await this.repo.update(

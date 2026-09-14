@@ -8,9 +8,9 @@ import { ConfigService } from '@nestjs/config';
       global: true,
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
+        secret: configService.getOrThrow<string>('jwt.secret'),
         signOptions: {
-          expiresIn: configService.get('JWT_EXPIRES_IN') || '3600s',
+          expiresIn: configService.getOrThrow('jwt.expiresIn'),
         },
       }),
     }),

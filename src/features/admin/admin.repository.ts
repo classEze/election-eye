@@ -91,8 +91,67 @@ export class AdminRepository {
       .getMany();
   }
 
+  async findById(id: number): Promise<Admin | null> {
+    try {
+      return await this.repo
+        .createQueryBuilder('admin')
+        .where('admin.id = :id', { id })
+        .select([
+          'admin.id',
+          'admin.firstName',
+          'admin.lastName',
+          'admin.emailAddress',
+          'admin.phoneNumber',
+          'admin.isActive',
+          'admin.isVerified',
+          'admin.forcePasswordReset',
+          'admin.loginCount',
+          'admin.lastLogin',
+          'admin.createdAt',
+          'admin.updatedAt',
+        ])
+        .getOne();
+    } catch (error) {
+      console.error('Error finding admin by id:', error);
+      return null;
+    }
+  }
+
+  async findByIdWithRelations(id: number): Promise<Admin | null> {
+    try {
+      return await this.repo
+        .createQueryBuilder('admin')
+        .leftJoinAndSelect('admin.role', 'role')
+        .where('admin.id = :id', { id })
+        .select([
+          'admin.id',
+          'admin.firstName',
+          'admin.lastName',
+          'admin.emailAddress',
+          'admin.phoneNumber',
+          'admin.isActive',
+          'admin.isVerified',
+          'admin.forcePasswordReset',
+          'admin.loginCount',
+          'admin.lastLogin',
+          'admin.createdAt',
+          'admin.updatedAt',
+          'role.id',
+          'role.name',
+          'role.code',
+          'role.type',
+          'role.description',
+          'role.status',
+        ])
+        .getOne();
+    } catch (error) {
+      console.error('Error finding admin by id with relations:', error);
+      return null;
+    }
+  }
+
   async findOneById(id: number): Promise<Admin | null> {
-    return await this.repo.findOneBy({ id });
+    return this.findByIdWithRelations(id);
   }
 
   async update(
