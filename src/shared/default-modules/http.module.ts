@@ -6,8 +6,8 @@ import { HttpModule } from '@nestjs/axios';
   imports: [
     HttpModule.registerAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        timeout: config.get<number>('HTTP_TIMEOUT', 10000),
+      useFactory: (configService: ConfigService) => ({
+        timeout: configService.getOrThrow<number>('http.timeout'),
       }),
     }),
   ],

@@ -40,6 +40,8 @@ export class AdminService {
 
     await this.verification.issueForAdmin(result);
 
+    // Publish to bull mq so the process can go on in the background
+
     await this.notify.sendMailTrap({
       to: result.emailAddress,
       subject: 'Your administrator account',

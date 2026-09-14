@@ -21,14 +21,16 @@ export class AuthorizationGuard implements CanActivate {
       ALLOWED_ROLES,
       [context.getHandler(), context.getClass()],
     );
-    const request: Request & { user: { code: string } } = context
-      .switchToHttp()
-      .getRequest();
+    const request: Request & {
+      user?: { code?: string; role?: { code?: string } };
+    } = context.switchToHttp().getRequest();
 
     // If no roles are defined, allow access
     if (!allowedRoles || allowedRoles.length === 0) return true;
 
-    if (allowedRoles.includes(request.user.code)) return true;
+    const userRoleCode = request.user?.role?.code;
+
+    if (userRoleCode && allowedRoles.includes(userRoleCode)) return true;
 
     throw new ForbiddenException('No access to this resource');
   }

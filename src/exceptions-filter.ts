@@ -32,29 +32,60 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       responseMessage: 'Internal Server Error',
     };
 
+    const hostWithContext = host as {
+      getClass?: () => { name?: string };
+      getHandler?: () => { name?: string };
+    };
+    const controllerName = hostWithContext.getClass?.()?.name;
+    const handlerName = hostWithContext.getHandler?.()?.name;
+    const contextName =
+      controllerName && handlerName
+        ? `${controllerName}.${handlerName}`
+        : AllExceptionsFilter.name;
+
+    const stack = exception instanceof Error ? exception.stack : undefined;
+
     if (exception instanceof UnauthorizedException) {
       myResObj.responseCode = exception.getStatus();
       myResObj.responseMessage = 'Unauthorized';
       this.logger.error(
-        `UnauthorizedException: ${JSON.stringify(exception.getResponse())}`,
+        `UnauthorizedException [${request.method} ${request.url}]: ${JSON.stringify(exception.getResponse())}`,
+        stack,
+        contextName,
       );
     } else if (exception instanceof HttpException) {
       myResObj.responseCode = exception.getStatus();
       myResObj.responseMessage = exception.getResponse();
+      this.logger.error(
+        `HttpException [${request.method} ${request.url}]: ${JSON.stringify(exception.getResponse())}`,
+        stack,
+        contextName,
+      );
     } else if (exception instanceof TypeORMError) {
       myResObj.responseCode = 422;
       myResObj.responseMessage = 'operation failed due to invalid data';
-      this.logger.error(`TypeORMError: ${exception.message}`);
+      this.logger.error(
+        `TypeORMError [${request.method} ${request.url}]: ${exception.message}`,
+        stack,
+        contextName,
+      );
     } else if (exception instanceof Error) {
       myResObj.responseMessage = exception.message;
+      this.logger.error(
+        `Error [${request.method} ${request.url}]: ${exception.message}`,
+        stack,
+        contextName,
+      );
     } else {
       myResObj.responseCode = 500;
       myResObj.responseMessage =
         'internal server error, please read API documentation for more information';
+      this.logger.error(
+        `Unknown Exception [${request.method} ${request.url}]: ${JSON.stringify(exception)}`,
+        stack,
+        contextName,
+      );
     }
-    this.logger.error(
-      `Exception caught: myResObj: ${JSON.stringify(myResObj)}`,
-    );
     response.status(myResObj.responseCode).json(myResObj);
   }
 }

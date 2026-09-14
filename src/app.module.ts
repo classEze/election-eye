@@ -8,8 +8,6 @@ import { AppDataSource } from './data-source';
 import { UserModule } from './features/user/user.module';
 import { APP_GUARD } from '@nestjs/core';
 import { NotificationModule } from './shared/notification/notification.module';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { config } from 'dotenv';
 import { HttpClientModule } from './shared/default-modules/http.module';
 import { JwtDefaultModule } from './shared/default-modules/jwt.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -18,17 +16,18 @@ import { AdminModule } from './features/admin/admin.module';
 import { AspirantModule } from './features/aspirant/aspirant.module';
 import { AuthenticationGuard } from './shared/guards/authentication.guard';
 import { AuthorizationGuard } from './shared/guards/authorization.guard';
-
 import { StateModule } from './features/state/state.module';
-
-const loadEnv = config as unknown as () => void;
-loadEnv();
+import { MailerDefaultModule } from './shared/default-modules/mail.module';
+import { envValidationSchema } from './config/env.validation';
+import { RedisDefaultModule } from './shared/default-modules/cache.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: envValidationSchema,
     }),
+
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60_000, limit: 20 }],
     }),
@@ -37,19 +36,8 @@ loadEnv();
         ...AppDataSource.options,
       }),
     }),
-    MailerModule.forRoot({
-      transport: {
-        host: 'sandbox.smtp.mailtrap.io',
-        port: 2525,
-        auth: {
-          user: process.env.MAILTRAP_UNAME,
-          pass: process.env.MAILTRAP_PASS,
-        },
-      },
-      defaults: {
-        from: '"No Reply" <noreply@election-eye.com>',
-      },
-    }),
+    RedisDefaultModule,
+    MailerDefaultModule,
     JwtDefaultModule,
     HttpClientModule,
     RoleModule,

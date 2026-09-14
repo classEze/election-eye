@@ -24,6 +24,7 @@ export class UserService {
 
     await this.verification.issueForUser(result);
 
+    // Publish to bull mq so the process can go on in the background
     await this.notify.sendMailTrap({
       to: user.emailAddress,
       subject: 'Welcome to Election Eye',
@@ -57,6 +58,10 @@ export class UserService {
   findOne(id: number) {
     return `This action returns a #${id} user`;
   }
+
+  // getUserDetails(email :string) {
+  //   return `This action returns a #${id} user`;
+  // }
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
