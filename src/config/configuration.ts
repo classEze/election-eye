@@ -12,7 +12,7 @@ export default () => ({
   },
 
   mail: {
-    host: process.env.MAILTRAP_HOST,
+    host: process.env.MAILTRAP_HOST ?? 'sandbox.smtp.mailtrap.io',
     port: parseInt(process.env.MAILTRAP_PORT ?? '2525', 10),
     username: process.env.MAILTRAP_UNAME,
     password: process.env.MAILTRAP_PASS,
