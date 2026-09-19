@@ -1,0 +1,1523 @@
+{
+  "info": {
+    "name": "Election Eye API",
+    "_postman_id": "election-eye-api-collection",
+    "description": "API requests for the Election Eye application. Set election-eye-base-url and access-token before sending requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "election-eye-base-url", "value": "http://localhost:3000" },
+    { "key": "access-token", "value": "" },
+    { "key": "state-id", "value": "1" },
+    { "key": "lga-id", "value": "1" },
+    { "key": "ward-id", "value": "1" },
+    { "key": "polling-unit-id", "value": "1" },
+    { "key": "office-id", "value": "1" },
+    { "key": "aspirant-id", "value": "1" },
+    { "key": "user-id", "value": "1" },
+    { "key": "admin-id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "App",
+      "item": [
+        {
+          "name": "Get Welcome Message",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/"
+          }
+        },
+        {
+          "name": "Get Health Status",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"password\": \"LagosAgent@2026\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/login"
+          }
+        },
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailAddress\": \"admin@example.com\",\n  \"password\": \"AdminPassword@2026\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/admin-login"
+          }
+        },
+        {
+          "name": "Request User Password Reset Token",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailAddress\": \"agent.lagos@example.com\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/reset-password-token"
+          }
+        },
+        {
+          "name": "Reset User Password",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordResetToken\": \"paste-token-here\",\n  \"password\": \"NewPassword@2026\",\n  \"confirmPassword\": \"NewPassword@2026\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/reset-password"
+          }
+        },
+        {
+          "name": "Request Admin Password Reset Token",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailAddress\": \"admin@example.com\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/admin-reset-password-token"
+          }
+        },
+        {
+          "name": "Reset Admin Password",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordResetToken\": \"paste-token-here\",\n  \"password\": \"NewAdminPassword@2026\",\n  \"confirmPassword\": \"NewAdminPassword@2026\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/admin-reset-password"
+          }
+        },
+        {
+          "name": "Verify User Email",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"paste-verification-token-here\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/verify-email"
+          }
+        },
+        {
+          "name": "Verify Admin Email",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"paste-verification-token-here\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/verify-admin-email"
+          }
+        },
+        {
+          "name": "Resend User Verification",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"agent.lagos@example.com\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/resend-verification"
+          }
+        },
+        {
+          "name": "Resend Admin Verification",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/resend-admin-verification"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "Get Roles",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/roles?type=CLIENT&status=true",
+              "query": [
+                { "key": "type", "value": "CLIENT" },
+                { "key": "status", "value": "true" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": 1\n}"
+            },
+            "url": "{{election-eye-base-url}}/user"
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/user"
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/user/{{user-id}}"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"08039876543\",\n  \"isActive\": true\n}"
+            },
+            "url": "{{election-eye-base-url}}/user/{{user-id}}"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/user/{{user-id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admins",
+      "item": [
+        {
+          "name": "Create Admin",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Amina\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"admin@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role_id\": 1\n}"
+            },
+            "url": "{{election-eye-base-url}}/admins"
+          }
+        },
+        {
+          "name": "Get All Admins",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/admins"
+          }
+        },
+        {
+          "name": "Get Admin By ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/admins/{{admin-id}}"
+          }
+        },
+        {
+          "name": "Update Admin",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"08029876543\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/admins/{{admin-id}}"
+          }
+        },
+        {
+          "name": "Delete Admin",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/admins/{{admin-id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "States",
+      "item": [
+        {
+          "name": "Download State Template",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/states/template"
+          }
+        },
+        {
+          "name": "Create States",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"states\": [\n    { \"name\": \"Lagos\", \"code\": \"LAG\" },\n    { \"name\": \"Kano\", \"code\": \"KAN\" },\n    { \"name\": \"Enugu\", \"code\": \"ENU\" }\n  ]\n}"
+            },
+            "url": "{{election-eye-base-url}}/states"
+          }
+        },
+        {
+          "name": "Upload States CSV",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "states.csv" }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/states/upload"
+          }
+        },
+        {
+          "name": "Get All States",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/states"
+          }
+        },
+        {
+          "name": "Get State By ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/states/{{state-id}}"
+          }
+        },
+        {
+          "name": "Update State",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lagos\",\n  \"code\": \"LAG\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/states/{{state-id}}"
+          }
+        },
+        {
+          "name": "Patch State",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lagos State\",\n  \"code\": \"LAG\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/states/{{state-id}}"
+          }
+        },
+        {
+          "name": "Delete State",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/states/{{state-id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "LGAs",
+      "item": [
+        {
+          "name": "Download LGA Template",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/lgas/template"
+          }
+        },
+        {
+          "name": "Create LGAs For State",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stateId\": {{state-id}},\n  \"lgas\": [\n    { \"name\": \"Ikeja\", \"lgaCode\": \"LAG-IKE\" },\n    { \"name\": \"Eti-Osa\", \"lgaCode\": \"LAG-ETO\" }\n  ]\n}"
+            },
+            "url": "{{election-eye-base-url}}/lgas/batch"
+          }
+        },
+        {
+          "name": "Upload LGAs CSV",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "lgas.csv" },
+                { "key": "stateId", "value": "{{state-id}}", "type": "text" }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/lgas/upload"
+          }
+        },
+        {
+          "name": "Upload LGAs Generic CSV",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": "lgas.csv" }]
+            },
+            "url": "{{election-eye-base-url}}/lgas/upload-generic"
+          }
+        },
+        {
+          "name": "Get All LGAs",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/lgas"
+          }
+        },
+        {
+          "name": "Get LGAs By State",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/lgas/state/{{state-id}}"
+          }
+        },
+        {
+          "name": "Get LGA By ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/lgas/{{lga-id}}"
+          }
+        },
+        {
+          "name": "Update LGA",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ikeja\",\n  \"lgaCode\": \"LAG-IKE\",\n  \"stateId\": {{state-id}}\n}"
+            },
+            "url": "{{election-eye-base-url}}/lgas/{{lga-id}}"
+          }
+        },
+        {
+          "name": "Delete LGA",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/lgas/{{lga-id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wards",
+      "item": [
+        {
+          "name": "Download Ward Template",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/wards/template"
+          }
+        },
+        {
+          "name": "Create Wards For LGA",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lgaId\": {{lga-id}},\n  \"wards\": [\n    { \"name\": \"Ikeja Ward 1\", \"wardCode\": \"LAG-IKE-W01\" },\n    { \"name\": \"Ikeja Ward 2\", \"wardCode\": \"LAG-IKE-W02\" }\n  ]\n}"
+            },
+            "url": "{{election-eye-base-url}}/wards/batch"
+          }
+        },
+        {
+          "name": "Upload Wards CSV",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "wards.csv" },
+                { "key": "lgaId", "value": "{{lga-id}}", "type": "text" }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/wards/upload"
+          }
+        },
+        {
+          "name": "Upload Wards Generic CSV",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "wards.csv" }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/wards/upload-generic"
+          }
+        },
+        {
+          "name": "Get All Wards",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/wards"
+          }
+        },
+        {
+          "name": "Get Wards By LGA",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/wards/lga/{{lga-id}}"
+          }
+        },
+        {
+          "name": "Get Ward By ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/wards/{{ward-id}}"
+          }
+        },
+        {
+          "name": "Update Ward",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ikeja Ward 1\",\n  \"wardCode\": \"LAG-IKE-W01\",\n  \"lgaId\": {{lga-id}}\n}"
+            },
+            "url": "{{election-eye-base-url}}/wards/{{ward-id}}"
+          }
+        },
+        {
+          "name": "Delete Ward",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/wards/{{ward-id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Polling Units",
+      "item": [
+        {
+          "name": "Download Polling Unit Template",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/polling-units/template"
+          }
+        },
+        {
+          "name": "Create Polling Units For Ward",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"wardId\": {{ward-id}},\n  \"pollingUnits\": [\n    { \"name\": \"Ikeja Ward 1 PU 001\", \"puCode\": \"LAG-IKE-W01-PU001\", \"registeredVoters\": 412 },\n    { \"name\": \"Ikeja Ward 1 PU 002\", \"puCode\": \"LAG-IKE-W01-PU002\", \"registeredVoters\": 387 }\n  ]\n}"
+            },
+            "url": "{{election-eye-base-url}}/polling-units/batch"
+          }
+        },
+        {
+          "name": "Upload Polling Units CSV",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "polling-units.csv" },
+                { "key": "wardId", "value": "{{ward-id}}", "type": "text" }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/polling-units/upload"
+          }
+        },
+        {
+          "name": "Upload Polling Units Generic CSV",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "polling-units.csv" }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/polling-units/upload-generic"
+          }
+        },
+        {
+          "name": "Get All Polling Units",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/polling-units"
+          }
+        },
+        {
+          "name": "Get Polling Units By Ward",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/polling-units/ward/{{ward-id}}"
+          }
+        },
+        {
+          "name": "Get Polling Unit By ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/polling-units/{{polling-unit-id}}"
+          }
+        },
+        {
+          "name": "Update Polling Unit",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ikeja Ward 1 PU 001\",\n  \"puCode\": \"LAG-IKE-W01-PU001\",\n  \"registeredVoters\": 430,\n  \"wardId\": {{ward-id}}\n}"
+            },
+            "url": "{{election-eye-base-url}}/polling-units/{{polling-unit-id}}"
+          }
+        },
+        {
+          "name": "Delete Polling Unit",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/polling-units/{{polling-unit-id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Electoral Offices",
+      "item": [
+        {
+          "name": "Get Electoral Office Categories",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/electoral-offices/categories"
+          }
+        },
+        {
+          "name": "Create Electoral Office",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Lagos State Governorship\",\n  \"category\": \"GUBERNATORIAL\",\n  \"stateId\": {{state-id}},\n  \"isActive\": true\n}"
+            },
+            "url": "{{election-eye-base-url}}/electoral-offices"
+          }
+        },
+        {
+          "name": "Get All Electoral Offices",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/electoral-offices"
+          }
+        },
+        {
+          "name": "Get All Electoral Offices By Category",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/electoral-offices/category/GUBERNATORIAL?isActive=true",
+              "query": [{ "key": "isActive", "value": "true" }]
+            }
+          }
+        },
+        {
+          "name": "Get Aspirant Boundaries",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/electoral-offices/aspirant/{{aspirant-id}}/boundaries"
+          }
+        },
+        {
+          "name": "Get Electoral Office Boundaries",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/boundaries"
+          }
+        },
+        {
+          "name": "Get States For Electoral Office",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/states"
+          }
+        },
+        {
+          "name": "Get LGAs For Electoral Office",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/lgas?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Wards For Electoral Office",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/wards?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Polling Units For Electoral Office",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/polling-units?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Electoral Office By ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}"
+          }
+        },
+        {
+          "name": "Update Electoral Office",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Lagos State Governorship Election\",\n  \"category\": \"GUBERNATORIAL\",\n  \"stateId\": {{state-id}},\n  \"isActive\": true\n}"
+            },
+            "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}"
+          }
+        },
+        {
+          "name": "Delete Electoral Office",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Aspirants",
+      "item": [
+        {
+          "name": "Create Aspirant",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"ifeanyi.nwosu@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"politicalPartyId\": 1,\n  \"electoralOfficeId\": {{office-id}},\n  \"createdByAdminId\": {{admin-id}}\n}"
+            },
+            "url": "{{election-eye-base-url}}/aspirants"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Results",
+      "item": [
+        {
+          "name": "Get All Results",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/results"
+          }
+        }
+      ]
+    }
+  ]
+}

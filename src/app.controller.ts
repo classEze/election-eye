@@ -8,10 +8,16 @@ export class AppController {
 
   @Get()
   homeUrl() {
-    return { message: 'Welcome to Election Eye NG' };
+    return {
+      message: 'Welcome to Election Eye NG',
+      time: new Date().toISOString(),
+    };
   }
   @Get('health')
   healthMethod() {
-    return { message: 'Application is up and running' };
+    return {
+      message: 'Application is up and running',
+      time: new Date().toISOString(),
+    };
   }
 }
