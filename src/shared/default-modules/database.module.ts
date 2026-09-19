@@ -4,7 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { SeederService } from '@/seeds/seeder.service';
 
 const isProd =
-  process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
+  process.env.NODE_ENV?.toLowerCase() === 'production' ||
+  process.env.NODE_ENV?.toLowerCase() === 'staging';
 
 @Module({
   imports: [
