@@ -13,5 +13,12 @@ export const AppDataSource = new DataSource({
   database: process.env.DATABASE_NAME,
   entities: [__dirname + 'src/**/*.entity{.ts,.js}'],
   migrations: [__dirname + 'src/migrations/*{.ts,.js}'],
+  extra: {
+    family: 4,
+    keepAlive: true,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+  },
   ssl: { rejectUnauthorized: false },
 });
