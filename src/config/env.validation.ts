@@ -6,7 +6,6 @@ export const envValidationSchema = Joi.object({
   PORT: Joi.number(),
 
   JWT_SECRET: Joi.string().required(),
-  JWT_EXPIRES_IN: Joi.string(),
 
   REDIS_URI: Joi.string().uri(),
 

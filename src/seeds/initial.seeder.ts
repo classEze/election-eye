@@ -1,12 +1,9 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { RoleCode } from '../features/role/role.enum';
 
-export class SeedInitialSystemData20260906000000 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    // ==========================================
-    // 1. SEED SYSTEM ROLES
-    // ==========================================
-    await queryRunner.query(`
+export default async function seedData(dataSource: DataSource): Promise<void> {
+  try {
+    await dataSource.query(`
       INSERT INTO "roles" (name, code, type, description, status, created_at, updated_at) VALUES
       ('LGA Coordinator', '${RoleCode.LGA_COORDINATOR}', 'CLIENT', 'Manages results and monitors incidents across an entire Local Government Area.', true, NOW(), NOW()),
       ('Ward Coordinator', '${RoleCode.WARD_COORDINATOR}', 'CLIENT', 'Supervises polling unit agents and verifies incoming results within a specific Ward.', true, NOW(), NOW()),
@@ -21,7 +18,7 @@ export class SeedInitialSystemData20260906000000 implements MigrationInterface {
     // ==========================================
     // 1. SEED SUPER ADMIN USER
     // ==========================================
-    await queryRunner.query(`
+    await dataSource.query(`
       INSERT INTO "admins" (first_name, last_name, email_address, phone_number, password, role_id, is_active, is_verified, force_password_reset, created_at, updated_at) VALUES
       ('Chibeze', 'Ochonogor', 'chibeze.ochonogor@gmail.com', '2348160245148', '$2b$12$ojS9n48YBNyir4EKgHfEru5LYODXaDnCBmiS1Va0ai3wmNc5hXnV2',
       (SELECT id FROM "roles" WHERE code = '${RoleCode.SUPER_ADMIN}'), true, true, false, NOW(), NOW())
@@ -31,7 +28,7 @@ export class SeedInitialSystemData20260906000000 implements MigrationInterface {
     // ==========================================
     // 2. SEED INCIDENT CATEGORIES
     // ==========================================
-    await queryRunner.query(`
+    await dataSource.query(`
       INSERT INTO "incident_categories" (name, code, description, is_active, created_at, updated_at) VALUES
       ('Ballot Box Snatching', 'BALLOT_SNATCHING', 'Forcible removal or theft of ballot boxes from the polling station.', true, NOW(), NOW()),
       ('Vote Buying', 'VOTE_BUYING', 'Financial inducements or distribution of materials to voters to influence choices.', true, NOW(), NOW()),
@@ -46,7 +43,7 @@ export class SeedInitialSystemData20260906000000 implements MigrationInterface {
     // ==========================================
     // 3. SEED REGISTERED POLITICAL PARTIES (INEC 2026)
     // ==========================================
-    await queryRunner.query(`
+    await dataSource.query(`
       INSERT INTO "political_parties" (name, code, party_color_hex, is_active, created_at, updated_at) VALUES
       ('All Progressives Congress', 'APC', '#00BFFF', true, NOW(), NOW()),
       ('Peoples Democratic Party', 'PDP', '#008000', true, NOW(), NOW()),
@@ -72,20 +69,10 @@ export class SeedInitialSystemData20260906000000 implements MigrationInterface {
       ('Nigeria Democratic Congress', 'NDC', '#8A2BE2', true, NOW(), NOW())
       ON CONFLICT (code) DO NOTHING;
     `);
-  }
-
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    // Rollback operations in reverse structural dependency order
-    await queryRunner.query(
-      `DELETE FROM "political_parties" WHERE code IN ('APC', 'PDP', 'LP', 'NNPP', 'APGA', 'SDP', 'ADC', 'ZLP', 'YPP', 'PRP', 'ADP', 'APM', 'NRM', 'BP', 'A', 'AA', 'AAC', 'APP', 'NNP', 'YDP', 'DLA', 'NDC');`,
-    );
-    await queryRunner.query(
-      `DELETE FROM "incident_categories" WHERE code IN ('BALLOT_SNATCHING', 'VOTE_BUYING', 'BVAS_MALFUNCTION', 'LATE_START', 'VIOLENCE', 'PROTEST', 'OTHER');`,
-    );
-    await queryRunner.query(
-      `DELETE FROM "roles" WHERE code IN ('${RoleCode.LGA_COORDINATOR}', '${RoleCode.WARD_COORDINATOR}', '${RoleCode.PU_AGENT}');`,
-    );
-
-    await queryRunner.query(`DELETE FROM "admins" WHERE id = 1;`);
+    // ==========================================
+    // 1. SEED SYSTEM ROLES
+    // ==========================================
+  } catch (err) {
+    console.log('Initial Seed migration failed', err);
   }
 }

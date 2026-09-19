@@ -11,7 +11,9 @@ export class PollingUnitRepository {
     private readonly repository: Repository<PollingUnit>,
   ) {}
 
-  async create(createPollingUnitDto: CreatePollingUnitDto): Promise<PollingUnit> {
+  async create(
+    createPollingUnitDto: CreatePollingUnitDto,
+  ): Promise<PollingUnit> {
     const pollingUnit = this.repository.create({
       name: createPollingUnitDto.name,
       puCode: createPollingUnitDto.puCode,
