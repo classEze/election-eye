@@ -21,6 +21,11 @@ import { MailerDefaultModule } from './shared/default-modules/mail.module';
 import { envValidationSchema } from './config/env.validation';
 import configuration from './config/configuration';
 import { RedisDefaultModule } from './shared/default-modules/cache.module';
+import { DefaultQueueModule } from './shared/default-modules/queue.module';
+import { LgaModule } from './features/lga/lga.module';
+import { WardModule } from './features/ward/ward.module';
+import { PollingUnitModule } from './features/polling-unit/polling-unit.module';
+import { ElectoralOfficeModule } from './features/electoral-office/electoral-office.module';
 
 @Module({
   imports: [
@@ -39,6 +44,7 @@ import { RedisDefaultModule } from './shared/default-modules/cache.module';
       }),
     }),
     RedisDefaultModule,
+    DefaultQueueModule,
     MailerDefaultModule,
     JwtDefaultModule,
     HttpClientModule,
@@ -49,6 +55,10 @@ import { RedisDefaultModule } from './shared/default-modules/cache.module';
     AdminModule,
     AspirantModule,
     StateModule,
+    LgaModule,
+    WardModule,
+    PollingUnitModule,
+    ElectoralOfficeModule,
   ],
   controllers: [AppController],
   providers: [

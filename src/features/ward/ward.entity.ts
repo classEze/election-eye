@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  ManyToMany,
   OneToMany,
   JoinColumn,
   CreateDateColumn,
@@ -11,6 +12,7 @@ import {
 import { Lga } from '../lga/lga.entity';
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
 import { User } from 'src/features/user/user.entity';
+import { ElectoralOffice } from '../electoral-office/electoral-office.entity';
 
 @Entity('wards')
 export class Ward {
@@ -26,6 +28,9 @@ export class Ward {
   @ManyToOne(() => Lga, (lga) => lga.wards, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'lga_id' })
   lga!: Lga;
+
+  @ManyToMany(() => ElectoralOffice, (office) => office.wards)
+  electoralOffices!: ElectoralOffice[];
 
   @OneToMany(() => PollingUnit, (pu) => pu.ward)
   pollingUnits!: PollingUnit[];

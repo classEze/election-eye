@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateStateDto {
   @IsString()
@@ -18,4 +19,11 @@ export class UpdateStateDto {
   @IsString()
   @IsNotEmpty()
   code!: string;
+}
+
+export class CreateStateArrayDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateStateDto)
+  states!: CreateStateDto[];
 }

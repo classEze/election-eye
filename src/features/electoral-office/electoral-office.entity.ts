@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { State } from '../../features/state/state.entity';
 import { Lga } from '../../features/lga/lga.entity';
+import { Ward } from '../../features/ward/ward.entity';
 import { Aspirant } from '../aspirant/aspirant.entity';
 
 export enum OfficeCategory {
@@ -42,14 +43,25 @@ export class ElectoralOffice {
 
   @ManyToMany(() => Lga, (lga) => lga.electoralOffices)
   @JoinTable({
-    name: 'office_geography',
+    name: 'office_lgas',
     joinColumn: { name: 'office_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'lga_id', referencedColumnName: 'id' },
   })
   lgas!: Lga[];
 
+  @ManyToMany(() => Ward, (ward) => ward.electoralOffices)
+  @JoinTable({
+    name: 'office_wards',
+    joinColumn: { name: 'office_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'ward_id', referencedColumnName: 'id' },
+  })
+  wards!: Ward[];
+
   @OneToMany(() => Aspirant, (aspirant) => aspirant.electoralOffice)
   aspirants!: Aspirant[];
+
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive!: boolean;
 
   @CreateDateColumn({ type: 'timestamp with time zone', name: 'created_at' })
   createdAt!: Date;

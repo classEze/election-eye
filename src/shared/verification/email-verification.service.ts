@@ -1,16 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { addMinutes } from 'date-fns';
+import { addHours } from 'date-fns';
 import { randomBytes } from 'node:crypto';
 import { IsNull, Repository } from 'typeorm';
 import { AdminEmailVerificationToken } from '../../features/admin/admin-email-verification-token.entity';
 import { User } from '../../features/user/user.entity';
 import PasswordHelper from '../helpers/password.helper';
-import { NotificationService } from '../notification/notification.service';
 import { Admin } from 'src/features/admin/admin.entity';
 import { UserEmailVerificationToken } from '../entities/user-email-verification-token.entity';
-
-const TOKEN_LIFETIME_MINUTES = 30;
+import { InjectQueue } from '@nestjs/bullmq';
+import { APP_QUEUES, QueueDictionary } from '../constants/queue.constants';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class EmailVerificationService {
@@ -25,7 +25,7 @@ export class EmailVerificationService {
     private readonly users: Repository<User>,
     @InjectRepository(Admin)
     private readonly admins: Repository<Admin>,
-    private readonly notify: NotificationService,
+    @InjectQueue(APP_QUEUES.mail) private mailQueue: Queue,
   ) {}
 
   async issueForUser(user: User, temporaryPassword?: string): Promise<void> {
@@ -38,7 +38,7 @@ export class EmailVerificationService {
       this.userTokens.create({
         user,
         tokenHash: this.passwordHelper.hashbySHA256(token),
-        expiresAt: addMinutes(new Date(), TOKEN_LIFETIME_MINUTES),
+        expiresAt: addHours(new Date(), 24),
       }),
     );
     await this.sendVerificationEmail(
@@ -59,7 +59,7 @@ export class EmailVerificationService {
       this.adminTokens.create({
         admin,
         tokenHash: this.passwordHelper.hashbySHA256(token),
-        expiresAt: addMinutes(new Date(), TOKEN_LIFETIME_MINUTES),
+        expiresAt: addHours(new Date(), 60 * 24),
       }),
     );
     await this.sendVerificationEmail(
@@ -113,7 +113,7 @@ export class EmailVerificationService {
     await this.adminTokens.update(record.id, { usedAt: new Date() });
   }
 
-  private sendVerificationEmail(
+  private async sendVerificationEmail(
     email: string,
     firstName: string,
     token: string,
@@ -127,11 +127,12 @@ export class EmailVerificationService {
     const temporaryPasswordHtml = temporaryPassword
       ? `<p>Temporary password: ${temporaryPassword}</p>`
       : '';
-    return this.notify.sendMailTrap({
+
+    await this.mailQueue.add(QueueDictionary.SEND_MAIL, {
       to: email,
       subject: 'Verify your email address',
-      message: `Hello ${firstName}, verify your email using this link: ${link}. The link expires in ${TOKEN_LIFETIME_MINUTES} minutes.${temporaryPasswordMessage}`,
-      html: `<p>Hello ${firstName},</p><p><a href="${link}">Verify your email address</a></p><p>This link expires in ${TOKEN_LIFETIME_MINUTES} minutes.</p>${temporaryPasswordHtml}`,
+      message: `Hello ${firstName}, verify your email using this link: ${link}. The link expires in 24 hours.${temporaryPasswordMessage}`,
+      html: `<p>Hello ${firstName},</p><p><a href="${link}">Verify your email address</a></p><p>This link expires in 24 hours.</p>${temporaryPasswordHtml}`,
     });
   }
 }

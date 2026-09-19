@@ -7,6 +7,12 @@ import { Role } from '../role/role.entity';
 import PasswordHelper from 'src/shared/helpers/password.helper';
 import { NotificationService } from 'src/shared/notification/notification.service';
 import { EmailVerificationService } from 'src/shared/verification/email-verification.service';
+import {
+  APP_QUEUES,
+  QueueDictionary,
+} from '@/shared/constants/queue.constants';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
 
 @Injectable()
 export class AdminService {
@@ -18,6 +24,7 @@ export class AdminService {
     private readonly adminRepo: AdminRepository,
     private readonly notify: NotificationService,
     private readonly verification: EmailVerificationService,
+    @InjectQueue(APP_QUEUES.mail) private mailQueue: Queue,
   ) {}
 
   async create(createAdminDto: CreateAdminDto) {
@@ -40,9 +47,7 @@ export class AdminService {
 
     await this.verification.issueForAdmin(result);
 
-    // Publish to bull mq so the process can go on in the background
-
-    await this.notify.sendMailTrap({
+    await this.mailQueue.add(QueueDictionary.SEND_MAIL, {
       to: result.emailAddress,
       subject: 'Your administrator account',
       message: `Your administrator account has been created. Temporary password: ${temporaryPassword}`,

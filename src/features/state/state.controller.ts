@@ -16,15 +16,13 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { StateService } from './state.service';
-import { CreateStateDto, UpdateStateDto } from './state.dto';
+import { UpdateStateDto, CreateStateArrayDto } from './state.dto';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
 import { RoleCode } from '../role/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { State } from './state.entity';
-import { Public } from 'src/shared/decorators/public.decorator';
 
 @Controller('states')
-@Public()
 export class StateController {
   constructor(private readonly stateService: StateService) {}
 
@@ -42,8 +40,10 @@ export class StateController {
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createStateDto: CreateStateDto): Promise<State> {
-    return this.stateService.create(createStateDto);
+  async create(
+    @Body() createStateArrayDto: CreateStateArrayDto,
+  ): Promise<State[]> {
+    return this.stateService.create(createStateArrayDto);
   }
 
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
