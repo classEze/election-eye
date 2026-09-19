@@ -12,6 +12,10 @@ import { LgaModule } from '../../features/lga/lga.module';
 import { WardModule } from '../../features/ward/ward.module';
 import { PollingUnitModule } from '../../features/polling-unit/polling-unit.module';
 
+const isProd =
+  process.env.NODE_ENV?.toLowerCase() === 'production' ||
+  process.env.NODE_ENV?.toLowerCase() === 'staging';
+
 @Global()
 @Module({
   imports: [
@@ -27,6 +31,12 @@ import { PollingUnitModule } from '../../features/polling-unit/polling-unit.modu
           connection: {
             host: config.get<string>('redis.host'),
             port: config.get<number>('redis.port'),
+            username: 'default',
+            password: config.get<string>('redis.password'),
+            ...(isProd ? { tls: {} } : {}),
+            family: 4,
+            maxRetriesPerRequest: null,
+            enableReadyCheck: false,
           },
         };
       },
