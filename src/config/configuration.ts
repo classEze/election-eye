@@ -29,6 +29,7 @@ export default () => ({
     password: process.env.DATABASE_PASSWORD ?? 'password',
     host: process.env.DATABASE_HOST ?? 'localhost',
     name: process.env.DATABASE_NAME ?? 'election-eye',
+    port: process.env.DATABASE_PORT ?? 5432,
   },
 
   redis: {
