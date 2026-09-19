@@ -70,7 +70,8 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
         contextName,
       );
     } else if (exception instanceof Error) {
-      myResObj.responseMessage = exception.message;
+      myResObj.responseMessage =
+        'An Unexpected Error Occured. Please contact System Admin';
       this.logger.error(
         `Error [${request.method} ${request.url}]: ${exception.message}`,
         stack,

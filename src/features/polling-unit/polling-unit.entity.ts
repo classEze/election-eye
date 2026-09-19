@@ -24,7 +24,7 @@ export class PollingUnit {
   @Column({ unique: true, name: 'pu_code' })
   puCode!: string;
 
-  @Column({ name: 'registered_voters', default: 0 })
+  @Column({ name: 'registered_voters', nullable: true, default: null })
   registeredVoters!: number;
 
   @ManyToOne(() => Ward, (ward) => ward.pollingUnits, {

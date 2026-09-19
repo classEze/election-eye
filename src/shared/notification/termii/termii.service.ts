@@ -3,8 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
-import { EmailDto, TermiiResponse } from '../notification.types';
 import { NotificationException } from 'src/features/auth/notification.exception';
+import { EmailDto, TermiiResponse } from '../notification.types';
 
 @Injectable()
 export class TermiiService {

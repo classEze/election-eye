@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './exceptions-filter';
 
-async function bootstrap() {
+async function bootstrap(port: string) {
   const app = await NestFactory.create(AppModule, {
     logger: new ConsoleLogger({
       json: true,
@@ -23,10 +23,9 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
-
-  await app.listen(process.env.PORT ?? 5000);
+  await app.listen(port, '0.0.0.0');
 }
-bootstrap()
+bootstrap(process.env.PORT || '3000')
   .then(() => {
     console.log(`Server is running on port ${process.env.PORT ?? 5000}`);
   })

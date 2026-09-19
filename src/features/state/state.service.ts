@@ -3,10 +3,12 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { State } from './state.entity';
-import { CreateStateDto, UpdateStateDto } from './state.dto';
+import { CreateStateDto, UpdateStateDto, CreateStateArrayDto } from './state.dto';
 import * as Papa from 'papaparse';
 import { StateRepository } from './state.repository';
 import {
@@ -19,7 +21,7 @@ import {
 export class StateService {
   constructor(
     private readonly stateRepository: StateRepository,
-    private readonly dataSource: DataSource,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   /**
@@ -126,14 +128,6 @@ export class StateService {
 
         const trimmedVal = rawVal.trim();
 
-        // if (isNumber) {
-        //   const numVal = Number(trimmedVal);
-        //   if (isNaN(numVal)) {
-        //     throw new BadRequestException(
-        //       `Row ${i + 1} validation failed: Column "${headerName}" must be a valid number`,
-        //     );
-        //   }
-
         const dbPropertyName = entityColumnNameCsvHeaderMap[
           headerName
         ] as string;
@@ -159,27 +153,56 @@ export class StateService {
 
     await this.stateRepository.bulkInsert(statesToInsert);
 
+    // Invalidate the cache
+    await this.cacheManager.del('ALL_STATES');
+
     // Return all states in the database after successful creation
     return this.findAll();
   }
 
-  async create(createStateDto: CreateStateDto): Promise<State> {
-    const existing = await this.stateRepository.findByName(
-      createStateDto.name.trim(),
-    );
-    if (existing) {
-      throw new BadRequestException(
-        `State with name "${createStateDto.name}" already exists`,
-      );
+  async create(createStateArrayDto: CreateStateArrayDto): Promise<State[]> {
+    const statesToInsert: Record<string, string | number>[] = [];
+    const seenNames = new Set<string>();
+
+    for (const dto of createStateArrayDto.states) {
+      const existing = await this.stateRepository.findByName(dto.name.trim());
+      if (existing) {
+        throw new BadRequestException(
+          `State with name "${dto.name}" already exists`,
+        );
+      }
+
+      const normalizedName = dto.name.trim().toLowerCase();
+      if (seenNames.has(normalizedName)) {
+        throw new BadRequestException(
+          `Duplicate state name "${dto.name}" found in the request`,
+        );
+      }
+      seenNames.add(normalizedName);
+
+      statesToInsert.push({
+        name: dto.name.trim(),
+        code: dto.code.trim(),
+      });
     }
-    return this.stateRepository.create({
-      ...createStateDto,
-      name: createStateDto.name.trim(),
-    });
+
+    if (statesToInsert.length > 0) {
+      await this.stateRepository.bulkInsert(statesToInsert);
+    }
+
+    await this.cacheManager.del('ALL_STATES');
+    return this.findAll();
   }
 
   async findAll(): Promise<State[]> {
-    return this.stateRepository.findAll();
+    const cachedStates = await this.cacheManager.get<State[]>('ALL_STATES');
+    if (cachedStates) {
+      return cachedStates;
+    }
+
+    const states = await this.stateRepository.findAll();
+    await this.cacheManager.set('ALL_STATES', states, 86400 * 1000); // 24 hours
+    return states;
   }
 
   async findOne(id: number): Promise<State> {
@@ -199,6 +222,7 @@ export class StateService {
     if (!updated) {
       throw new NotFoundException(`State with ID ${id} not found`);
     }
+    await this.cacheManager.del('ALL_STATES');
     return updated;
   }
 
@@ -208,6 +232,7 @@ export class StateService {
     if (!removed) {
       return state;
     }
+    await this.cacheManager.del('ALL_STATES');
     return removed;
   }
 }

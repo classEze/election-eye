@@ -12,12 +12,22 @@ import {
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
 import { User } from '../user/user.entity';
 import { ResultDetail } from '../result-detail/result-detail.entity';
+import { ElectoralOffice } from '../electoral-office/electoral-office.entity';
+import { Aspirant } from '../aspirant/aspirant.entity';
 
 @Entity('results')
-@Index(['pollingUnit', 'uploadedByUser'], { unique: true }) // Prevents double submissions by the same agent
+@Index(['pollingUnit', 'electoralOffice', 'uploadedByUser'], { unique: true }) // Prevents double submissions by the same agent for the same office
 export class Result {
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @ManyToOne(() => ElectoralOffice, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'electoral_office_id' })
+  electoralOffice!: ElectoralOffice;
+
+  @ManyToOne(() => Aspirant, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'aspirant_id' })
+  aspirant!: Aspirant;
 
   @Column({ name: 'total_valid_votes', type: 'int', default: 0 })
   totalValidVotes!: number; // Sum of all party votes from the frontend form
