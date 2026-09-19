@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleModule } from './features/role/role.module';
 import { ConfigModule } from '@nestjs/config';
-import { AppDataSource } from './data-source';
 import { UserModule } from './features/user/user.module';
 import { APP_GUARD } from '@nestjs/core';
 import { NotificationModule } from './shared/notification/notification.module';
@@ -26,6 +24,8 @@ import { LgaModule } from './features/lga/lga.module';
 import { WardModule } from './features/ward/ward.module';
 import { PollingUnitModule } from './features/polling-unit/polling-unit.module';
 import { ElectoralOfficeModule } from './features/electoral-office/electoral-office.module';
+import { DefaultDatabaseModule } from './shared/default-modules/database.module';
+import { ResultModule } from './features/result/result.module';
 
 @Module({
   imports: [
@@ -38,11 +38,7 @@ import { ElectoralOfficeModule } from './features/electoral-office/electoral-off
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60_000, limit: 20 }],
     }),
-    TypeOrmModule.forRootAsync({
-      useFactory: () => ({
-        ...AppDataSource.options,
-      }),
-    }),
+    DefaultDatabaseModule,
     RedisDefaultModule,
     DefaultQueueModule,
     MailerDefaultModule,
@@ -59,6 +55,7 @@ import { ElectoralOfficeModule } from './features/electoral-office/electoral-off
     WardModule,
     PollingUnitModule,
     ElectoralOfficeModule,
+    ResultModule,
   ],
   controllers: [AppController],
   providers: [

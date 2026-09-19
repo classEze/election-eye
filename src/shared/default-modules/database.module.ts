@@ -1,14 +1,31 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Role } from 'src/features/role/role.entity';
-import { User } from 'src/features/user/user.entity';
-import { PasswordResets } from '../entities/password-resets.entity';
-import { AdminPasswordResets } from 'src/features/admin/admin-password-resets.entity';
+import { ConfigService } from '@nestjs/config';
+import { SeederService } from '@/seeds/seeder.service';
+
+const isProd =
+  process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Role, User, PasswordResets, AdminPasswordResets]),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get('database.host'),
+        port: config.get('database.port'),
+        username: config.get('database.user'),
+        password: config.get('database.password'),
+        database: config.get('database.name'),
+        autoLoadEntities: true,
+        synchronize: !isProd,
+        migrations: [__dirname + '/migrations/*{.ts,.js}'],
+        migrationsRun: isProd,
+        ssl: isProd ? { rejectUnauthorized: false } : false,
+      }),
+    }),
   ],
-  exports: [TypeOrmModule],
+  providers: [SeederService],
+  exports: [],
 })
-export class DatabaseModule {}
+export class DefaultDatabaseModule {}

@@ -4,10 +4,6 @@ const configureEnv = loadEnv as unknown as () => void;
 configureEnv();
 import { DataSource } from 'typeorm';
 
-const synchronize = ['development', 'dev', 'test', 'staging', 'uat'].includes(
-  process.env.NODE_ENV?.toLowerCase() as string,
-);
-
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DATABASE_HOST,
@@ -15,9 +11,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: [__dirname + '/**/*.entity{.ts,.js}'],
-  migrations: [__dirname + '/migrations/*{.ts,.js}'],
-  synchronize,
-  migrationsRun: true,
+  entities: [__dirname + 'src/**/*.entity{.ts,.js}'],
+  migrations: [__dirname + 'src/migrations/*{.ts,.js}'],
   ssl: { rejectUnauthorized: false },
 });
