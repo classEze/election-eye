@@ -73,6 +73,13 @@ export class AdminRepository {
     await this.repo.update({ id }, { password, forcePasswordReset: false });
   }
 
+  async updatePasswordAndVerify(id: number, password: string): Promise<void> {
+    await this.repo.update(
+      { id },
+      { password, forcePasswordReset: false, isVerified: true },
+    );
+  }
+
   async findAll(): Promise<Admin[]> {
     return this.repo
       .createQueryBuilder('admin')

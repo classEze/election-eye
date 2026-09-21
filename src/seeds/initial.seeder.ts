@@ -69,9 +69,24 @@ export default async function seedData(dataSource: DataSource): Promise<void> {
       ('Nigeria Democratic Congress', 'NDC', '#8A2BE2', true, NOW(), NOW())
       ON CONFLICT (code) DO NOTHING;
     `);
+
     // ==========================================
-    // 1. SEED SYSTEM ROLES
+    // 4. SEED DEFAULT SYSTEM CONFIGURATION
     // ==========================================
+    await dataSource.query(`
+      INSERT INTO "system_configurations" (id, is_voting_active, allow_agent_submissions, allow_incident_reporting, maintenance_mode, submission_close_notice, created_at, updated_at)
+      VALUES (
+        1,
+        true,
+        true,
+        true,
+        false,
+        'The voting and result collation window is currently closed. Submissions are temporarily disabled.',
+        NOW(),
+        NOW()
+      )
+      ON CONFLICT (id) DO NOTHING;
+    `);
   } catch (err) {
     console.log('Initial Seed migration failed', err);
   }

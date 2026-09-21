@@ -26,6 +26,10 @@ import { PollingUnitModule } from './features/polling-unit/polling-unit.module';
 import { ElectoralOfficeModule } from './features/electoral-office/electoral-office.module';
 import { DefaultDatabaseModule } from './shared/default-modules/database.module';
 import { ResultModule } from './features/result/result.module';
+import { IncidentModule } from './features/incident/incident.module';
+import { SystemConfigurationModule } from './features/system-configuration/system-configuration.module';
+import { StorageModule } from './shared/storage/storage.module';
+import { PoliticalPartyModule } from './features/political-party/political-party.module';
 
 @Module({
   imports: [
@@ -44,6 +48,7 @@ import { ResultModule } from './features/result/result.module';
     MailerDefaultModule,
     JwtDefaultModule,
     HttpClientModule,
+    StorageModule,
     RoleModule,
     UserModule,
     AuthModule,
@@ -56,6 +61,9 @@ import { ResultModule } from './features/result/result.module';
     PollingUnitModule,
     ElectoralOfficeModule,
     ResultModule,
+    IncidentModule,
+    SystemConfigurationModule,
+    PoliticalPartyModule,
   ],
   controllers: [AppController],
   providers: [

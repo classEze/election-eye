@@ -99,6 +99,7 @@ export class UserRepository {
           'user.lastName',
           'user.emailAddress',
           'user.isVerified',
+          'user.isActive',
         ])
         .getOne();
     } catch (error) {
@@ -112,6 +113,18 @@ export class UserRepository {
       await this.repo.update({ id }, { password, forcePasswordReset: false });
     } catch (error) {
       console.error('Error updating password:', error);
+      throw error;
+    }
+  }
+
+  async updatePasswordAndVerify(id: number, password: string): Promise<void> {
+    try {
+      await this.repo.update(
+        { id },
+        { password, forcePasswordReset: false, isVerified: true },
+      );
+    } catch (error) {
+      console.error('Error updating and verifying password:', error);
       throw error;
     }
   }

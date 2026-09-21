@@ -8,7 +8,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 
-@Entity({ name: 'password-resets' })
+@Entity({ name: 'password_resets' })
 export class PasswordResets {
   @PrimaryGeneratedColumn()
   id!: number;
