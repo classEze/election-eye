@@ -6,6 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
 import { IncidentCategory } from '../../shared/entities/incident-category.entity';
@@ -26,6 +27,8 @@ export enum IncidentStatus {
 }
 
 @Entity('incidents')
+@Index('idx_incidents_geolocation', ['geolocationLat', 'geolocationLng']) // Composite B-Tree index for spatial cluster & bounding box queries
+@Index('idx_incidents_severity_status', ['severityLevel', 'status'])
 export class Incident {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -40,10 +43,28 @@ export class Incident {
   @Column({ type: 'text' })
   description!: string;
 
-  @Column({ name: 'media_proof_url', nullable: true })
-  mediaProofUrl!: string;
+  // Max 2 video evidence links
+  @Column({
+    type: 'jsonb',
+    name: 'media_video_urls',
+    default: () => "'[]'",
+  })
+  mediaVideoUrls!: string[];
 
-  @Column({ type: 'enum', enum: SeverityLevel, name: 'severity_level' })
+  // Max 5 picture evidence links
+  @Column({
+    type: 'jsonb',
+    name: 'media_picture_urls',
+    default: () => "'[]'",
+  })
+  mediaPictureUrls!: string[];
+
+  @Column({
+    type: 'enum',
+    enum: SeverityLevel,
+    name: 'severity_level',
+    default: SeverityLevel.MEDIUM,
+  })
   severityLevel!: SeverityLevel;
 
   @Column({
@@ -59,8 +80,9 @@ export class Incident {
     scale: 6,
     name: 'geolocation_lat',
     nullable: true,
+    default: null,
   })
-  geolocationLat!: number;
+  geolocationLat!: number | null;
 
   @Column({
     type: 'decimal',
@@ -68,11 +90,13 @@ export class Incident {
     scale: 6,
     name: 'geolocation_lng',
     nullable: true,
+    default: null,
   })
-  geolocationLng!: number;
+  geolocationLng!: number | null;
 
   @ManyToOne(() => User, (user) => user.reportedIncidents, {
     onDelete: 'RESTRICT',
+    eager: true,
   })
   @JoinColumn({ name: 'reported_by_user_id' })
   reportedByUser!: User;
@@ -80,9 +104,10 @@ export class Incident {
   @ManyToOne(() => PollingUnit, (pu) => pu.incidents, {
     nullable: true,
     onDelete: 'SET NULL',
+    eager: true,
   })
   @JoinColumn({ name: 'polling_unit_id' })
-  pollingUnit!: PollingUnit;
+  pollingUnit!: PollingUnit | null;
 
   @CreateDateColumn({ type: 'timestamp with time zone', name: 'created_at' })
   createdAt!: Date;

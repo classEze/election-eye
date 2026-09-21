@@ -18,7 +18,10 @@
     { "key": "office-id", "value": "1" },
     { "key": "aspirant-id", "value": "1" },
     { "key": "user-id", "value": "1" },
-    { "key": "admin-id", "value": "1" }
+    { "key": "admin-id", "value": "1" },
+    { "key": "result-id", "value": "1" },
+    { "key": "incident-id", "value": "1" },
+    { "key": "party-id", "value": "1" }
   ],
   "item": [
     {
@@ -1504,6 +1507,28 @@
       "name": "Results",
       "item": [
         {
+          "name": "Submit Result",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"electoralOfficeId\": {{office-id}},\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"aspirantId\": {{aspirant-id}},\n  \"totalRegisteredVoters\": 1200,\n  \"totalAccreditedVoters\": 750,\n  \"totalValidVotes\": 700,\n  \"rejectedVotes\": 30,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/sample-ec8a.jpg\",\n  \"partyBreakdown\": [\n    { \"politicalPartyId\": 1, \"votes\": 400 },\n    { \"politicalPartyId\": 2, \"votes\": 250 },\n    { \"politicalPartyId\": 3, \"votes\": 50 }\n  ]\n}"
+            },
+            "url": "{{election-eye-base-url}}/results"
+          }
+        },
+        {
           "name": "Get All Results",
           "request": {
             "method": "GET",
@@ -1517,7 +1542,559 @@
                 }
               ]
             },
-            "url": "{{election-eye-base-url}}/results"
+            "url": {
+              "raw": "{{election-eye-base-url}}/results?page=1&limit=20&electoralOfficeId={{office-id}}",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["results"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "electoralOfficeId", "value": "{{office-id}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Result by ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/results/{{result-id}}"
+          }
+        },
+        {
+          "name": "Get Results by Polling Unit",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/results/polling-unit/{{polling-unit-id}}"
+          }
+        },
+        {
+          "name": "Get Electoral Office Party Summary",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/results/electoral-office/{{office-id}}/summary"
+          }
+        },
+        {
+          "name": "Get Electoral Office Upload Progress",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/results/electoral-office/{{office-id}}/progress"
+          }
+        },
+        {
+          "name": "Get Electoral Office EC8A Forms",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/results/electoral-office/{{office-id}}/forms?page=1&limit=20"
+          }
+        },
+        {
+          "name": "Get Electoral Office Report for Ward",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/results/reports/electoral-office/{{office-id}}/ward/{{ward-id}}"
+          }
+        },
+        {
+          "name": "Get Electoral Office Report for LGA",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/results/reports/electoral-office/{{office-id}}/lga/{{lga-id}}"
+          }
+        },
+        {
+          "name": "Get Electoral Office Report for State",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/results/reports/electoral-office/{{office-id}}/state/{{state-id}}"
+          }
+        },
+        {
+          "name": "Verify Result Audit Status",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"auditStatus\": \"VERIFIED\",\n  \"rejectionReason\": null\n}"
+            },
+            "url": "{{election-eye-base-url}}/results/{{result-id}}/verify"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incidents",
+      "item": [
+        {
+          "name": "Report Incident",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": 1,\n  \"description\": \"Ballot box snatching by armed thugs at polling unit.\",\n  \"severityLevel\": \"CRITICAL\",\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"geolocationLat\": 6.5244,\n  \"geolocationLng\": 3.3792,\n  \"mediaVideoUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/videos/clip1.mp4\"],\n  \"mediaPictureUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo1.jpg\", \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo2.jpg\"]\n}"
+            },
+            "url": "{{election-eye-base-url}}/incidents"
+          }
+        },
+        {
+          "name": "Get All Incidents",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/incidents?page=1&limit=20&severityLevel=CRITICAL",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["incidents"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "severityLevel", "value": "CRITICAL" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Incident by ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/incidents/{{incident-id}}"
+          }
+        },
+        {
+          "name": "Get Incidents by Electoral Office",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/incidents/electoral-office/{{office-id}}?page=1&limit=20"
+          }
+        },
+        {
+          "name": "Get Incident Map Clusters",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/incidents/map-clusters?minLat=6.400000&maxLat=6.700000&minLng=3.200000&maxLng=3.600000",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["incidents", "map-clusters"],
+              "query": [
+                { "key": "minLat", "value": "6.400000" },
+                { "key": "maxLat", "value": "6.700000" },
+                { "key": "minLng", "value": "3.200000" },
+                { "key": "maxLng", "value": "3.600000" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Incident Status",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INVESTIGATING\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/incidents/{{incident-id}}/status"
+          }
+        },
+        {
+          "name": "Delete Incident",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/incidents/{{incident-id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incident Categories",
+      "item": [
+        {
+          "name": "Get All Incident Categories",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/incident-categories"
+          }
+        }
+      ]
+    },
+    {
+      "name": "System Configuration",
+      "item": [
+        {
+          "name": "Get System Configuration",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/system-configuration"
+          }
+        },
+        {
+          "name": "Update System Configuration",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isVotingActive\": true,\n  \"allowAgentSubmissions\": true,\n  \"allowIncidentReporting\": true,\n  \"maintenanceMode\": false,\n  \"submissionCloseNotice\": \"Voting and collation closed.\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/system-configuration"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Political Parties",
+      "item": [
+        {
+          "name": "Get All Political Parties",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/political-parties"
+          }
+        },
+        {
+          "name": "Get Active Political Parties",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/political-parties?is_active=true",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["political-parties"],
+              "query": [{ "key": "is_active", "value": "true" }]
+            }
+          }
+        },
+        {
+          "name": "Get Political Party by ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/political-parties/{{party-id}}"
+          }
+        },
+        {
+          "name": "Create Political Party",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"All Progressives Congress\",\n  \"code\": \"APC\",\n  \"partyColorHex\": \"#00BFFF\",\n  \"logoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/political-parties/logos/apc.png\",\n  \"isActive\": true\n}"
+            },
+            "url": "{{election-eye-base-url}}/political-parties"
+          }
+        },
+        {
+          "name": "Update Political Party (PUT)",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"All Progressives Congress Updated\",\n  \"code\": \"APC\",\n  \"partyColorHex\": \"#00BFFF\",\n  \"isActive\": true\n}"
+            },
+            "url": "{{election-eye-base-url}}/political-parties/{{party-id}}"
+          }
+        },
+        {
+          "name": "Update Political Party (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partyColorHex\": \"#0080FF\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/political-parties/{{party-id}}"
+          }
+        },
+        {
+          "name": "Update Political Party Logo",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/political-parties/logos/new-logo.png\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/political-parties/{{party-id}}/logo"
+          }
+        },
+        {
+          "name": "Soft Delete Political Party",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/political-parties/{{party-id}}"
           }
         }
       ]

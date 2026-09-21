@@ -391,7 +391,9 @@ export class FileConsumer extends WorkerHost {
           const rawName = String(wardData[wardsDuplicateKey] ?? '')
             .trim()
             .toLowerCase();
-          const rawCode = String(wardData.wardCode ?? '').trim().toLowerCase();
+          const rawCode = String(wardData.wardCode ?? '')
+            .trim()
+            .toLowerCase();
 
           if (
             rawName &&
@@ -525,8 +527,14 @@ export class FileConsumer extends WorkerHost {
         }
 
         if (rowValid) {
-          const rawNameKey = `${wardData.lgaId}-${String(wardData[wardsDuplicateKey] ?? '').trim().toLowerCase()}`;
-          const rawCode = String(wardData.wardCode ?? '').trim().toLowerCase();
+          const rawNameKey = `${wardData.lgaId}-${String(
+            wardData[wardsDuplicateKey] ?? '',
+          )
+            .trim()
+            .toLowerCase()}`;
+          const rawCode = String(wardData.wardCode ?? '')
+            .trim()
+            .toLowerCase();
 
           if (
             rawCode &&
@@ -640,7 +648,9 @@ export class FileConsumer extends WorkerHost {
           const rawName = String(puData[pollingUnitDuplicateKey] ?? '')
             .trim()
             .toLowerCase();
-          const rawCode = String(puData.puCode ?? '').trim().toLowerCase();
+          const rawCode = String(puData.puCode ?? '')
+            .trim()
+            .toLowerCase();
 
           if (
             rawName &&
@@ -774,8 +784,14 @@ export class FileConsumer extends WorkerHost {
         }
 
         if (rowValid) {
-          const rawNameKey = `${puData.wardId}-${String(puData[pollingUnitDuplicateKey] ?? '').trim().toLowerCase()}`;
-          const rawCode = String(puData.puCode ?? '').trim().toLowerCase();
+          const rawNameKey = `${puData.wardId}-${String(
+            puData[pollingUnitDuplicateKey] ?? '',
+          )
+            .trim()
+            .toLowerCase()}`;
+          const rawCode = String(puData.puCode ?? '')
+            .trim()
+            .toLowerCase();
 
           if (
             rawCode &&

@@ -9,7 +9,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { addHours } from 'date-fns';
 import { randomBytes } from 'node:crypto';
 import PasswordHelper from 'src/shared/helpers/password.helper';
-import { NotificationService } from 'src/shared/notification/notification.service';
 import { CreateUserDto } from 'src/features/user/user.dto.ts';
 import { User } from 'src/features/user/user.entity';
 import { UserRepository } from 'src/features/user/user.repository';
@@ -28,6 +27,12 @@ import {
   getUserInfoCacheKey,
   getAdminInfoCacheKey,
 } from 'src/shared/constants/cache.constant';
+import { InjectQueue } from '@nestjs/bullmq';
+import {
+  APP_QUEUES,
+  QueueDictionary,
+} from 'src/shared/constants/queue.constants';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +42,6 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly userRepo: UserRepository,
     private readonly jwtService: JwtService,
-    private readonly notify: NotificationService,
     @InjectRepository(PasswordResets)
     private readonly passwordResetsRepo: Repository<PasswordResets>,
     @InjectRepository(AdminPasswordResets)
@@ -45,6 +49,7 @@ export class AuthService {
     private readonly verification: EmailVerificationService,
     private readonly adminRepo: AdminRepository,
     private readonly configService: ConfigService,
+    @InjectQueue(APP_QUEUES.mail) private readonly mailQueue: Queue,
   ) {}
 
   async signIn(LoginUserObj: {
@@ -205,10 +210,16 @@ export class AuthService {
       };
     }
 
+    if (!validUser.isActive) {
+      throw new UnauthorizedException(
+        'Your account is inactive. Please contact the system administrator.',
+      );
+    }
+
     const passwordResetToken =
       await this.createUserPasswordResetToken(validUser);
 
-    await this.notify.sendMailTrap({
+    await this.mailQueue.add(QueueDictionary.SEND_MAIL, {
       to: validUser.emailAddress,
       subject: 'Password Reset',
       message: `Dear ${validUser.firstName} ${validUser.lastName}, 
@@ -255,7 +266,7 @@ export class AuthService {
     const hashedPassword = await this.passwordHelper.hashUserPassword(
       resetObj.password,
     );
-    await this.userRepo.updatePassword(
+    await this.userRepo.updatePasswordAndVerify(
       passwordResetRecord.user.id,
       hashedPassword,
     );
@@ -277,9 +288,15 @@ export class AuthService {
       };
     }
 
+    if (!admin.isActive) {
+      throw new UnauthorizedException(
+        'Your account is inactive. Please contact the system administrator.',
+      );
+    }
+
     const passwordResetToken = await this.createAdminPasswordResetToken(admin);
 
-    await this.notify.sendMailTrap({
+    await this.mailQueue.add(QueueDictionary.SEND_MAIL, {
       to: admin.emailAddress,
       subject: 'Admin Password Reset',
       message: `Dear ${admin.firstName} ${admin.lastName},\nUse this token to reset your password: ${passwordResetToken}\nThe link expires in 1 hour.`,
@@ -312,7 +329,7 @@ export class AuthService {
     const hashedPassword = await this.passwordHelper.hashUserPassword(
       resetObj.password,
     );
-    await this.adminRepo.updatePassword(
+    await this.adminRepo.updatePasswordAndVerify(
       passwordResetRecord.admin.id,
       hashedPassword,
     );
