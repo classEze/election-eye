@@ -1,15 +1,27 @@
 import { Transform } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class GetRoleDTO {
+  @IsOptional()
   @IsString({ message: 'invalid query parameter for role type' })
-  @Transform(({ value }) => String(value).trim().toUpperCase())
-  type: string = 'CLIENT';
+  @IsIn(['CLIENT', 'ADMIN'], {
+    message: 'invalid role type provided',
+  })
+  @Transform(({ value }) =>
+    value === undefined ? undefined : String(value).trim().toUpperCase(),
+  )
+  type?: string;
 
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === undefined || value === null) return true;
-    return String(value).trim().toLowerCase() === 'true';
+  @IsBoolean({ message: 'invalid role status provided' })
+  @Transform(({ value }: { value: unknown }) => {
+    if (value === undefined) return undefined;
+    if (typeof value !== 'string') return value;
+
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'true') return true;
+    if (normalized === 'false') return false;
+    return value;
   })
-  status: boolean = true;
+  status?: boolean;
 }

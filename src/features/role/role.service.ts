@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/features/role/role.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 
 @Injectable()
 export class RoleService {
@@ -10,7 +10,17 @@ export class RoleService {
     private readonly roleRepository: Repository<Role>,
   ) {}
 
-  find(type: string, status: boolean): Promise<Role[]> {
-    return this.roleRepository.find({ where: { type, status } });
+  find(type?: string, status?: boolean): Promise<Role[]> {
+    const where: FindOptionsWhere<Role> = {};
+
+    if (type !== undefined) {
+      where.type = type;
+    }
+
+    if (status !== undefined) {
+      where.status = status;
+    }
+
+    return this.roleRepository.find({ where });
   }
 }
