@@ -26,6 +26,47 @@ export class SystemConfiguration {
   @Column({ name: 'maintenance_mode', type: 'boolean', default: false })
   maintenanceMode!: boolean;
 
+  @Column({ name: 'enable_otp', type: 'boolean', default: false })
+  enableOtp!: boolean;
+
+  @Column({ name: 'otp_validity', type: 'int', default: 300 })
+  otpValidity!: number;
+
+  @Column({ name: 'password_minimum_length', type: 'int', default: 8 })
+  passwordMinimumLength!: number;
+
+  @Column({ name: 'maximum_login_attempts', type: 'int', default: 5 })
+  maximumLoginAttempts!: number;
+
+  @Column({ name: 'maximum_upload_size', type: 'int', nullable: true })
+  maximumUploadSize!: number | null;
+
+  @Column({ name: 'maximum_files_per_submission', type: 'int', nullable: true })
+  maximumFilesPerSubmission!: number | null;
+
+  @Column({ name: 'allowed_image_format', type: 'text', nullable: true })
+  allowedImageFormat!: string | null;
+
+  @Column({ name: 'require_result_sheet', type: 'boolean', nullable: true })
+  requireResultSheet!: boolean | null;
+
+  @Column({
+    name: 'require_incident_evidence',
+    type: 'boolean',
+    nullable: true,
+  })
+  requireIncidentEvidence!: boolean | null;
+
+  @Column({ name: 'mandatory_result_fields', type: 'text', nullable: true })
+  mandatoryResultFields!: string | null;
+
+  @Column({
+    name: 'mandatory_incident_fields',
+    type: 'boolean',
+    nullable: true,
+  })
+  mandatoryIncidentFields!: boolean | null;
+
   @Column({
     name: 'submission_close_notice',
     type: 'text',

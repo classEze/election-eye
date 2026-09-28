@@ -104,4 +104,11 @@ export class PoliticalPartyRepository {
     const result = await this.repository.softDelete(id);
     return (result.affected || 0) > 0;
   }
+
+  async count(isActive?: boolean): Promise<number> {
+    if (isActive !== undefined) {
+      return this.repository.count({ where: { isActive } });
+    }
+    return this.repository.count();
+  }
 }

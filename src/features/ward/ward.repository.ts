@@ -104,4 +104,8 @@ export class WardRepository {
     }
     return this.repository.remove(ward);
   }
+
+  async count(): Promise<number> {
+    return this.repository.count();
+  }
 }

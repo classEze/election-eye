@@ -6,7 +6,7 @@ import { SystemConfiguration } from './system-configuration.entity';
 import { UpdateSystemConfigurationDto } from './system-configuration.dto';
 import { Admin } from '../admin/admin.entity';
 
-export const SYSTEM_CONFIG_CACHE_KEY = 'system:config:global';
+export const SYSTEM_CONFIG_CACHE_KEY = 'system:config:global:v2';
 
 @Injectable()
 export class SystemConfigurationService {

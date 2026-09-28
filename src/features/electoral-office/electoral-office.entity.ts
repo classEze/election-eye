@@ -60,7 +60,7 @@ export class ElectoralOffice {
   @OneToMany(() => Aspirant, (aspirant) => aspirant.electoralOffice)
   aspirants!: Aspirant[];
 
-  @Column({ name: 'is_active', type: 'boolean', default: true })
+  @Column({ name: 'is_active', type: 'boolean', default: false })
   isActive!: boolean;
 
   @CreateDateColumn({ type: 'timestamp with time zone', name: 'created_at' })

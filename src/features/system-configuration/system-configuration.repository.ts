@@ -25,6 +25,17 @@ export class SystemConfigurationRepository {
         allowAgentSubmissions: true,
         allowIncidentReporting: true,
         maintenanceMode: false,
+        enableOtp: false,
+        otpValidity: 300,
+        passwordMinimumLength: 8,
+        maximumLoginAttempts: 5,
+        maximumUploadSize: null,
+        maximumFilesPerSubmission: null,
+        allowedImageFormat: null,
+        requireResultSheet: null,
+        requireIncidentEvidence: null,
+        mandatoryResultFields: null,
+        mandatoryIncidentFields: null,
       });
       config = await this.repository.save(config);
     }
@@ -46,6 +57,26 @@ export class SystemConfigurationRepository {
       config.allowIncidentReporting = dto.allowIncidentReporting;
     if (dto.maintenanceMode !== undefined)
       config.maintenanceMode = dto.maintenanceMode;
+    if (dto.enableOtp !== undefined) config.enableOtp = dto.enableOtp;
+    if (dto.otpValidity !== undefined) config.otpValidity = dto.otpValidity;
+    if (dto.passwordMinimumLength !== undefined)
+      config.passwordMinimumLength = dto.passwordMinimumLength;
+    if (dto.maximumLoginAttempts !== undefined)
+      config.maximumLoginAttempts = dto.maximumLoginAttempts;
+    if (dto.maximumUploadSize !== undefined)
+      config.maximumUploadSize = dto.maximumUploadSize;
+    if (dto.maximumFilesPerSubmission !== undefined)
+      config.maximumFilesPerSubmission = dto.maximumFilesPerSubmission;
+    if (dto.allowedImageFormat !== undefined)
+      config.allowedImageFormat = dto.allowedImageFormat;
+    if (dto.requireResultSheet !== undefined)
+      config.requireResultSheet = dto.requireResultSheet;
+    if (dto.requireIncidentEvidence !== undefined)
+      config.requireIncidentEvidence = dto.requireIncidentEvidence;
+    if (dto.mandatoryResultFields !== undefined)
+      config.mandatoryResultFields = dto.mandatoryResultFields;
+    if (dto.mandatoryIncidentFields !== undefined)
+      config.mandatoryIncidentFields = dto.mandatoryIncidentFields;
     if (dto.submissionCloseNotice !== undefined)
       config.submissionCloseNotice = dto.submissionCloseNotice;
     if (dto.votingStartTime !== undefined) {

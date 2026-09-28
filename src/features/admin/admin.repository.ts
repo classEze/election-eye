@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Admin } from './admin.entity';
-import { CreateAdminDto, UpdateAdminDto } from './admin.dto';
+import { CreateAdminDto, UpdateAdminDto, AdminQueryDto } from './admin.dto';
+import { RoleCode } from '../role/role.enum';
 
 @Injectable()
 export class AdminRepository {
@@ -80,22 +81,48 @@ export class AdminRepository {
     );
   }
 
-  async findAll(): Promise<Admin[]> {
-    return this.repo
+  async findAll(queryDto?: AdminQueryDto): Promise<{
+    data: Admin[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    const qb = this.repo
       .createQueryBuilder('admin')
-      .innerJoinAndSelect('admin.role', 'role')
-      .select([
-        'admin.id',
-        'admin.firstName',
-        'admin.lastName',
-        'admin.emailAddress',
-        'admin.isActive',
-        'admin.isVerified',
-        'role.id',
-        'role.name',
-        'role.code',
-      ])
-      .getMany();
+      .leftJoinAndSelect('admin.role', 'role');
+
+    if (queryDto?.search) {
+      qb.andWhere(
+        '(admin.firstName ILIKE :search OR admin.lastName ILIKE :search OR admin.emailAddress ILIKE :search OR admin.phoneNumber ILIKE :search)',
+        { search: `%${queryDto.search}%` },
+      );
+    }
+
+    if (queryDto?.roleId) {
+      qb.andWhere('role.id = :roleId', { roleId: queryDto.roleId });
+    }
+
+    if (queryDto?.isActive !== undefined) {
+      qb.andWhere('admin.isActive = :isActive', {
+        isActive: queryDto.isActive,
+      });
+    }
+
+    const page = queryDto?.page || 1;
+    const limit = queryDto?.limit || 20;
+    const skip = (page - 1) * limit;
+
+    qb.orderBy('admin.createdAt', 'DESC').skip(skip).take(limit);
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
+    };
   }
 
   async findById(id: number): Promise<Admin | null> {
@@ -124,33 +151,21 @@ export class AdminRepository {
     }
   }
 
-  async findByIdWithRelations(id: number): Promise<Admin | null> {
+  async findByIdWithRelations(
+    id: number,
+    includeDeleted = false,
+  ): Promise<Admin | null> {
     try {
-      return await this.repo
+      const qb = this.repo
         .createQueryBuilder('admin')
         .leftJoinAndSelect('admin.role', 'role')
-        .where('admin.id = :id', { id })
-        .select([
-          'admin.id',
-          'admin.firstName',
-          'admin.lastName',
-          'admin.emailAddress',
-          'admin.phoneNumber',
-          'admin.isActive',
-          'admin.isVerified',
-          'admin.forcePasswordReset',
-          'admin.loginCount',
-          'admin.lastLogin',
-          'admin.createdAt',
-          'admin.updatedAt',
-          'role.id',
-          'role.name',
-          'role.code',
-          'role.type',
-          'role.description',
-          'role.status',
-        ])
-        .getOne();
+        .where('admin.id = :id', { id });
+
+      if (includeDeleted) {
+        qb.withDeleted();
+      }
+
+      return await qb.getOne();
     } catch (error) {
       console.error('Error finding admin by id with relations:', error);
       return null;
@@ -165,7 +180,62 @@ export class AdminRepository {
     id: number,
     updateAdminDto: UpdateAdminDto,
   ): Promise<Admin | null> {
-    await this.repo.update({ id }, updateAdminDto);
-    return await this.findOneById(id);
+    const updateData: Partial<Admin> = {};
+
+    if (updateAdminDto.firstName !== undefined)
+      updateData.firstName = updateAdminDto.firstName;
+    if (updateAdminDto.lastName !== undefined)
+      updateData.lastName = updateAdminDto.lastName;
+    if (updateAdminDto.emailAddress !== undefined)
+      updateData.emailAddress = updateAdminDto.emailAddress;
+    if (updateAdminDto.phoneNumber !== undefined)
+      updateData.phoneNumber = updateAdminDto.phoneNumber;
+    if (updateAdminDto.isActive !== undefined)
+      updateData.isActive = updateAdminDto.isActive;
+    if (updateAdminDto.role_id !== undefined)
+      updateData.role = { id: updateAdminDto.role_id } as any;
+
+    await this.repo.update({ id }, updateData);
+    return this.findOneById(id);
+  }
+
+  async softDelete(id: number): Promise<boolean> {
+    await this.repo.update({ id }, { isActive: false });
+    const result = await this.repo.softDelete(id);
+    return (result.affected || 0) > 0;
+  }
+
+  async countAdminSummary(): Promise<{
+    total: number;
+    systemAdmins: number;
+    superAdmins: number;
+  }> {
+    const raw = await this.repo
+      .createQueryBuilder('admin')
+      .innerJoin('admin.role', 'role')
+      .select('role.code', 'roleCode')
+      .addSelect('COUNT(admin.id)::int', 'count')
+      .groupBy('role.code')
+      .getRawMany();
+
+    let total = 0;
+    let systemAdmins = 0;
+    let superAdmins = 0;
+
+    for (const r of raw) {
+      const cnt = Number(r.count || 0);
+      total += cnt;
+      if (r.roleCode === RoleCode.SYSTEM_ADMIN) {
+        systemAdmins = cnt;
+      } else if (r.roleCode === RoleCode.SUPER_ADMIN) {
+        superAdmins = cnt;
+      }
+    }
+
+    return {
+      total,
+      systemAdmins,
+      superAdmins,
+    };
   }
 }

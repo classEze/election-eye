@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Aspirant } from './aspirant.entity';
-import { CreateAspirantDto } from './aspirant.dto';
+import { CreateAspirantDto, AspirantQueryDto } from './aspirant.dto';
+import { AspirantRepository } from './aspirant.repository';
 import { Role } from '../role/role.entity';
 import { RoleCode } from '../role/role.enum';
 import { EmailVerificationService } from 'src/shared/verification/email-verification.service';
@@ -17,6 +22,7 @@ export class AspirantService {
 
   constructor(
     private readonly dataSource: DataSource,
+    private readonly aspirantRepo: AspirantRepository,
     @InjectRepository(PoliticalParty)
     private readonly parties: Repository<PoliticalParty>,
     @InjectRepository(ElectoralOffice)
@@ -27,12 +33,35 @@ export class AspirantService {
   ) {}
 
   async create(dto: CreateAspirantDto) {
-    const [party, office, role] = await Promise.all([
+    let role: Role | null;
+
+    if (dto.role_id) {
+      role = await this.roles.findOne({ where: { id: dto.role_id } });
+      if (!role) {
+        throw new NotFoundException(`Role with ID #${dto.role_id} not found.`);
+      }
+      if (role.code !== RoleCode.ASPIRANT) {
+        throw new BadRequestException(
+          'Invalid role for aspirant creation. Only the ASPIRANT role is permitted.',
+        );
+      }
+      if (!role.status) {
+        throw new BadRequestException(
+          'The specified ASPIRANT role is currently inactive.',
+        );
+      }
+    } else {
+      role = await this.roles.findOne({
+        where: { code: RoleCode.ASPIRANT, status: true },
+      });
+      if (!role) {
+        throw new NotFoundException('Active aspirant role not found.');
+      }
+    }
+
+    const [party, office] = await Promise.all([
       this.parties.findOne({ where: { id: dto.politicalPartyId } }),
       this.offices.findOne({ where: { id: dto.electoralOfficeId } }),
-      this.roles.findOne({
-        where: { code: RoleCode.ASPIRANT, type: 'CLIENT', status: true },
-      }),
     ]);
 
     if (!party) {
@@ -40,9 +69,6 @@ export class AspirantService {
     }
     if (!office) {
       throw new NotFoundException('Electoral office not found');
-    }
-    if (!role) {
-      throw new NotFoundException('Active aspirant role not found');
     }
 
     const temporaryPassword = this.passwordHelper.generatePassword(18);
@@ -78,6 +104,7 @@ export class AspirantService {
       return { account: savedAccount, aspirant: savedAspirant };
     });
 
+    // Single unified email containing verification link + temporary password login instructions
     await this.verification.issueForUser(result.account, temporaryPassword);
 
     return {
@@ -91,5 +118,20 @@ export class AspirantService {
       createdAt: result.aspirant.createdAt,
       updatedAt: result.aspirant.updatedAt,
     };
+  }
+
+  async findAll(queryDto?: AspirantQueryDto): Promise<{
+    data: Aspirant[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    return this.aspirantRepo.findAll(queryDto);
+  }
+
+  async findOne(id: number): Promise<Aspirant> {
+    const aspirant = await this.aspirantRepo.findById(id);
+    if (!aspirant) {
+      throw new NotFoundException(`Aspirant with ID #${id} not found.`);
+    }
+    return aspirant;
   }
 }

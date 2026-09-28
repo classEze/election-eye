@@ -97,4 +97,8 @@ export class LgaRepository {
     }
     return this.repository.remove(lga);
   }
+
+  async count(): Promise<number> {
+    return this.repository.count();
+  }
 }

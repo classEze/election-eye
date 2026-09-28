@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { addHours } from 'date-fns';
 import { randomBytes } from 'node:crypto';
 import PasswordHelper from 'src/shared/helpers/password.helper';
-import { CreateUserDto } from 'src/features/user/user.dto.ts';
+import { CreateUserDto } from 'src/features/user/user.dto';
 import { User } from 'src/features/user/user.entity';
 import { UserRepository } from 'src/features/user/user.repository';
 import { IsNull, Repository } from 'typeorm';
@@ -270,6 +270,9 @@ export class AuthService {
       passwordResetRecord.user.id,
       hashedPassword,
     );
+    await this.cacheManager.del(
+      getUserInfoCacheKey(passwordResetRecord.user.id),
+    );
     await this.passwordResetsRepo.update(passwordResetRecord.id, {
       usedAt: new Date(),
     });
@@ -332,6 +335,9 @@ export class AuthService {
     await this.adminRepo.updatePasswordAndVerify(
       passwordResetRecord.admin.id,
       hashedPassword,
+    );
+    await this.cacheManager.del(
+      getAdminInfoCacheKey(passwordResetRecord.admin.id),
     );
     await this.adminPasswordResetsRepo.update(passwordResetRecord.id, {
       usedAt: new Date(),

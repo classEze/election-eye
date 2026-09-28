@@ -34,10 +34,6 @@ export class CreateElectoralOfficeDto {
   @IsNumber({}, { each: true })
   @IsOptional()
   wardIds?: number[];
-
-  @IsBoolean()
-  @IsOptional()
-  isActive?: boolean;
 }
 
 export class UpdateElectoralOfficeDto {

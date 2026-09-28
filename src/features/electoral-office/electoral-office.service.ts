@@ -163,7 +163,7 @@ export class ElectoralOfficeService {
       state: state || undefined,
       lgas,
       wards,
-      isActive: dto.isActive !== undefined ? dto.isActive : true,
+      isActive: false,
     });
   }
 

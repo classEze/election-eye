@@ -28,9 +28,7 @@ import { PoliticalParty } from './political-party.entity';
 
 @Controller('political-parties')
 export class PoliticalPartyController {
-  constructor(
-    private readonly politicalPartyService: PoliticalPartyService,
-  ) {}
+  constructor(private readonly politicalPartyService: PoliticalPartyService) {}
 
   @Get()
   async findAll(

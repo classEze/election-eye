@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/mapped-types';
 import {
   IsBoolean,
   IsEmail,
@@ -11,7 +12,7 @@ import {
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
-export class CreateAspirantDto {
+export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   firstName!: string;
@@ -27,29 +28,56 @@ export class CreateAspirantDto {
   @IsNotEmpty()
   phoneNumber!: string;
 
-  @IsNumber()
-  @Type(() => Number)
-  politicalPartyId!: number;
+  @IsOptional()
+  @IsString()
+  password?: string;
 
   @IsNumber()
+  @IsNotEmpty()
   @Type(() => Number)
-  electoralOfficeId!: number;
-
-  @IsNumber()
-  @Type(() => Number)
-  createdByAdminId!: number;
+  role_id!: number;
 
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  role_id?: number;
+  assignedLgaId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  assignedWardId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  assignedPuId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  aspirantId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  onboardedByUserId?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 
   @IsOptional()
   @IsString()
-  logoUrl?: string;
+  deviceImei?: string;
+
+  @IsOptional()
+  @IsString()
+  fcmToken?: string;
 }
 
-export class AspirantQueryDto {
+export class UpdateUserDto extends PartialType(CreateUserDto) {}
+
+export class UserQueryDto {
   @IsOptional()
   @IsInt()
   @Min(1)
@@ -70,12 +98,22 @@ export class AspirantQueryDto {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  partyId?: number;
+  roleId?: number;
 
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  officeId?: number;
+  lgaId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  wardId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  puId?: number;
 
   @IsOptional()
   @Transform(({ value }) => {
@@ -84,6 +122,5 @@ export class AspirantQueryDto {
     if (value === 'false' || value === false) return false;
     return undefined;
   })
-  @IsBoolean()
   isActive?: boolean;
 }

@@ -16,6 +16,6 @@ import { VerificationModule } from 'src/shared/verification/verification.module'
   ],
   controllers: [AdminController],
   providers: [AdminService, AdminRepository],
-  exports: [AdminRepository],
+  exports: [AdminService, AdminRepository],
 })
 export class AdminModule {}
