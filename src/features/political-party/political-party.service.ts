@@ -133,7 +133,9 @@ export class PoliticalPartyService {
     await this.findOne(id);
     const success = await this.repository.softDelete(id);
     if (!success) {
-      throw new NotFoundException(`Political party with ID #${id} could not be deleted.`);
+      throw new NotFoundException(
+        `Political party with ID #${id} could not be deleted.`,
+      );
     }
 
     await this.invalidatePartyCache();

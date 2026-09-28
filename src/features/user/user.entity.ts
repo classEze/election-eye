@@ -8,6 +8,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Role } from '../role/role.entity';
 import { Aspirant } from '../aspirant/aspirant.entity';
@@ -132,4 +133,11 @@ export class User {
 
   @UpdateDateColumn({ type: 'timestamp with time zone', name: 'updated_at' })
   updatedAt!: Date;
+
+  @DeleteDateColumn({
+    type: 'timestamp with time zone',
+    name: 'deleted_at',
+    nullable: true,
+  })
+  deletedAt!: Date | null;
 }

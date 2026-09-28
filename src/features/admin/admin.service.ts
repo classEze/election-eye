@@ -1,18 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateAdminDto, UpdateAdminDto } from './admin.dto';
+import { CreateAdminDto, UpdateAdminDto, AdminQueryDto } from './admin.dto';
 import { AdminRepository } from './admin.repository';
 import { Role } from '../role/role.entity';
+import { RoleCode } from '../role/role.enum';
 import PasswordHelper from 'src/shared/helpers/password.helper';
-import { NotificationService } from 'src/shared/notification/notification.service';
 import { EmailVerificationService } from 'src/shared/verification/email-verification.service';
 import {
   APP_QUEUES,
-  QueueDictionary,
 } from '@/shared/constants/queue.constants';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
+import { getAdminInfoCacheKey } from 'src/shared/constants/cache.constant';
 
 @Injectable()
 export class AdminService {
@@ -22,18 +29,30 @@ export class AdminService {
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
     private readonly adminRepo: AdminRepository,
-    private readonly notify: NotificationService,
     private readonly verification: EmailVerificationService,
-    @InjectQueue(APP_QUEUES.mail) private mailQueue: Queue,
+    @InjectQueue(APP_QUEUES.mail) private readonly mailQueue: Queue,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   async create(createAdminDto: CreateAdminDto) {
     const role = await this.roleRepository.findOne({
-      where: { id: createAdminDto.role_id, type: 'ADMIN', status: true },
+      where: { id: createAdminDto.role_id, status: true },
     });
 
     if (!role) {
-      throw new NotFoundException('Active admin role not found');
+      throw new NotFoundException('Active role not found');
+    }
+
+    if (
+      ![
+        RoleCode.SUPER_ADMIN,
+        RoleCode.SYSTEM_ADMIN,
+        RoleCode.CLIENT_ADMIN,
+      ].includes(role.code as RoleCode)
+    ) {
+      throw new BadRequestException(
+        'Invalid role for admin creation. Only SUPER_ADMIN, SYSTEM_ADMIN, and CLIENT_ADMIN roles are permitted.',
+      );
     }
 
     const temporaryPassword = this.passwordHelper.generatePassword(18);
@@ -45,14 +64,8 @@ export class AdminService {
       role,
     );
 
-    await this.verification.issueForAdmin(result);
-
-    await this.mailQueue.add(QueueDictionary.SEND_MAIL, {
-      to: result.emailAddress,
-      subject: 'Your administrator account',
-      message: `Your administrator account has been created. Temporary password: ${temporaryPassword}`,
-      html: `<p>Your administrator account has been created.</p><p>Temporary password: ${temporaryPassword}</p>`,
-    });
+    // Single unified email containing verification link + temporary password login instructions
+    await this.verification.issueForAdmin(result, temporaryPassword);
 
     return {
       id: result.id,
@@ -68,19 +81,44 @@ export class AdminService {
     };
   }
 
-  findAll() {
-    return this.adminRepo.findAll();
+  async findAll(queryDto?: AdminQueryDto) {
+    return this.adminRepo.findAll(queryDto);
   }
 
-  findOne(id: number) {
-    return this.adminRepo.findOneById(id);
+  async findOne(id: number) {
+    const admin = await this.adminRepo.findOneById(id);
+    if (!admin) {
+      throw new NotFoundException(`Administrator with ID #${id} not found.`);
+    }
+    return admin;
   }
 
-  update(_id: number, _updateAdminDto: UpdateAdminDto) {
-    return this.adminRepo.update(_id, _updateAdminDto);
+  async update(id: number, updateAdminDto: UpdateAdminDto) {
+    await this.findOne(id);
+
+    const updated = await this.adminRepo.update(id, updateAdminDto);
+
+    // Invalidate cached admin session in Redis
+    await this.cacheManager.del(getAdminInfoCacheKey(id));
+
+    return updated;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} admin`;
+  async remove(id: number) {
+    await this.findOne(id);
+
+    const success = await this.adminRepo.softDelete(id);
+    if (!success) {
+      throw new NotFoundException(
+        `Administrator with ID #${id} could not be deleted.`,
+      );
+    }
+
+    // Invalidate cached admin session in Redis
+    await this.cacheManager.del(getAdminInfoCacheKey(id));
+
+    return {
+      message: `Administrator with ID #${id} was successfully soft-deleted.`,
+    };
   }
 }

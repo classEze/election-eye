@@ -8,12 +8,15 @@ import { VerificationModule } from 'src/shared/verification/verification.module'
 import { ElectoralOffice } from '../electoral-office/electoral-office.entity';
 import { PoliticalParty } from '../political-party/political-party.entity';
 
+import { AspirantRepository } from './aspirant.repository';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([Aspirant, ElectoralOffice, PoliticalParty, Role]),
     VerificationModule,
   ],
   controllers: [AspirantController],
-  providers: [AspirantService],
+  providers: [AspirantService, AspirantRepository],
+  exports: [AspirantService, AspirantRepository],
 })
 export class AspirantModule {}

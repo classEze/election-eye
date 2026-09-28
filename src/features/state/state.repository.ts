@@ -55,4 +55,8 @@ export class StateRepository {
     }
     return this.repository.remove(state);
   }
+
+  async count(): Promise<number> {
+    return this.repository.count();
+  }
 }

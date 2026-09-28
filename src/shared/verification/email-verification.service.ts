@@ -49,7 +49,10 @@ export class EmailVerificationService {
     );
   }
 
-  async issueForAdmin(admin: Admin): Promise<void> {
+  async issueForAdmin(
+    admin: Admin,
+    temporaryPassword?: string,
+  ): Promise<void> {
     await this.adminTokens.update(
       { admin, usedAt: IsNull() },
       { usedAt: new Date() },
@@ -66,6 +69,7 @@ export class EmailVerificationService {
       admin.emailAddress,
       admin.firstName,
       token,
+      temporaryPassword,
     );
   }
 
@@ -121,18 +125,35 @@ export class EmailVerificationService {
   ): Promise<void> {
     const appUrl = process.env.APP_URL ?? 'http://localhost:3000';
     const link = `${appUrl}/verify-email?token=${encodeURIComponent(token)}`;
-    const temporaryPasswordMessage = temporaryPassword
-      ? ` Your temporary password is: ${temporaryPassword}.`
-      : '';
-    const temporaryPasswordHtml = temporaryPassword
-      ? `<p>Temporary password: ${temporaryPassword}</p>`
-      : '';
+
+    let subject = 'Verify your email address';
+    let message = `Hello ${firstName},\n\nPlease verify your email address using this link: ${link}. The link expires in 24 hours.`;
+    let html = `
+      <p>Hello ${firstName},</p>
+      <p>Please verify your email address by clicking the link below:</p>
+      <p><a href="${link}">Verify Your Email Address</a></p>
+      <p><em>This link expires in 24 hours.</em></p>
+    `;
+
+    if (temporaryPassword) {
+      subject = 'Welcome to Election Eye - Verify Your Account';
+      message = `Hello ${firstName},\n\nWelcome to Election Eye. Please verify your email address using the following link: ${link} (expires in 24 hours).\n\nAfter verification, please proceed to login using the following temporary password:\nTemporary Password: ${temporaryPassword}`;
+      html = `
+        <p>Hello ${firstName},</p>
+        <p>Welcome to Election Eye. Please verify your email address by clicking the link below:</p>
+        <p><a href="${link}">Verify Your Email Address</a></p>
+        <p><em>This verification link expires in 24 hours.</em></p>
+        <hr />
+        <p>After verifying your email, please proceed to login with your temporary credentials:</p>
+        <p><strong>Temporary Password:</strong> <code>${temporaryPassword}</code></p>
+      `;
+    }
 
     await this.mailQueue.add(QueueDictionary.SEND_MAIL, {
       to: email,
-      subject: 'Verify your email address',
-      message: `Hello ${firstName}, verify your email using this link: ${link}. The link expires in 24 hours.${temporaryPasswordMessage}`,
-      html: `<p>Hello ${firstName},</p><p><a href="${link}">Verify your email address</a></p><p>This link expires in 24 hours.</p>${temporaryPasswordHtml}`,
+      subject,
+      message,
+      html,
     });
   }
 }

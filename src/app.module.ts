@@ -30,6 +30,7 @@ import { IncidentModule } from './features/incident/incident.module';
 import { SystemConfigurationModule } from './features/system-configuration/system-configuration.module';
 import { StorageModule } from './shared/storage/storage.module';
 import { PoliticalPartyModule } from './features/political-party/political-party.module';
+import { ReportModule } from './features/report/report.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { PoliticalPartyModule } from './features/political-party/political-party
     IncidentModule,
     SystemConfigurationModule,
     PoliticalPartyModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [

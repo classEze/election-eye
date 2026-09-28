@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -69,4 +70,11 @@ export class Admin {
 
   @UpdateDateColumn({ type: 'timestamp with time zone', name: 'updated_at' })
   updatedAt!: Date;
+
+  @DeleteDateColumn({
+    type: 'timestamp with time zone',
+    name: 'deleted_at',
+    nullable: true,
+  })
+  deletedAt!: Date | null;
 }

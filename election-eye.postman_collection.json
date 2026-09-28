@@ -336,10 +336,84 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": 1\n}"
+              "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedLgaId\": {{lga-id}},\n  \"assignedWardId\": {{ward-id}},\n  \"assignedPuId\": {{polling-unit-id}},\n  \"isActive\": true\n}"
             },
             "url": "{{election-eye-base-url}}/user"
-          }
+          },
+          "response": [
+            {
+              "name": "Scenario 1: LGA Coordinator (Assigned to an LGA)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role_id\": 4,\n  \"assignedLgaId\": 101,\n  \"isActive\": true\n}"
+                },
+                "url": "{{election-eye-base-url}}/user"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 10,\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role\": {\n    \"id\": 4,\n    \"name\": \"LGA Coordinator\",\n    \"code\": \"LGA_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"isActive\": true,\n  \"isEmailVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 2: Ward Coordinator (Assigned to LGA & Ward)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role_id\": 5,\n  \"assignedLgaId\": 101,\n  \"assignedWardId\": 1001,\n  \"isActive\": true\n}"
+                },
+                "url": "{{election-eye-base-url}}/user"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 11,\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role\": {\n    \"id\": 5,\n    \"name\": \"Ward Coordinator\",\n    \"code\": \"WARD_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"isActive\": true,\n  \"isEmailVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 3: Polling Unit Agent (Assigned to LGA, Ward, PU with IMEI binding)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedLgaId\": 101,\n  \"assignedWardId\": 1001,\n  \"assignedPuId\": 5001,\n  \"deviceImei\": \"358923058291024\",\n  \"isActive\": true\n}"
+                },
+                "url": "{{election-eye-base-url}}/user"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": { \"id\": 101, \"name\": \"Ikeja\" },\n  \"assignedWard\": { \"id\": 1001, \"name\": \"Alausa\" },\n  \"assignedPu\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"deviceImei\": \"358923058291024\",\n  \"isActive\": true,\n  \"isEmailVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 4: Aspirant User (Linked to an Aspirant profile)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"aspirant.user@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"role_id\": 7,\n  \"aspirantId\": 12,\n  \"isActive\": true\n}"
+                },
+                "url": "{{election-eye-base-url}}/user"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"aspirant.user@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"role\": {\n    \"id\": 7,\n    \"name\": \"Aspirant\",\n    \"code\": \"ASPIRANT\"\n  },\n  \"aspirant\": {\n    \"id\": 12,\n    \"firstName\": \"Ifeanyi\",\n    \"lastName\": \"Nwosu\"\n  },\n  \"isActive\": true,\n  \"isEmailVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            }
+          ]
         },
         {
           "name": "Get All Users",
@@ -355,7 +429,17 @@
                 }
               ]
             },
-            "url": "{{election-eye-base-url}}/user"
+            "url": {
+              "raw": "{{election-eye-base-url}}/user?page=1&limit=20&search=",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["user"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "search", "value": "" },
+                { "key": "isActive", "value": "true", "disabled": true }
+              ]
+            }
           }
         },
         {
@@ -455,7 +539,17 @@
                 }
               ]
             },
-            "url": "{{election-eye-base-url}}/admins"
+            "url": {
+              "raw": "{{election-eye-base-url}}/admins?page=1&limit=20&search=",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["admins"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "search", "value": "" },
+                { "key": "isActive", "value": "true", "disabled": true }
+              ]
+            }
           }
         },
         {
@@ -1256,10 +1350,102 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Lagos State Governorship\",\n  \"category\": \"GUBERNATORIAL\",\n  \"stateId\": {{state-id}},\n  \"isActive\": true\n}"
+              "raw": "{\n  \"title\": \"Lagos State Governorship\",\n  \"category\": \"GUBERNATORIAL\",\n  \"stateId\": {{state-id}}\n}"
             },
             "url": "{{election-eye-base-url}}/electoral-offices"
-          }
+          },
+          "response": [
+            {
+              "name": "Scenario 1: Presidential Office (Country-wide, no stateId required)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Federal Republic of Nigeria Presidential Election\",\n  \"category\": \"PRESIDENTIAL\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/electoral-offices"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 1,\n  \"title\": \"Federal Republic of Nigeria Presidential Election\",\n  \"category\": \"PRESIDENTIAL\",\n  \"state\": null,\n  \"lgas\": [],\n  \"wards\": [],\n  \"isActive\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 2: Gubernatorial Office (State-wide, stateId required, no LGAs/Wards needed)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Lagos State Governorship Election\",\n  \"category\": \"GUBERNATORIAL\",\n  \"stateId\": {{state-id}}\n}"
+                },
+                "url": "{{election-eye-base-url}}/electoral-offices"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 2,\n  \"title\": \"Lagos State Governorship Election\",\n  \"category\": \"GUBERNATORIAL\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [],\n  \"wards\": [],\n  \"isActive\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 3: Senatorial District (stateId & lgaIds required)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Delta North Senatorial District\",\n  \"category\": \"SENATORIAL\",\n  \"stateId\": {{state-id}},\n  \"lgaIds\": [{{lga-id-1}}, {{lga-id-2}}]\n}"
+                },
+                "url": "{{election-eye-base-url}}/electoral-offices"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 3,\n  \"title\": \"Delta North Senatorial District\",\n  \"category\": \"SENATORIAL\",\n  \"state\": {\n    \"id\": 10,\n    \"name\": \"Delta\"\n  },\n  \"lgas\": [\n    { \"id\": 101, \"name\": \"Aniocha North\" },\n    { \"id\": 102, \"name\": \"Aniocha South\" }\n  ],\n  \"wards\": [],\n  \"isActive\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 4: House of Representatives (Federal Constituency: stateId & lgaIds or wardIds)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Ikeja Federal Constituency\",\n  \"category\": \"REPS\",\n  \"stateId\": {{state-id}},\n  \"lgaIds\": [{{lga-id}}]\n}"
+                },
+                "url": "{{election-eye-base-url}}/electoral-offices"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 4,\n  \"title\": \"Ikeja Federal Constituency\",\n  \"category\": \"REPS\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [\n    { \"id\": 301, \"name\": \"Ikeja\" }\n  ],\n  \"wards\": [],\n  \"isActive\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 5: State House of Assembly (State Constituency: stateId & wardIds/lgaIds)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Alimosho Constituency 01\",\n  \"category\": \"STATE_HOUSE\",\n  \"stateId\": {{state-id}},\n  \"lgaIds\": [{{lga-id}}],\n  \"wardIds\": [{{ward-id-1}}, {{ward-id-2}}]\n}"
+                },
+                "url": "{{election-eye-base-url}}/electoral-offices"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 5,\n  \"title\": \"Alimosho Constituency 01\",\n  \"category\": \"STATE_HOUSE\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [\n    { \"id\": 302, \"name\": \"Alimosho\" }\n  ],\n  \"wards\": [\n    { \"id\": 1001, \"name\": \"Ipaja North\" },\n    { \"id\": 1002, \"name\": \"Ipaja South\" }\n  ],\n  \"isActive\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            }
+          ]
         },
         {
           "name": "Get All Electoral Offices",
@@ -1455,7 +1641,45 @@
               "raw": "{\n  \"title\": \"Lagos State Governorship Election\",\n  \"category\": \"GUBERNATORIAL\",\n  \"stateId\": {{state-id}},\n  \"isActive\": true\n}"
             },
             "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}"
-          }
+          },
+          "response": [
+            {
+              "name": "Scenario 1: Update Title & Status",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Updated Lagos State Governorship Election 2027\",\n  \"isActive\": true\n}"
+                },
+                "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 2,\n  \"title\": \"Updated Lagos State Governorship Election 2027\",\n  \"category\": \"GUBERNATORIAL\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [],\n  \"wards\": [],\n  \"isActive\": true,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:15:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 2: Update Senatorial District LGAs",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"lgaIds\": [101, 102, 103]\n}"
+                },
+                "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 3,\n  \"title\": \"Delta North Senatorial District\",\n  \"category\": \"SENATORIAL\",\n  \"state\": {\n    \"id\": 10,\n    \"name\": \"Delta\"\n  },\n  \"lgas\": [\n    { \"id\": 101, \"name\": \"Aniocha North\" },\n    { \"id\": 102, \"name\": \"Aniocha South\" },\n    { \"id\": 103, \"name\": \"Ika North East\" }\n  ],\n  \"wards\": [],\n  \"isActive\": true,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:20:00.000Z\"\n}"
+            }
+          ]
         },
         {
           "name": "Delete Electoral Office",
@@ -1493,12 +1717,83 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"ifeanyi.nwosu@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"politicalPartyId\": 1,\n  \"electoralOfficeId\": {{office-id}},\n  \"createdByAdminId\": {{admin-id}}\n}"
+              "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"ifeanyi.nwosu@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"politicalPartyId\": 1,\n  \"electoralOfficeId\": {{office-id}},\n  \"createdByAdminId\": {{admin-id}},\n  \"role_id\": 7\n}"
             },
             "url": "{{election-eye-base-url}}/aspirants"
+          },
+          "response": [
+            {
+              "name": "Create Aspirant - Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"ifeanyi.nwosu@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"politicalPartyId\": 1,\n  \"electoralOfficeId\": 2,\n  \"createdByAdminId\": 1,\n  \"role_id\": 7\n}"
+                },
+                "url": "{{election-eye-base-url}}/aspirants"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"politicalParty\": {\n    \"id\": 1,\n    \"name\": \"All Progressives Congress\",\n    \"code\": \"APC\"\n  },\n  \"electoralOffice\": {\n    \"id\": 2,\n    \"title\": \"Lagos State Governorship Election\",\n    \"category\": \"GUBERNATORIAL\"\n  },\n  \"accountUserId\": 25,\n  \"isActive\": true,\n  \"createdAt\": \"2026-09-28T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-28T10:00:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Aspirants",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants?page=1&limit=20&search=&partyId=&officeId=&isActive=true",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["aspirants"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "search", "value": "" },
+                { "key": "partyId", "value": "", "disabled": true },
+                { "key": "officeId", "value": "", "disabled": true },
+                { "key": "isActive", "value": "true", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Aspirant By ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}"
           }
         }
       ]
@@ -1526,7 +1821,45 @@
               "raw": "{\n  \"electoralOfficeId\": {{office-id}},\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"aspirantId\": {{aspirant-id}},\n  \"totalRegisteredVoters\": 1200,\n  \"totalAccreditedVoters\": 750,\n  \"totalValidVotes\": 700,\n  \"rejectedVotes\": 30,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/sample-ec8a.jpg\",\n  \"partyBreakdown\": [\n    { \"politicalPartyId\": 1, \"votes\": 400 },\n    { \"politicalPartyId\": 2, \"votes\": 250 },\n    { \"politicalPartyId\": 3, \"votes\": 50 }\n  ]\n}"
             },
             "url": "{{election-eye-base-url}}/results"
-          }
+          },
+          "response": [
+            {
+              "name": "Scenario 1: Standard Polling Unit Result Submission with EC8A Image",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"electoralOfficeId\": 2,\n  \"pollingUnitId\": 5001,\n  \"totalValidVotes\": 650,\n  \"rejectedVotes\": 25,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/pu5001-ec8a.jpg\",\n  \"partyBreakdown\": [\n    { \"politicalPartyId\": 1, \"votes\": 350 },\n    { \"politicalPartyId\": 2, \"votes\": 200 },\n    { \"politicalPartyId\": 3, \"votes\": 100 }\n  ]\n}"
+                },
+                "url": "{{election-eye-base-url}}/results"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 101,\n  \"electoralOffice\": { \"id\": 2, \"title\": \"Lagos State Governorship Election\" },\n  \"pollingUnit\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"totalValidVotes\": 650,\n  \"rejectedVotes\": 25,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/pu5001-ec8a.jpg\",\n  \"isVerified\": false,\n  \"auditStatus\": \"PENDING\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 2: Detailed Result Submission with Registered & Accredited Voters & Aspirant Link",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"electoralOfficeId\": 2,\n  \"pollingUnitId\": 5001,\n  \"aspirantId\": 12,\n  \"totalRegisteredVoters\": 1200,\n  \"totalAccreditedVoters\": 750,\n  \"totalValidVotes\": 700,\n  \"rejectedVotes\": 30,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/pu5001-ec8a.jpg\",\n  \"partyBreakdown\": [\n    { \"politicalPartyId\": 1, \"votes\": 400 },\n    { \"politicalPartyId\": 2, \"votes\": 250 },\n    { \"politicalPartyId\": 3, \"votes\": 50 }\n  ]\n}"
+                },
+                "url": "{{election-eye-base-url}}/results"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 102,\n  \"electoralOffice\": { \"id\": 2, \"title\": \"Lagos State Governorship Election\" },\n  \"pollingUnit\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"aspirant\": { \"id\": 12, \"firstName\": \"Ifeanyi\", \"lastName\": \"Nwosu\" },\n  \"totalRegisteredVoters\": 1200,\n  \"totalAccreditedVoters\": 750,\n  \"totalValidVotes\": 700,\n  \"rejectedVotes\": 30,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/pu5001-ec8a.jpg\",\n  \"isVerified\": false,\n  \"auditStatus\": \"PENDING\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            }
+          ]
         },
         {
           "name": "Get All Results",
@@ -1710,7 +2043,63 @@
               "raw": "{\n  \"auditStatus\": \"VERIFIED\",\n  \"rejectionReason\": null\n}"
             },
             "url": "{{election-eye-base-url}}/results/{{result-id}}/verify"
-          }
+          },
+          "response": [
+            {
+              "name": "Scenario 1: Verify & Approve Result",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"auditStatus\": \"VERIFIED\",\n  \"rejectionReason\": null\n}"
+                },
+                "url": "{{election-eye-base-url}}/results/{{result-id}}/verify"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 101,\n  \"isVerified\": true,\n  \"auditStatus\": \"VERIFIED\",\n  \"rejectionReason\": null,\n  \"verifiedAt\": \"2026-09-26T10:30:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 2: Reject Result with Reason",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"auditStatus\": \"REJECTED\",\n  \"rejectionReason\": \"Mismatch between uploaded EC8A form votes and entered figures.\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/results/{{result-id}}/verify"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 101,\n  \"isVerified\": false,\n  \"auditStatus\": \"REJECTED\",\n  \"rejectionReason\": \"Mismatch between uploaded EC8A form votes and entered figures.\",\n  \"verifiedAt\": \"2026-09-26T10:35:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 3: Flag Result for Investigation",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"auditStatus\": \"FLAGGED\",\n  \"rejectionReason\": \"Reported total votes exceed accredited voters for this polling unit.\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/results/{{result-id}}/verify"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 101,\n  \"isVerified\": false,\n  \"auditStatus\": \"FLAGGED\",\n  \"rejectionReason\": \"Reported total votes exceed accredited voters for this polling unit.\",\n  \"verifiedAt\": \"2026-09-26T10:40:00.000Z\"\n}"
+            }
+          ]
         }
       ]
     },
@@ -1737,7 +2126,45 @@
               "raw": "{\n  \"categoryId\": 1,\n  \"description\": \"Ballot box snatching by armed thugs at polling unit.\",\n  \"severityLevel\": \"CRITICAL\",\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"geolocationLat\": 6.5244,\n  \"geolocationLng\": 3.3792,\n  \"mediaVideoUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/videos/clip1.mp4\"],\n  \"mediaPictureUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo1.jpg\", \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo2.jpg\"]\n}"
             },
             "url": "{{election-eye-base-url}}/incidents"
-          }
+          },
+          "response": [
+            {
+              "name": "Scenario 1: Critical Incident with GPS Geolocation & Media Evidences",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categoryId\": 1,\n  \"description\": \"Ballot box snatching by armed thugs at polling unit.\",\n  \"severityLevel\": \"CRITICAL\",\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"geolocationLat\": 6.5244,\n  \"geolocationLng\": 3.3792,\n  \"mediaVideoUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/videos/clip1.mp4\"],\n  \"mediaPictureUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo1.jpg\", \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo2.jpg\"]\n}"
+                },
+                "url": "{{election-eye-base-url}}/incidents"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 50,\n  \"category\": { \"id\": 1, \"name\": \"Violence / Thuggery\" },\n  \"description\": \"Ballot box snatching by armed thugs at polling unit.\",\n  \"severityLevel\": \"CRITICAL\",\n  \"status\": \"OPEN\",\n  \"pollingUnit\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"geolocationLat\": 6.5244,\n  \"geolocationLng\": 3.3792,\n  \"mediaVideoUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/videos/clip1.mp4\"],\n  \"mediaPictureUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo1.jpg\", \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo2.jpg\"],\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 2: Standard Incident by Polling Unit & Description",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categoryId\": 2,\n  \"description\": \"Late arrival of INEC election officials and voting materials.\",\n  \"severityLevel\": \"MEDIUM\",\n  \"pollingUnitId\": {{polling-unit-id}}\n}"
+                },
+                "url": "{{election-eye-base-url}}/incidents"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 51,\n  \"category\": { \"id\": 2, \"name\": \"Logistical Delay\" },\n  \"description\": \"Late arrival of INEC election officials and voting materials.\",\n  \"severityLevel\": \"MEDIUM\",\n  \"status\": \"OPEN\",\n  \"pollingUnit\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"createdAt\": \"2026-09-26T10:05:00.000Z\"\n}"
+            }
+          ]
         },
         {
           "name": "Get All Incidents",
@@ -2095,6 +2522,28 @@
               ]
             },
             "url": "{{election-eye-base-url}}/political-parties/{{party-id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Get System Actors Summary",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/reports/summary"
           }
         }
       ]

@@ -20,7 +20,7 @@ const isProd =
         database: config.get('database.name'),
         autoLoadEntities: true,
         synchronize: !isProd,
-        migrations: [__dirname + '/migrations/*{.ts,.js}'],
+        migrations: [__dirname + '/../../migrations/*{.ts,.js}'],
         migrationsRun: isProd,
         ssl: isProd ? { rejectUnauthorized: false } : false,
       }),

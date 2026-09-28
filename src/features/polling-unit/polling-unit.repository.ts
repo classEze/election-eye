@@ -122,4 +122,8 @@ export class PollingUnitRepository {
     }
     return this.repository.remove(pollingUnit);
   }
+
+  async count(): Promise<number> {
+    return this.repository.count();
+  }
 }

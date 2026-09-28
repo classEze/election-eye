@@ -70,4 +70,11 @@ export class ElectoralOfficeRepository {
     }
     return this.repository.remove(office);
   }
+
+  async count(isActive?: boolean): Promise<number> {
+    if (isActive !== undefined) {
+      return this.repository.count({ where: { isActive } });
+    }
+    return this.repository.count();
+  }
 }

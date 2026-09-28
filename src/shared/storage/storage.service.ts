@@ -10,10 +10,7 @@ export class StorageService {
    * @param folder Destination S3 prefix/folder
    * @returns Generated S3/CloudFront object URL
    */
-  async uploadFile(
-    file: Express.Multer.File,
-    folder = 'uploads',
-  ): Promise<string> {
+  uploadFile(file: Express.Multer.File, folder = 'uploads'): Promise<string> {
     const fileExt = file.originalname
       ? file.originalname.split('.').pop()
       : 'bin';
@@ -25,7 +22,9 @@ export class StorageService {
 
     // Dummy S3 upload logic: simulates PutObjectCommand to AWS S3 bucket
     // In production, instantiate S3Client and run PutObjectCommand with file.buffer
-    return `https://s3.eu-west-1.amazonaws.com/election-eye-storage/${key}`;
+    return Promise.resolve(
+      `https://s3.eu-west-1.amazonaws.com/election-eye-storage/${key}`,
+    );
   }
 
   /**
