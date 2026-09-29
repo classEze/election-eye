@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Aspirant } from './aspirant.entity';
 import { AspirantQueryDto } from './aspirant.dto';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 @Injectable()
 export class AspirantRepository {
@@ -42,9 +43,9 @@ export class AspirantRepository {
       });
     }
 
-    if (queryDto?.isActive !== undefined) {
-      qb.andWhere('aspirant.isActive = :isActive', {
-        isActive: queryDto.isActive,
+    if (queryDto?.status !== undefined) {
+      qb.andWhere('aspirant.status = :status', {
+        status: queryDto.status,
       });
     }
 
@@ -83,15 +84,16 @@ export class AspirantRepository {
     active: number;
     inactive: number;
   }> {
-    const [total, active] = await Promise.all([
+    const [total, active, inactive] = await Promise.all([
       this.repository.count(),
-      this.repository.count({ where: { isActive: true } }),
+      this.repository.count({ where: { status: UserStatus.ACTIVE } }),
+      this.repository.count({ where: { status: UserStatus.INACTIVE } }),
     ]);
 
     return {
       total,
       active,
-      inactive: total - active,
+      inactive,
     };
   }
 }

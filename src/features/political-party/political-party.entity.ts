@@ -10,6 +10,8 @@ import {
 } from 'typeorm';
 import { Aspirant } from '../aspirant/aspirant.entity';
 
+import { UserStatus } from '../../shared/enums/status.enum';
+
 @Entity('political_parties')
 export class PoliticalParty {
   @PrimaryGeneratedColumn()
@@ -33,8 +35,12 @@ export class PoliticalParty {
   })
   partyColorHex!: string | null;
 
-  @Column({ name: 'is_active', type: 'boolean', default: true })
-  isActive!: boolean;
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.ACTIVE,
+  })
+  status!: UserStatus;
 
   @OneToMany(() => Aspirant, (aspirant) => aspirant.politicalParty)
   aspirants!: Aspirant[];

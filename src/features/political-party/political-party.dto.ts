@@ -1,5 +1,5 @@
 import {
-  IsBoolean,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -7,6 +7,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { UserStatus } from '../../shared/enums/status.enum';
 
 export class CreatePoliticalPartyDto {
   @IsNotEmpty({ message: 'Party name is required.' })
@@ -34,13 +35,8 @@ export class CreatePoliticalPartyDto {
   logoUrl?: string;
 
   @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }: { value: boolean | string }) => {
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return value;
-  })
-  isActive?: boolean = true;
+  @IsEnum(UserStatus)
+  status?: UserStatus = UserStatus.ACTIVE;
 }
 
 export class UpdatePoliticalPartyDto {
@@ -69,13 +65,8 @@ export class UpdatePoliticalPartyDto {
   logoUrl?: string;
 
   @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }: { value: boolean | string }) => {
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return value;
-  })
-  isActive?: boolean;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 }
 
 export class UpdatePartyLogoDto {
@@ -86,22 +77,8 @@ export class UpdatePartyLogoDto {
 
 export class PoliticalPartyQueryDto {
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === undefined || value === null || value === '') return undefined;
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return undefined;
-  })
-  is_active?: boolean;
-
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (value === undefined || value === null || value === '') return undefined;
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return undefined;
-  })
-  isActive?: boolean;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 
   @IsOptional()
   @IsString()

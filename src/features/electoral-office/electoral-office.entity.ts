@@ -14,6 +14,7 @@ import { State } from '../../features/state/state.entity';
 import { Lga } from '../../features/lga/lga.entity';
 import { Ward } from '../../features/ward/ward.entity';
 import { Aspirant } from '../aspirant/aspirant.entity';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 export enum OfficeCategory {
   PRESIDENTIAL = 'PRESIDENTIAL',
@@ -60,8 +61,12 @@ export class ElectoralOffice {
   @OneToMany(() => Aspirant, (aspirant) => aspirant.electoralOffice)
   aspirants!: Aspirant[];
 
-  @Column({ name: 'is_active', type: 'boolean', default: false })
-  isActive!: boolean;
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.PENDING,
+  })
+  status!: UserStatus;
 
   @CreateDateColumn({ type: 'timestamp with time zone', name: 'created_at' })
   createdAt!: Date;

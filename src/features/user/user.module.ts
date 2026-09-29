@@ -6,13 +6,14 @@ import { NotificationModule } from 'src/shared/notification/notification.module'
 import { VerificationModule } from 'src/shared/verification/verification.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { Role } from '../role/role.entity';
+import { RoleModule } from '../role/role.module';
 
 @Module({
   imports: [
     NotificationModule,
     VerificationModule,
-    TypeOrmModule.forFeature([User, Role]),
+    TypeOrmModule.forFeature([User]),
+    RoleModule,
   ],
   controllers: [UserController],
   providers: [UserService, UserRepository],

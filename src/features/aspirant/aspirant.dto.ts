@@ -1,6 +1,6 @@
 import {
-  IsBoolean,
   IsEmail,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -9,7 +9,8 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 export class CreateAspirantDto {
   @IsString()
@@ -34,19 +35,6 @@ export class CreateAspirantDto {
   @IsNumber()
   @Type(() => Number)
   electoralOfficeId!: number;
-
-  @IsNumber()
-  @Type(() => Number)
-  createdByAdminId!: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  role_id?: number;
-
-  @IsOptional()
-  @IsString()
-  logoUrl?: string;
 }
 
 export class AspirantQueryDto {
@@ -78,12 +66,6 @@ export class AspirantQueryDto {
   officeId?: number;
 
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === undefined || value === null || value === '') return undefined;
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return undefined;
-  })
-  @IsBoolean()
-  isActive?: boolean;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 }

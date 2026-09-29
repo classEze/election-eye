@@ -1,6 +1,7 @@
 export enum CacheKeyPrefix {
   USER_INFO_CLI = 'USER_INFO_CLI_',
   USER_INFO_ADM = 'USER_INFO_ADM_',
+  ROLES = 'ROLES_ALL',
 }
 
 export enum CacheTTL {

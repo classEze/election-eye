@@ -22,6 +22,8 @@ const MAX_PICTURE_COUNT = 5;
 const MAX_VIDEO_SIZE = 25 * 1024 * 1024; // 25MB per video
 const MAX_PICTURE_SIZE = 5 * 1024 * 1024; // 5MB per picture
 
+import { UserStatus } from '../../shared/enums/status.enum';
+
 @Injectable()
 export class IncidentService {
   constructor(
@@ -33,7 +35,7 @@ export class IncidentService {
 
   async getCategories(): Promise<IncidentCategory[]> {
     return this.categoryRepository.find({
-      where: { isActive: true },
+      where: { status: UserStatus.ACTIVE },
       order: { name: 'ASC' },
     });
   }
@@ -48,7 +50,7 @@ export class IncidentService {
   ): Promise<Incident> {
     // 1. Verify Category Exists
     const category = await this.categoryRepository.findOne({
-      where: { id: dto.categoryId, isActive: true },
+      where: { id: dto.categoryId, status: UserStatus.ACTIVE },
     });
     if (!category) {
       throw new NotFoundException(

@@ -10,6 +10,7 @@ import {
   CreateElectoralOfficeDto,
   UpdateElectoralOfficeDto,
   PaginationQueryDto,
+  ElectoralOfficeQueryDto,
 } from './electoral-office.dto';
 import { ElectoralOfficeRepository } from './electoral-office.repository';
 import { State } from '../state/state.entity';
@@ -17,6 +18,7 @@ import { Lga } from '../lga/lga.entity';
 import { Ward } from '../ward/ward.entity';
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
 import { Aspirant } from '../aspirant/aspirant.entity';
+import { UserStatus } from '../../shared/enums/status.enum';
 
 export interface OfficeBoundaries {
   officeId: number;
@@ -163,12 +165,15 @@ export class ElectoralOfficeService {
       state: state || undefined,
       lgas,
       wards,
-      isActive: false,
+      status: UserStatus.PENDING,
     });
   }
 
-  async findAll(): Promise<ElectoralOffice[]> {
-    return this.officeRepository.findAll();
+  async findAll(queryDto?: ElectoralOfficeQueryDto): Promise<{
+    data: ElectoralOffice[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    return this.officeRepository.findAll(queryDto);
   }
 
   async findOne(id: number): Promise<ElectoralOffice> {
@@ -181,9 +186,9 @@ export class ElectoralOfficeService {
 
   async findByCategory(
     category: OfficeCategory,
-    isActive?: boolean,
+    status?: UserStatus,
   ): Promise<ElectoralOffice[]> {
-    return this.officeRepository.findByCategory(category, isActive);
+    return this.officeRepository.findByCategory(category, status);
   }
 
   async update(
@@ -198,8 +203,8 @@ export class ElectoralOfficeService {
     if (dto.category !== undefined) {
       office.category = dto.category;
     }
-    if (dto.isActive !== undefined) {
-      office.isActive = dto.isActive;
+    if (dto.status !== undefined) {
+      office.status = dto.status;
     }
 
     const effectiveCategory = dto.category || office.category;

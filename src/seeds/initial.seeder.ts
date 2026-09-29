@@ -29,14 +29,14 @@ export default async function seedData(dataSource: DataSource): Promise<void> {
     // 2. SEED INCIDENT CATEGORIES
     // ==========================================
     await dataSource.query(`
-      INSERT INTO "incident_categories" (name, code, description, is_active, created_at, updated_at) VALUES
-      ('Ballot Box Snatching', 'BALLOT_SNATCHING', 'Forcible removal or theft of ballot boxes from the polling station.', true, NOW(), NOW()),
-      ('Vote Buying', 'VOTE_BUYING', 'Financial inducements or distribution of materials to voters to influence choices.', true, NOW(), NOW()),
-      ('BVAS Malfunction', 'BVAS_MALFUNCTION', 'Technical delays, biometric authentication issues, or complete device breakdown.', true, NOW(), NOW()),
-      ('Late Arrival of Officials', 'LATE_START', 'INEC officials or voting materials arrived past the stipulated official start time.', true, NOW(), NOW()),
-      ('Violence / Thuggery', 'VIOLENCE', 'Physical altercations, intimidation, armed presence, or disruptive riots.', true, NOW(), NOW()),
-      ('Peaceful Protest / Delays', 'PROTEST', 'Voter agitations or structured demonstrations disrupting regular polling workflows.', true, NOW(), NOW()),
-      ('Other Disruption', 'OTHER', 'Unclassified structural errors, geographical issues, or environmental emergencies.', true, NOW(), NOW())
+      INSERT INTO "incident_categories" (name, code, description, status, created_at, updated_at) VALUES
+      ('Ballot Box Snatching', 'BALLOT_SNATCHING', 'Forcible removal or theft of ballot boxes from the polling station.', 'active', NOW(), NOW()),
+      ('Vote Buying', 'VOTE_BUYING', 'Financial inducements or distribution of materials to voters to influence choices.', 'active', NOW(), NOW()),
+      ('BVAS Malfunction', 'BVAS_MALFUNCTION', 'Technical delays, biometric authentication issues, or complete device breakdown.', 'active', NOW(), NOW()),
+      ('Late Arrival of Officials', 'LATE_START', 'INEC officials or voting materials arrived past the stipulated official start time.', 'active', NOW(), NOW()),
+      ('Violence / Thuggery', 'VIOLENCE', 'Physical altercations, intimidation, armed presence, or disruptive riots.', 'active', NOW(), NOW()),
+      ('Peaceful Protest / Delays', 'PROTEST', 'Voter agitations or structured demonstrations disrupting regular polling workflows.', 'active', NOW(), NOW()),
+      ('Other Disruption', 'OTHER', 'Unclassified structural errors, geographical issues, or environmental emergencies.', 'active', NOW(), NOW())
       ON CONFLICT (code) DO NOTHING;
     `);
 
@@ -44,29 +44,29 @@ export default async function seedData(dataSource: DataSource): Promise<void> {
     // 3. SEED REGISTERED POLITICAL PARTIES (INEC 2026)
     // ==========================================
     await dataSource.query(`
-      INSERT INTO "political_parties" (name, code, party_color_hex, is_active, created_at, updated_at) VALUES
-      ('All Progressives Congress', 'APC', '#00BFFF', true, NOW(), NOW()),
-      ('Peoples Democratic Party', 'PDP', '#008000', true, NOW(), NOW()),
-      ('Labour Party', 'LP', '#FF0000', true, NOW(), NOW()),
-      ('New Nigeria Peoples Party', 'NNPP', '#FFD700', true, NOW(), NOW()),
-      ('All Progressives Grand Alliance', 'APGA', '#006400', true, NOW(), NOW()),
-      ('Social Democratic Party', 'SDP', '#FF8C00', true, NOW(), NOW()),
-      ('African Democratic Congress', 'ADC', '#00008B', true, NOW(), NOW()),
-      ('Zenith Labour Party', 'ZLP', '#FF1493', true, NOW(), NOW()),
-      ('Young Progressives Party', 'YPP', '#8B008B', true, NOW(), NOW()),
-      ('People’s Redemption Party', 'PRP', '#800000', true, NOW(), NOW()),
-      ('Action Democratic Party', 'ADP', '#A0522D', true, NOW(), NOW()),
-      ('Allied People’s Movement', 'APM', '#2E8B57', true, NOW(), NOW()),
-      ('National Rescue Movement', 'NRM', '#4682B4', true, NOW(), NOW()),
-      ('Boot Party', 'BP', '#D2691E', true, NOW(), NOW()),
-      ('Accord', 'A', '#FF7F50', true, NOW(), NOW()),
-      ('Action Alliance', 'AA', '#7FFF00', true, NOW(), NOW()),
-      ('African Action Congress', 'AAC', '#DC143C', true, NOW(), NOW()),
-      ('Action Patriotic Party', 'APP', '#00FFFF', true, NOW(), NOW()),
-      ('New Nigeria Party', 'NNP', '#4B0082', true, NOW(), NOW()),
-      ('Youth Democratic Party', 'YDP', '#FF4500', true, NOW(), NOW()),
-      ('Democratic Leadership Alliance', 'DLA', '#48D1CC', true, NOW(), NOW()),
-      ('Nigeria Democratic Congress', 'NDC', '#8A2BE2', true, NOW(), NOW())
+      INSERT INTO "political_parties" (name, code, party_color_hex, status, created_at, updated_at) VALUES
+      ('All Progressives Congress', 'APC', '#00BFFF', 'active', NOW(), NOW()),
+      ('Peoples Democratic Party', 'PDP', '#008000', 'active', NOW(), NOW()),
+      ('Labour Party', 'LP', '#FF0000', 'active', NOW(), NOW()),
+      ('New Nigeria Peoples Party', 'NNPP', '#FFD700', 'active', NOW(), NOW()),
+      ('All Progressives Grand Alliance', 'APGA', '#006400', 'active', NOW(), NOW()),
+      ('Social Democratic Party', 'SDP', '#FF8C00', 'active', NOW(), NOW()),
+      ('African Democratic Congress', 'ADC', '#00008B', 'active', NOW(), NOW()),
+      ('Zenith Labour Party', 'ZLP', '#FF1493', 'active', NOW(), NOW()),
+      ('Young Progressives Party', 'YPP', '#8B008B', 'active', NOW(), NOW()),
+      ('People’s Redemption Party', 'PRP', '#800000', 'active', NOW(), NOW()),
+      ('Action Democratic Party', 'ADP', '#A0522D', 'active', NOW(), NOW()),
+      ('Allied People’s Movement', 'APM', '#2E8B57', 'active', NOW(), NOW()),
+      ('National Rescue Movement', 'NRM', '#4682B4', 'active', NOW(), NOW()),
+      ('Boot Party', 'BP', '#D2691E', 'active', NOW(), NOW()),
+      ('Accord', 'A', '#FF7F50', 'active', NOW(), NOW()),
+      ('Action Alliance', 'AA', '#7FFF00', 'active', NOW(), NOW()),
+      ('African Action Congress', 'AAC', '#DC143C', 'active', NOW(), NOW()),
+      ('Action Patriotic Party', 'APP', '#00FFFF', 'active', NOW(), NOW()),
+      ('New Nigeria Party', 'NNP', '#4B0082', 'active', NOW(), NOW()),
+      ('Youth Democratic Party', 'YDP', '#FF4500', 'active', NOW(), NOW()),
+      ('Democratic Leadership Alliance', 'DLA', '#48D1CC', 'active', NOW(), NOW()),
+      ('Nigeria Democratic Congress', 'NDC', '#8A2BE2', 'active', NOW(), NOW())
       ON CONFLICT (code) DO NOTHING;
     `);
 

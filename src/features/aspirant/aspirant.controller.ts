@@ -26,8 +26,9 @@ export class AspirantController {
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() dto: CreateAspirantDto) {
-    return this.aspirantService.create(dto);
+  create(@GetUser() admin: any, @Body() dto: CreateAspirantDto) {
+    const adminId = Number(admin?.id || admin?.sub);
+    return this.aspirantService.create(dto, adminId);
   }
 
   @Allowed([
@@ -47,11 +48,12 @@ export class AspirantController {
 
   @Allowed([RoleCode.ASPIRANT])
   @Get('me/users')
-  findMyUsers(
-    @GetUser() user: any,
-    @Query() query: AspirantUsersQueryDto,
-  ) {
-    return this.userService.findMyAspirantUsers(user, query?.roleId ?? query?.role, query);
+  findMyUsers(@GetUser() user: any, @Query() query: AspirantUsersQueryDto) {
+    return this.userService.findMyAspirantUsers(
+      user,
+      query?.roleId ?? query?.role,
+      query,
+    );
   }
 
   @Allowed([RoleCode.ASPIRANT])
@@ -74,10 +76,7 @@ export class AspirantController {
 
   @Allowed([RoleCode.ASPIRANT])
   @Get('me/polling-unit-agents')
-  findMyPuAgents(
-    @GetUser() user: any,
-    @Query() query: AspirantUsersQueryDto,
-  ) {
+  findMyPuAgents(@GetUser() user: any, @Query() query: AspirantUsersQueryDto) {
     return this.userService.findMyPuAgents(user, query);
   }
 
@@ -96,7 +95,11 @@ export class AspirantController {
     @Param('aspirantId') aspirantId: string,
     @Query() query: AspirantUsersQueryDto,
   ) {
-    return this.userService.findAspirantUsers(+aspirantId, query?.roleId ?? query?.role, query);
+    return this.userService.findAspirantUsers(
+      +aspirantId,
+      query?.roleId ?? query?.role,
+      query,
+    );
   }
 
   @Allowed([

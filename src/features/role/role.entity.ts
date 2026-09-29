@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Admin } from '../admin/admin.entity';
+import { RoleCode } from './role.enum';
 
 @Entity('roles')
 export class Role {
@@ -20,7 +21,7 @@ export class Role {
 
   @Column()
   @Index('idx_roles_code_unique', { unique: true })
-  code!: string;
+  code!: RoleCode;
 
   @Column()
   type!: string;

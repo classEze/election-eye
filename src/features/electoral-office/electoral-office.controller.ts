@@ -20,6 +20,7 @@ import {
   UpdateElectoralOfficeDto,
   OfficeCategoryFilterQueryDto,
   PaginationQueryDto,
+  ElectoralOfficeQueryDto,
 } from './electoral-office.dto';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
 import { RoleCode } from '../role/role.enum';
@@ -50,8 +51,11 @@ export class ElectoralOfficeController {
   }
 
   @Get()
-  async findAll(): Promise<ElectoralOffice[]> {
-    return this.electoralOfficeService.findAll();
+  async findAll(@Query() query: ElectoralOfficeQueryDto): Promise<{
+    data: ElectoralOffice[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    return this.electoralOfficeService.findAll(query);
   }
 
   @Get('category/:category')
@@ -59,7 +63,7 @@ export class ElectoralOfficeController {
     @Param('category') category: OfficeCategory,
     @Query() filter: OfficeCategoryFilterQueryDto,
   ): Promise<ElectoralOffice[]> {
-    return this.electoralOfficeService.findByCategory(category, filter.isActive);
+    return this.electoralOfficeService.findByCategory(category, filter.status);
   }
 
   @Get('aspirant/:aspirantId/boundaries')

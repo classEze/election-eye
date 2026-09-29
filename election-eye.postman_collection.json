@@ -1443,7 +1443,19 @@
                 }
               ]
             },
-            "url": "{{election-eye-base-url}}/electoral-offices"
+            "url": {
+              "raw": "{{election-eye-base-url}}/electoral-offices?page=1&limit=20&search=",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["electoral-offices"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "search", "value": "" },
+                { "key": "category", "value": "GUBERNATORIAL", "disabled": true },
+                { "key": "stateId", "value": "{{state-id}}", "disabled": true },
+                { "key": "isActive", "value": "true", "disabled": true }
+              ]
+            }
           }
         },
         {
@@ -1707,7 +1719,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"ifeanyi.nwosu@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"politicalPartyId\": 1,\n  \"electoralOfficeId\": {{office-id}},\n  \"createdByAdminId\": {{admin-id}},\n  \"role_id\": 7\n}"
+              "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"ifeanyi.nwosu@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"politicalPartyId\": 1,\n  \"electoralOfficeId\": {{office-id}}\n}"
             },
             "url": "{{election-eye-base-url}}/aspirants"
           },
@@ -1721,7 +1733,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"ifeanyi.nwosu@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"politicalPartyId\": 1,\n  \"electoralOfficeId\": 2,\n  \"createdByAdminId\": 1,\n  \"role_id\": 7\n}"
+                  "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"ifeanyi.nwosu@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"politicalPartyId\": 1,\n  \"electoralOfficeId\": 2\n}"
                 },
                 "url": "{{election-eye-base-url}}/aspirants"
               },

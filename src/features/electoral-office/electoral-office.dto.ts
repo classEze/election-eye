@@ -4,13 +4,14 @@ import {
   IsEnum,
   IsOptional,
   IsNumber,
+  IsInt,
   IsArray,
-  IsBoolean,
   Min,
   Max,
 } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { OfficeCategory } from './electoral-office.entity';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 export class CreateElectoralOfficeDto {
   @IsString()
@@ -59,24 +60,15 @@ export class UpdateElectoralOfficeDto {
   @IsOptional()
   wardIds?: number[];
 
-  @IsBoolean()
+  @IsEnum(UserStatus)
   @IsOptional()
-  isActive?: boolean;
+  status?: UserStatus;
 }
 
 export class OfficeCategoryFilterQueryDto {
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === 'true' || value === true || value === 1 || value === '1') {
-      return true;
-    }
-    if (value === 'false' || value === false || value === 0 || value === '0') {
-      return false;
-    }
-    return undefined;
-  })
-  @IsBoolean()
-  isActive?: boolean;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 }
 
 export class PaginationQueryDto {
@@ -89,7 +81,39 @@ export class PaginationQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  @Min(10)
+  @Min(1)
   @Max(200)
   limit: number = 20;
+}
+
+export class ElectoralOfficeQueryDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page: number = 1;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit: number = 20;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @IsEnum(OfficeCategory)
+  category?: OfficeCategory;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  stateId?: number;
+
+  @IsOptional()
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 }

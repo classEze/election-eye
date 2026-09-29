@@ -7,6 +7,7 @@ import {
   PoliticalPartyQueryDto,
   UpdatePoliticalPartyDto,
 } from './political-party.dto';
+import { UserStatus } from '../../shared/enums/status.enum';
 
 @Injectable()
 export class PoliticalPartyRepository {
@@ -18,16 +19,8 @@ export class PoliticalPartyRepository {
   async findAll(queryDto?: PoliticalPartyQueryDto): Promise<PoliticalParty[]> {
     const qb = this.repository.createQueryBuilder('party');
 
-    // Handle is_active / isActive query param
-    const activeFilter =
-      queryDto?.is_active !== undefined
-        ? queryDto.is_active
-        : queryDto?.isActive !== undefined
-          ? queryDto.isActive
-          : undefined;
-
-    if (activeFilter !== undefined) {
-      qb.andWhere('party.is_active = :isActive', { isActive: activeFilter });
+    if (queryDto?.status) {
+      qb.andWhere('party.status = :status', { status: queryDto.status });
     }
 
     if (queryDto?.search) {
@@ -72,7 +65,7 @@ export class PoliticalPartyRepository {
       code: dto.code.toUpperCase(),
       partyColorHex: dto.partyColorHex ?? null,
       logoUrl: logoUrl ?? dto.logoUrl ?? null,
-      isActive: dto.isActive !== undefined ? dto.isActive : true,
+      status: dto.status !== undefined ? dto.status : UserStatus.ACTIVE,
     });
     return this.repository.save(entity);
   }
@@ -87,7 +80,7 @@ export class PoliticalPartyRepository {
     if (dto.code !== undefined) updateData.code = dto.code.toUpperCase();
     if (dto.partyColorHex !== undefined) updateData.partyColorHex = dto.partyColorHex;
     if (dto.logoUrl !== undefined) updateData.logoUrl = dto.logoUrl;
-    if (dto.isActive !== undefined) updateData.isActive = dto.isActive;
+    if (dto.status !== undefined) updateData.status = dto.status;
 
     await this.repository.update({ id }, updateData);
     return this.findById(id);
@@ -99,15 +92,15 @@ export class PoliticalPartyRepository {
   }
 
   async softDelete(id: number): Promise<boolean> {
-    // Mark isActive false and set deleted_at timestamp
-    await this.repository.update({ id }, { isActive: false });
+    // Mark status inactive and set deleted_at timestamp
+    await this.repository.update({ id }, { status: UserStatus.INACTIVE });
     const result = await this.repository.softDelete(id);
     return (result.affected || 0) > 0;
   }
 
-  async count(isActive?: boolean): Promise<number> {
-    if (isActive !== undefined) {
-      return this.repository.count({ where: { isActive } });
+  async count(status?: UserStatus): Promise<number> {
+    if (status !== undefined) {
+      return this.repository.count({ where: { status } });
     }
     return this.repository.count();
   }
