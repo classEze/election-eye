@@ -74,7 +74,7 @@ export class AdminService {
       emailAddress: result.emailAddress,
       phoneNumber: result.phoneNumber,
       role: result.role,
-      isActive: result.isActive,
+      status: result.status,
       isVerified: result.isVerified,
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,

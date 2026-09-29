@@ -10,6 +10,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Role } from '../role/role.entity';
+import { UserStatus } from 'src/shared/enums/status.enum';
 import { AdminEmailVerificationToken } from './admin-email-verification-token.entity';
 import { AdminPasswordResets } from './admin-password-resets.entity';
 
@@ -46,8 +47,12 @@ export class Admin {
   @OneToMany(() => AdminPasswordResets, (passwordReset) => passwordReset.admin)
   passwordResets!: AdminPasswordResets[];
 
-  @Column({ name: 'is_active', default: true })
-  isActive!: boolean;
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.PENDING,
+  })
+  status!: UserStatus;
 
   @Column({ name: 'is_verified', default: false })
   isVerified!: boolean;

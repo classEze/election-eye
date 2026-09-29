@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { Role } from '../role/role.entity';
 import { Aspirant } from '../aspirant/aspirant.entity';
+import { UserStatus } from 'src/shared/enums/status.enum';
 import { PasswordResets } from 'src/shared/entities/password-resets.entity';
 import { UserEmailVerificationToken } from 'src/shared/entities/user-email-verification-token.entity';
 import { Ward } from 'src/features/ward/ward.entity';
@@ -56,8 +57,12 @@ export class User {
   @JoinColumn({ name: 'role_id' })
   role!: Role;
 
-  @Column({ name: 'is_active', default: false })
-  isActive!: boolean;
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.PENDING,
+  })
+  status!: UserStatus;
 
   @Column({ name: 'is_verified', default: false })
   isVerified!: boolean;

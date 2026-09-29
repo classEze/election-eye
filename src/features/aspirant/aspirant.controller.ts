@@ -10,18 +10,20 @@ import {
 } from '@nestjs/common';
 import { CreateAspirantDto, AspirantQueryDto } from './aspirant.dto';
 import { AspirantService } from './aspirant.service';
+import { UserService } from '../user/user.service';
+import { AspirantUsersQueryDto } from '../user/user.dto';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
+import { GetUser } from 'src/shared/decorators/get-user.decorator';
 import { RoleCode } from '../role/role.enum';
 
 @Controller('aspirants')
 export class AspirantController {
-  constructor(private readonly aspirantService: AspirantService) {}
+  constructor(
+    private readonly aspirantService: AspirantService,
+    private readonly userService: UserService,
+  ) {}
 
-  @Allowed([
-    RoleCode.SUPER_ADMIN,
-    RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
-  ])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() dto: CreateAspirantDto) {
@@ -39,6 +41,110 @@ export class AspirantController {
   @Get()
   findAll(@Query() query: AspirantQueryDto) {
     return this.aspirantService.findAll(query);
+  }
+
+  // --- Logged-in Aspirant Campaign Team Endpoints (Must be declared before :id / :aspirantId) ---
+
+  @Allowed([RoleCode.ASPIRANT])
+  @Get('me/users')
+  findMyUsers(
+    @GetUser() user: any,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findMyAspirantUsers(user, query?.roleId ?? query?.role, query);
+  }
+
+  @Allowed([RoleCode.ASPIRANT])
+  @Get('me/lga-coordinators')
+  findMyLgaCoordinators(
+    @GetUser() user: any,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findMyLgaCoordinators(user, query);
+  }
+
+  @Allowed([RoleCode.ASPIRANT])
+  @Get('me/ward-coordinators')
+  findMyWardCoordinators(
+    @GetUser() user: any,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findMyWardCoordinators(user, query);
+  }
+
+  @Allowed([RoleCode.ASPIRANT])
+  @Get('me/polling-unit-agents')
+  findMyPuAgents(
+    @GetUser() user: any,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findMyPuAgents(user, query);
+  }
+
+  // --- Specific Aspirant Campaign Team Endpoints ---
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
+  @Get(':aspirantId/users')
+  findAspirantUsers(
+    @Param('aspirantId') aspirantId: string,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findAspirantUsers(+aspirantId, query?.roleId ?? query?.role, query);
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
+  @Get(':aspirantId/lga-coordinators')
+  findAspirantLgaCoordinators(
+    @Param('aspirantId') aspirantId: string,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findAspirantLgaCoordinators(+aspirantId, query);
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
+  @Get(':aspirantId/ward-coordinators')
+  findAspirantWardCoordinators(
+    @Param('aspirantId') aspirantId: string,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findAspirantWardCoordinators(+aspirantId, query);
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
+  @Get(':aspirantId/polling-unit-agents')
+  findAspirantPuAgents(
+    @Param('aspirantId') aspirantId: string,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findAspirantPuAgents(+aspirantId, query);
   }
 
   @Allowed([

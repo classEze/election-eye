@@ -20,6 +20,7 @@ import {
   getUserInfoCacheKey,
   getAdminInfoCacheKey,
 } from '../constants/cache.constant';
+import { UserStatus } from '../enums/status.enum';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
@@ -81,7 +82,7 @@ export class AuthenticationGuard implements CanActivate {
         throw new UnauthorizedException('User account not found');
       }
 
-      if (!dbUser.isActive) {
+      if (dbUser.status !== UserStatus.ACTIVE) {
         throw new UnauthorizedException('User account is not active');
       }
 

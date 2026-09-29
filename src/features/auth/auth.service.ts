@@ -33,6 +33,7 @@ import {
   QueueDictionary,
 } from 'src/shared/constants/queue.constants';
 import { Queue } from 'bullmq';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 @Injectable()
 export class AuthService {
@@ -75,7 +76,7 @@ export class AuthService {
       throw new UnauthorizedException('User email address is not verified');
     }
 
-    if (!validUser.isActive) {
+    if (validUser.status !== UserStatus.ACTIVE) {
       throw new UnauthorizedException('User account is not active');
     }
 
@@ -132,7 +133,7 @@ export class AuthService {
       throw new UnauthorizedException('User email address is not verified');
     }
 
-    if (!admin.isActive) {
+    if (admin.status !== UserStatus.ACTIVE) {
       throw new UnauthorizedException('User account is not active');
     }
 
@@ -168,7 +169,7 @@ export class AuthService {
       firstName: admin.firstName,
       lastName: admin.lastName,
       emailAddress: admin.emailAddress,
-      isActive: admin.isActive,
+      status: admin.status,
       isVerified: admin.isVerified,
       loginCount: admin.loginCount + 1,
       lastLogin: admin.lastLogin,
@@ -210,7 +211,7 @@ export class AuthService {
       };
     }
 
-    if (!validUser.isActive) {
+    if (validUser.status !== UserStatus.ACTIVE) {
       throw new UnauthorizedException(
         'Your account is inactive. Please contact the system administrator.',
       );
@@ -291,7 +292,7 @@ export class AuthService {
       };
     }
 
-    if (!admin.isActive) {
+    if (admin.status !== UserStatus.ACTIVE) {
       throw new UnauthorizedException(
         'Your account is inactive. Please contact the system administrator.',
       );

@@ -15,6 +15,7 @@ import { User } from '../user/user.entity';
 import PasswordHelper from 'src/shared/helpers/password.helper';
 import { PoliticalParty } from '../political-party/political-party.entity';
 import { ElectoralOffice } from '../electoral-office/electoral-office.entity';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 @Injectable()
 export class AspirantService {
@@ -93,7 +94,7 @@ export class AspirantService {
         phoneNumber: dto.phoneNumber,
         password,
         role,
-        isActive: false,
+        status: UserStatus.PENDING,
         isVerified: false,
       });
       const savedAccount = await manager.save(account);

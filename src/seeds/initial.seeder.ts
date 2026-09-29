@@ -19,9 +19,9 @@ export default async function seedData(dataSource: DataSource): Promise<void> {
     // 1. SEED SUPER ADMIN USER
     // ==========================================
     await dataSource.query(`
-      INSERT INTO "admins" (first_name, last_name, email_address, phone_number, password, role_id, is_active, is_verified, force_password_reset, created_at, updated_at) VALUES
+      INSERT INTO "admins" (first_name, last_name, email_address, phone_number, password, role_id, status, is_verified, force_password_reset, created_at, updated_at) VALUES
       ('Chibeze', 'Ochonogor', 'chibeze.ochonogor@gmail.com', '2348160245148', '$2b$12$ojS9n48YBNyir4EKgHfEru5LYODXaDnCBmiS1Va0ai3wmNc5hXnV2',
-      (SELECT id FROM "roles" WHERE code = '${RoleCode.SUPER_ADMIN}'), true, true, false, NOW(), NOW())
+      (SELECT id FROM "roles" WHERE code = '${RoleCode.SUPER_ADMIN}'), 'active', true, false, NOW(), NOW())
       ON CONFLICT (email_address) DO NOTHING;
     `);
 

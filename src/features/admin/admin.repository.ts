@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Admin } from './admin.entity';
 import { CreateAdminDto, UpdateAdminDto, AdminQueryDto } from './admin.dto';
 import { RoleCode } from '../role/role.enum';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 @Injectable()
 export class AdminRepository {
@@ -24,7 +25,7 @@ export class AdminRepository {
       phoneNumber: admin.phoneNumber,
       password,
       role,
-      isActive: false,
+      status: UserStatus.PENDING,
     });
 
     await this.repo.save(newAdmin);
@@ -46,7 +47,7 @@ export class AdminRepository {
         'admin.lastName',
         'admin.emailAddress',
         'admin.password',
-        'admin.isActive',
+        'admin.status',
         'admin.isVerified',
         'admin.forcePasswordReset',
         'admin.loginCount',
@@ -77,7 +78,7 @@ export class AdminRepository {
   async updatePasswordAndVerify(id: number, password: string): Promise<void> {
     await this.repo.update(
       { id },
-      { password, forcePasswordReset: false, isVerified: true },
+      { password, forcePasswordReset: false, isVerified: true, status: UserStatus.ACTIVE },
     );
   }
 
@@ -100,9 +101,9 @@ export class AdminRepository {
       qb.andWhere('role.id = :roleId', { roleId: queryDto.roleId });
     }
 
-    if (queryDto?.isActive !== undefined) {
-      qb.andWhere('admin.isActive = :isActive', {
-        isActive: queryDto.isActive,
+    if (queryDto?.status !== undefined) {
+      qb.andWhere('admin.status = :status', {
+        status: queryDto.status,
       });
     }
 
@@ -136,7 +137,7 @@ export class AdminRepository {
           'admin.lastName',
           'admin.emailAddress',
           'admin.phoneNumber',
-          'admin.isActive',
+          'admin.status',
           'admin.isVerified',
           'admin.forcePasswordReset',
           'admin.loginCount',
@@ -190,8 +191,8 @@ export class AdminRepository {
       updateData.emailAddress = updateAdminDto.emailAddress;
     if (updateAdminDto.phoneNumber !== undefined)
       updateData.phoneNumber = updateAdminDto.phoneNumber;
-    if (updateAdminDto.isActive !== undefined)
-      updateData.isActive = updateAdminDto.isActive;
+    if (updateAdminDto.status !== undefined)
+      updateData.status = updateAdminDto.status;
     if (updateAdminDto.role_id !== undefined)
       updateData.role = { id: updateAdminDto.role_id } as any;
 
@@ -200,7 +201,7 @@ export class AdminRepository {
   }
 
   async softDelete(id: number): Promise<boolean> {
-    await this.repo.update({ id }, { isActive: false });
+    await this.repo.update({ id }, { status: UserStatus.INACTIVE });
     const result = await this.repo.softDelete(id);
     return (result.affected || 0) > 0;
   }

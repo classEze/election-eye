@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import {
-  IsBoolean,
   IsEmail,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -10,7 +10,8 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 export class CreateUserDto {
   @IsString()
@@ -63,10 +64,6 @@ export class CreateUserDto {
   onboardedByUserId?: number;
 
   @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
-
-  @IsOptional()
   @IsString()
   deviceImei?: string;
 
@@ -75,7 +72,11 @@ export class CreateUserDto {
   fcmToken?: string;
 }
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+export class UpdateUserDto extends PartialType(CreateUserDto) {
+  @IsOptional()
+  @IsEnum(UserStatus)
+  status?: UserStatus;
+}
 
 export class UserQueryDto {
   @IsOptional()
@@ -116,11 +117,53 @@ export class UserQueryDto {
   puId?: number;
 
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === undefined || value === null || value === '') return undefined;
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return undefined;
-  })
-  isActive?: boolean;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
+}
+
+export class AspirantUsersQueryDto {
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  page: number = 1;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  @Type(() => Number)
+  limit: number = 20;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @Type(() => String)
+  role?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  roleId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  lgaId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  wardId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  puId?: number;
+
+  @IsOptional()
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 }

@@ -336,7 +336,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedLgaId\": {{lga-id}},\n  \"assignedWardId\": {{ward-id}},\n  \"assignedPuId\": {{polling-unit-id}},\n  \"isActive\": true\n}"
+              "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedLgaId\": {{lga-id}},\n  \"assignedWardId\": {{ward-id}},\n  \"assignedPuId\": {{polling-unit-id}}\n}"
             },
             "url": "{{election-eye-base-url}}/user"
           },
@@ -350,14 +350,14 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role_id\": 4,\n  \"assignedLgaId\": 101,\n  \"isActive\": true\n}"
+                  "raw": "{\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role_id\": 4,\n  \"assignedLgaId\": 101\n}"
                 },
                 "url": "{{election-eye-base-url}}/user"
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 10,\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role\": {\n    \"id\": 4,\n    \"name\": \"LGA Coordinator\",\n    \"code\": \"LGA_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"isActive\": true,\n  \"isEmailVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 10,\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role\": {\n    \"id\": 4,\n    \"name\": \"LGA Coordinator\",\n    \"code\": \"LGA_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
             },
             {
               "name": "Scenario 2: Ward Coordinator (Assigned to LGA & Ward)",
@@ -368,14 +368,14 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role_id\": 5,\n  \"assignedLgaId\": 101,\n  \"assignedWardId\": 1001,\n  \"isActive\": true\n}"
+                  "raw": "{\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role_id\": 5,\n  \"assignedLgaId\": 101,\n  \"assignedWardId\": 1001\n}"
                 },
                 "url": "{{election-eye-base-url}}/user"
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 11,\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role\": {\n    \"id\": 5,\n    \"name\": \"Ward Coordinator\",\n    \"code\": \"WARD_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"isActive\": true,\n  \"isEmailVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 11,\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role\": {\n    \"id\": 5,\n    \"name\": \"Ward Coordinator\",\n    \"code\": \"WARD_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
             },
             {
               "name": "Scenario 3: Polling Unit Agent (Assigned to LGA, Ward, PU with IMEI binding)",
@@ -386,32 +386,14 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedLgaId\": 101,\n  \"assignedWardId\": 1001,\n  \"assignedPuId\": 5001,\n  \"deviceImei\": \"358923058291024\",\n  \"isActive\": true\n}"
+                  "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedLgaId\": 101,\n  \"assignedWardId\": 1001,\n  \"assignedPuId\": 5001,\n  \"deviceImei\": \"358923058291024\"\n}"
                 },
                 "url": "{{election-eye-base-url}}/user"
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": { \"id\": 101, \"name\": \"Ikeja\" },\n  \"assignedWard\": { \"id\": 1001, \"name\": \"Alausa\" },\n  \"assignedPu\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"deviceImei\": \"358923058291024\",\n  \"isActive\": true,\n  \"isEmailVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
-            },
-            {
-              "name": "Scenario 4: Aspirant User (Linked to an Aspirant profile)",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  { "key": "Content-Type", "value": "application/json" }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"aspirant.user@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"role_id\": 7,\n  \"aspirantId\": 12,\n  \"isActive\": true\n}"
-                },
-                "url": "{{election-eye-base-url}}/user"
-              },
-              "status": "Created",
-              "code": 201,
-              "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"aspirant.user@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"role\": {\n    \"id\": 7,\n    \"name\": \"Aspirant\",\n    \"code\": \"ASPIRANT\"\n  },\n  \"aspirant\": {\n    \"id\": 12,\n    \"firstName\": \"Ifeanyi\",\n    \"lastName\": \"Nwosu\"\n  },\n  \"isActive\": true,\n  \"isEmailVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": { \"id\": 101, \"name\": \"Ikeja\" },\n  \"assignedWard\": { \"id\": 1001, \"name\": \"Alausa\" },\n  \"assignedPu\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"deviceImei\": \"358923058291024\",\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
             }
           ]
         },
@@ -1794,6 +1776,210 @@
               ]
             },
             "url": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}"
+          }
+        },
+        {
+          "name": "Get Aspirant Campaign Team Users",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/users?page=1&limit=20&role=&search=",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["aspirants", "{{aspirant-id}}", "users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "role", "value": "", "description": "Filter by role ID or code (LGA_COORDINATOR, WARD_COORDINATOR, PU_AGENT)" },
+                { "key": "search", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Aspirant LGA Coordinators",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/lga-coordinators?page=1&limit=20",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["aspirants", "{{aspirant-id}}", "lga-coordinators"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Aspirant Ward Coordinators",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/ward-coordinators?page=1&limit=20",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["aspirants", "{{aspirant-id}}", "ward-coordinators"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Aspirant Polling Unit Agents",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/polling-unit-agents?page=1&limit=20",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["aspirants", "{{aspirant-id}}", "polling-unit-agents"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Aspirant Team Users (Logged In Aspirant)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants/me/users?page=1&limit=20&role=&search=",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["aspirants", "me", "users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "role", "value": "", "description": "Filter by role ID or code" },
+                { "key": "search", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Aspirant LGA Coordinators (Logged In Aspirant)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants/me/lga-coordinators?page=1&limit=20",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["aspirants", "me", "lga-coordinators"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Aspirant Ward Coordinators (Logged In Aspirant)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants/me/ward-coordinators?page=1&limit=20",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["aspirants", "me", "ward-coordinators"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Aspirant Polling Unit Agents (Logged In Aspirant)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants/me/polling-unit-agents?page=1&limit=20",
+              "host": ["{{election-eye-base-url}}"],
+              "path": ["aspirants", "me", "polling-unit-agents"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
           }
         }
       ]

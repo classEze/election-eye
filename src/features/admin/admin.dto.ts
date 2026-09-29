@@ -1,6 +1,6 @@
 import {
-  IsBoolean,
   IsEmail,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -10,7 +10,8 @@ import {
   Min,
 } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 export class CreateAdminDto {
   @IsString()
@@ -35,8 +36,8 @@ export class CreateAdminDto {
 
 export class UpdateAdminDto extends PartialType(CreateAdminDto) {
   @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 }
 
 export class AdminQueryDto {
@@ -63,11 +64,6 @@ export class AdminQueryDto {
   roleId?: number;
 
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === undefined || value === null || value === '') return undefined;
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return undefined;
-  })
-  isActive?: boolean;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 }
