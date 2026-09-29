@@ -11,7 +11,7 @@ import {
 import { CreateAspirantDto, AspirantQueryDto } from './aspirant.dto';
 import { AspirantService } from './aspirant.service';
 import { UserService } from '../user/user.service';
-import { AspirantUsersQueryDto } from '../user/user.dto';
+import { AspirantUsersQueryDto, CreateUserDto } from '../user/user.dto';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
 import { GetUser } from 'src/shared/decorators/get-user.decorator';
 import { RoleCode } from '../role/role.enum';
@@ -45,6 +45,18 @@ export class AspirantController {
   }
 
   // --- Logged-in Aspirant Campaign Team Endpoints (Must be declared before :id / :aspirantId) ---
+
+  @Allowed([
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_ADMIN,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
+  @Post('me/users')
+  @HttpCode(HttpStatus.CREATED)
+  createMyUser(@GetUser() user: any, @Body() dto: CreateUserDto) {
+    return this.userService.createForTeam(dto, user);
+  }
 
   @Allowed([RoleCode.ASPIRANT])
   @Get('me/users')
@@ -81,6 +93,17 @@ export class AspirantController {
   }
 
   // --- Specific Aspirant Campaign Team Endpoints ---
+
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
+  @Post(':aspirantId/users')
+  @HttpCode(HttpStatus.CREATED)
+  createAspirantUser(
+    @Param('aspirantId') aspirantId: string,
+    @Body() dto: CreateUserDto,
+    @GetUser() admin: any,
+  ) {
+    return this.userService.createForAdmin(+aspirantId, dto, admin);
+  }
 
   @Allowed([
     RoleCode.SUPER_ADMIN,

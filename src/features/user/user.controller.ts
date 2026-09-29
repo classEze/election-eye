@@ -14,23 +14,34 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto, UserQueryDto } from './user.dto';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
+import { GetUser } from 'src/shared/decorators/get-user.decorator';
 import { RoleCode } from '../role/role.enum';
 
-@Controller('user')
+@Controller(['user', 'users'])
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
+  @Post('aspirant/:aspirantId')
+  @HttpCode(HttpStatus.CREATED)
+  createForAdmin(
+    @Param('aspirantId') aspirantId: string,
+    @Body() createUserDto: CreateUserDto,
+    @GetUser() admin: any,
+  ) {
+    return this.userService.createForAdmin(+aspirantId, createUserDto, admin);
+  }
+
   @Allowed([
-    RoleCode.SUPER_ADMIN,
-    RoleCode.SYSTEM_ADMIN,
+    RoleCode.ASPIRANT,
     RoleCode.CLIENT_ADMIN,
     RoleCode.LGA_COORDINATOR,
     RoleCode.WARD_COORDINATOR,
   ])
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  createForTeam(@Body() createUserDto: CreateUserDto, @GetUser() user: any) {
+    return this.userService.createForTeam(createUserDto, user);
   }
 
   @Allowed([
