@@ -10,18 +10,54 @@
       "key": "election-eye-base-url",
       "value": "https://election-eye.onrender.com"
     },
-    { "key": "access-token", "value": "" },
-    { "key": "state-id", "value": "1" },
-    { "key": "lga-id", "value": "1" },
-    { "key": "ward-id", "value": "1" },
-    { "key": "polling-unit-id", "value": "1" },
-    { "key": "office-id", "value": "1" },
-    { "key": "aspirant-id", "value": "1" },
-    { "key": "user-id", "value": "1" },
-    { "key": "admin-id", "value": "1" },
-    { "key": "result-id", "value": "1" },
-    { "key": "incident-id", "value": "1" },
-    { "key": "party-id", "value": "1" }
+    {
+      "key": "access-token",
+      "value": ""
+    },
+    {
+      "key": "state-id",
+      "value": "1"
+    },
+    {
+      "key": "lga-id",
+      "value": "1"
+    },
+    {
+      "key": "ward-id",
+      "value": "1"
+    },
+    {
+      "key": "polling-unit-id",
+      "value": "1"
+    },
+    {
+      "key": "office-id",
+      "value": "1"
+    },
+    {
+      "key": "aspirant-id",
+      "value": "1"
+    },
+    {
+      "key": "user-id",
+      "value": "1"
+    },
+    {
+      "key": "admin-id",
+      "value": "1"
+    },
+    {
+      "key": "result-id",
+      "value": "1"
+    },
+    {
+      "key": "incident-id",
+      "value": "1"
+    },
+    {
+      "key": "party-id",
+      "value": "1"
+    }
   ],
   "item": [
     {
@@ -80,7 +116,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"password\": \"LagosAgent@2026\"\n}"
@@ -102,7 +143,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"emailAddress\": \"admin@example.com\",\n  \"password\": \"AdminPassword@2026\"\n}"
@@ -124,7 +170,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"emailAddress\": \"agent.lagos@example.com\"\n}"
@@ -146,7 +197,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"passwordResetToken\": \"paste-token-here\",\n  \"password\": \"NewPassword@2026\",\n  \"confirmPassword\": \"NewPassword@2026\"\n}"
@@ -168,7 +224,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"emailAddress\": \"admin@example.com\"\n}"
@@ -190,7 +251,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"passwordResetToken\": \"paste-token-here\",\n  \"password\": \"NewAdminPassword@2026\",\n  \"confirmPassword\": \"NewAdminPassword@2026\"\n}"
@@ -212,7 +278,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"token\": \"paste-verification-token-here\"\n}"
@@ -234,7 +305,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"token\": \"paste-verification-token-here\"\n}"
@@ -256,7 +332,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"agent.lagos@example.com\"\n}"
@@ -278,7 +359,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"admin@example.com\"\n}"
@@ -308,8 +394,14 @@
             "url": {
               "raw": "{{election-eye-base-url}}/roles?type=CLIENT&status=true",
               "query": [
-                { "key": "type", "value": "CLIENT" },
-                { "key": "status", "value": "true" }
+                {
+                  "key": "type",
+                  "value": "CLIENT"
+                },
+                {
+                  "key": "status",
+                  "value": "true"
+                }
               ]
             }
           }
@@ -320,7 +412,7 @@
       "name": "Users",
       "item": [
         {
-          "name": "Create User",
+          "name": "Create User as Admin (for Aspirant)",
           "request": {
             "method": "POST",
             "auth": {
@@ -333,20 +425,141 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedLgaId\": {{lga-id}},\n  \"assignedWardId\": {{ward-id}},\n  \"assignedPuId\": {{polling-unit-id}}\n}"
+              "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedPuId\": \"{{polling-unit-id}}\",\n  \"assignedWardId\": \"{{ward-id}}\",\n  \"assignedLgaId\": \"{{lga-id}}\",\n  \"deviceImei\": \"358923058291024\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/user/aspirant/{{aspirant-id}}"
+          },
+          "response": [
+            {
+              "name": "Scenario 1: LGA Coordinator (Admin Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role_id\": 4,\n  \"assignedLgaId\": 101\n}"
+                },
+                "url": "{{election-eye-base-url}}/user/aspirant/{{aspirant-id}}"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 10,\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role\": {\n    \"id\": 4,\n    \"name\": \"LGA Coordinator\",\n    \"code\": \"LGA_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 2: Ward Coordinator (Admin Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role_id\": 5,\n  \"assignedWardId\": 1001,\n  \"assignedLgaId\": 101\n}"
+                },
+                "url": "{{election-eye-base-url}}/user/aspirant/{{aspirant-id}}"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 11,\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role\": {\n    \"id\": 5,\n    \"name\": \"Ward Coordinator\",\n    \"code\": \"WARD_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 3: Polling Unit Agent (Admin Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedPuId\": 5001,\n  \"assignedWardId\": 1001,\n  \"assignedLgaId\": 101,\n  \"deviceImei\": \"358923058291024\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/user/aspirant/{{aspirant-id}}"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"assignedPu\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\"\n  },\n  \"deviceImei\": \"358923058291024\",\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 4: Client Admin (Admin Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
+                },
+                "url": "{{election-eye-base-url}}/user/aspirant/{{aspirant-id}}"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client Admin\",\n    \"code\": \"CLIENT_ADMIN\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create User as Campaign Team (Aspirant / Client Admin / LGA Coord / Ward Coord)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedPuId\": \"{{polling-unit-id}}\",\n  \"assignedWardId\": \"{{ward-id}}\",\n  \"assignedLgaId\": \"{{lga-id}}\",\n  \"deviceImei\": \"358923058291024\"\n}"
             },
             "url": "{{election-eye-base-url}}/user"
           },
           "response": [
             {
-              "name": "Scenario 1: LGA Coordinator (Assigned to an LGA)",
+              "name": "Scenario 1: LGA Coordinator (Team Route)",
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -357,43 +570,70 @@
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 10,\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role\": {\n    \"id\": 4,\n    \"name\": \"LGA Coordinator\",\n    \"code\": \"LGA_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 10,\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role\": {\n    \"id\": 4,\n    \"name\": \"LGA Coordinator\",\n    \"code\": \"LGA_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             },
             {
-              "name": "Scenario 2: Ward Coordinator (Assigned to LGA & Ward)",
+              "name": "Scenario 2: Ward Coordinator (Team Route)",
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role_id\": 5,\n  \"assignedLgaId\": 101,\n  \"assignedWardId\": 1001\n}"
+                  "raw": "{\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role_id\": 5,\n  \"assignedWardId\": 1001,\n  \"assignedLgaId\": 101\n}"
                 },
                 "url": "{{election-eye-base-url}}/user"
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 11,\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role\": {\n    \"id\": 5,\n    \"name\": \"Ward Coordinator\",\n    \"code\": \"WARD_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 11,\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role\": {\n    \"id\": 5,\n    \"name\": \"Ward Coordinator\",\n    \"code\": \"WARD_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             },
             {
-              "name": "Scenario 3: Polling Unit Agent (Assigned to LGA, Ward, PU with IMEI binding)",
+              "name": "Scenario 3: Polling Unit Agent (Team Route)",
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedLgaId\": 101,\n  \"assignedWardId\": 1001,\n  \"assignedPuId\": 5001,\n  \"deviceImei\": \"358923058291024\"\n}"
+                  "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedPuId\": 5001,\n  \"assignedWardId\": 1001,\n  \"assignedLgaId\": 101,\n  \"deviceImei\": \"358923058291024\"\n}"
                 },
                 "url": "{{election-eye-base-url}}/user"
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": { \"id\": 101, \"name\": \"Ikeja\" },\n  \"assignedWard\": { \"id\": 1001, \"name\": \"Alausa\" },\n  \"assignedPu\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"deviceImei\": \"358923058291024\",\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"assignedPu\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\"\n  },\n  \"deviceImei\": \"358923058291024\",\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 4: Client Admin (Team Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
+                },
+                "url": "{{election-eye-base-url}}/user"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client Admin\",\n    \"code\": \"CLIENT_ADMIN\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             }
           ]
         },
@@ -413,13 +653,30 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/user?page=1&limit=20&search=",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["user"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "user"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "search", "value": "" },
-                { "key": "isActive", "value": "true", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "isActive",
+                  "value": "true",
+                  "disabled": true
+                }
               ]
             }
           }
@@ -455,7 +712,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"phoneNumber\": \"08039876543\",\n  \"isActive\": true\n}"
@@ -499,7 +761,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"firstName\": \"Amina\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"admin@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role_id\": 1\n}"
@@ -523,13 +790,30 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/admins?page=1&limit=20&search=",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["admins"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "admins"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "search", "value": "" },
-                { "key": "isActive", "value": "true", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "isActive",
+                  "value": "true",
+                  "disabled": true
+                }
               ]
             }
           }
@@ -565,7 +849,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"phoneNumber\": \"08029876543\"\n}"
@@ -626,7 +915,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"states\": [\n    { \"name\": \"Lagos\", \"code\": \"LAG\" },\n    { \"name\": \"Kano\", \"code\": \"KAN\" },\n    { \"name\": \"Enugu\", \"code\": \"ENU\" }\n  ]\n}"
@@ -651,7 +945,11 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "file", "type": "file", "src": "states.csv" }
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "states.csv"
+                }
               ]
             },
             "url": "{{election-eye-base-url}}/states/upload"
@@ -705,7 +1003,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Lagos\",\n  \"code\": \"LAG\"\n}"
@@ -727,7 +1030,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Lagos State\",\n  \"code\": \"LAG\"\n}"
@@ -805,7 +1113,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"stateId\": {{state-id}},\n  \"lgas\": [\n    { \"name\": \"Ikeja\", \"lgaCode\": \"LAG-IKE\" },\n    { \"name\": \"Eti-Osa\", \"lgaCode\": \"LAG-ETO\" }\n  ]\n}"
@@ -830,8 +1143,16 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "file", "type": "file", "src": "lgas.csv" },
-                { "key": "stateId", "value": "{{state-id}}", "type": "text" }
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "lgas.csv"
+                },
+                {
+                  "key": "stateId",
+                  "value": "{{state-id}}",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{election-eye-base-url}}/lgas/upload"
@@ -853,7 +1174,13 @@
             },
             "body": {
               "mode": "formdata",
-              "formdata": [{ "key": "file", "type": "file", "src": "lgas.csv" }]
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "lgas.csv"
+                }
+              ]
             },
             "url": "{{election-eye-base-url}}/lgas/upload-generic"
           }
@@ -923,7 +1250,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Ikeja\",\n  \"lgaCode\": \"LAG-IKE\",\n  \"stateId\": {{state-id}}\n}"
@@ -1001,7 +1333,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"lgaId\": {{lga-id}},\n  \"wards\": [\n    { \"name\": \"Ikeja Ward 1\", \"wardCode\": \"LAG-IKE-W01\" },\n    { \"name\": \"Ikeja Ward 2\", \"wardCode\": \"LAG-IKE-W02\" }\n  ]\n}"
@@ -1026,8 +1363,16 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "file", "type": "file", "src": "wards.csv" },
-                { "key": "lgaId", "value": "{{lga-id}}", "type": "text" }
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "wards.csv"
+                },
+                {
+                  "key": "lgaId",
+                  "value": "{{lga-id}}",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{election-eye-base-url}}/wards/upload"
@@ -1050,7 +1395,11 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "file", "type": "file", "src": "wards.csv" }
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "wards.csv"
+                }
               ]
             },
             "url": "{{election-eye-base-url}}/wards/upload-generic"
@@ -1121,7 +1470,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Ikeja Ward 1\",\n  \"wardCode\": \"LAG-IKE-W01\",\n  \"lgaId\": {{lga-id}}\n}"
@@ -1199,7 +1553,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"wardId\": {{ward-id}},\n  \"pollingUnits\": [\n    { \"name\": \"Ikeja Ward 1 PU 001\", \"puCode\": \"LAG-IKE-W01-PU001\", \"registeredVoters\": 412 },\n    { \"name\": \"Ikeja Ward 1 PU 002\", \"puCode\": \"LAG-IKE-W01-PU002\", \"registeredVoters\": 387 }\n  ]\n}"
@@ -1224,8 +1583,16 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "file", "type": "file", "src": "polling-units.csv" },
-                { "key": "wardId", "value": "{{ward-id}}", "type": "text" }
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "polling-units.csv"
+                },
+                {
+                  "key": "wardId",
+                  "value": "{{ward-id}}",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{election-eye-base-url}}/polling-units/upload"
@@ -1248,7 +1615,11 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "file", "type": "file", "src": "polling-units.csv" }
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "polling-units.csv"
+                }
               ]
             },
             "url": "{{election-eye-base-url}}/polling-units/upload-generic"
@@ -1319,7 +1690,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Ikeja Ward 1 PU 001\",\n  \"puCode\": \"LAG-IKE-W01-PU001\",\n  \"registeredVoters\": 430,\n  \"wardId\": {{ward-id}}\n}"
@@ -1380,7 +1756,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"Lagos State Governorship\",\n  \"category\": \"GUBERNATORIAL\",\n  \"stateId\": {{state-id}}\n}"
@@ -1393,7 +1774,10 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1411,7 +1795,10 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1429,7 +1816,10 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1447,7 +1837,10 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1465,7 +1858,10 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1496,15 +1892,40 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices?page=1&limit=20&search=",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["electoral-offices"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "electoral-offices"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "search", "value": "" },
-                { "key": "category", "value": "GUBERNATORIAL", "disabled": true },
-                { "key": "stateId", "value": "{{state-id}}", "disabled": true },
-                { "key": "isActive", "value": "true", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "category",
+                  "value": "GUBERNATORIAL",
+                  "disabled": true
+                },
+                {
+                  "key": "stateId",
+                  "value": "{{state-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "isActive",
+                  "value": "true",
+                  "disabled": true
+                }
               ]
             }
           }
@@ -1525,7 +1946,12 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/category/GUBERNATORIAL?isActive=true",
-              "query": [{ "key": "isActive", "value": "true" }]
+              "query": [
+                {
+                  "key": "isActive",
+                  "value": "true"
+                }
+              ]
             }
           }
         },
@@ -1597,8 +2023,14 @@
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/lgas?page=1&limit=20",
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -1620,8 +2052,14 @@
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/wards?page=1&limit=20",
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -1643,8 +2081,14 @@
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/polling-units?page=1&limit=20",
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -1680,7 +2124,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"Lagos State Governorship Election\",\n  \"category\": \"GUBERNATORIAL\",\n  \"stateId\": {{state-id}},\n  \"status\": \"active\"\n}"
@@ -1693,7 +2142,10 @@
               "originalRequest": {
                 "method": "PUT",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1711,7 +2163,10 @@
               "originalRequest": {
                 "method": "PUT",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1780,7 +2235,10 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1792,6 +2250,232 @@
               "code": 201,
               "_postman_previewlanguage": "json",
               "body": "{\n  \"id\": 12,\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"politicalParty\": {\n    \"id\": 1,\n    \"name\": \"All Progressives Congress\",\n    \"code\": \"APC\"\n  },\n  \"electoralOffice\": {\n    \"id\": 2,\n    \"title\": \"Lagos State Governorship Election\",\n    \"category\": \"GUBERNATORIAL\"\n  },\n  \"accountUserId\": 25,\n  \"status\": \"pending\",\n  \"createdAt\": \"2026-09-28T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-28T10:00:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Aspirant Campaign Team User (Admin)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedPuId\": \"{{polling-unit-id}}\",\n  \"assignedWardId\": \"{{ward-id}}\",\n  \"assignedLgaId\": \"{{lga-id}}\",\n  \"deviceImei\": \"358923058291024\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/users"
+          },
+          "response": [
+            {
+              "name": "Scenario 1: LGA Coordinator (Admin Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role_id\": 4,\n  \"assignedLgaId\": 101\n}"
+                },
+                "url": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/users"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 10,\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role\": {\n    \"id\": 4,\n    \"name\": \"LGA Coordinator\",\n    \"code\": \"LGA_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 2: Ward Coordinator (Admin Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role_id\": 5,\n  \"assignedWardId\": 1001,\n  \"assignedLgaId\": 101\n}"
+                },
+                "url": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/users"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 11,\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role\": {\n    \"id\": 5,\n    \"name\": \"Ward Coordinator\",\n    \"code\": \"WARD_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 3: Polling Unit Agent (Admin Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedPuId\": 5001,\n  \"assignedWardId\": 1001,\n  \"assignedLgaId\": 101,\n  \"deviceImei\": \"358923058291024\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/users"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"assignedPu\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\"\n  },\n  \"deviceImei\": \"358923058291024\",\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 4: Client Admin (Admin Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
+                },
+                "url": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/users"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client Admin\",\n    \"code\": \"CLIENT_ADMIN\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create My Campaign Team User (Logged In Aspirant / Team)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedPuId\": \"{{polling-unit-id}}\",\n  \"assignedWardId\": \"{{ward-id}}\",\n  \"assignedLgaId\": \"{{lga-id}}\",\n  \"deviceImei\": \"358923058291024\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/aspirants/me/users"
+          },
+          "response": [
+            {
+              "name": "Scenario 1: LGA Coordinator (Team Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role_id\": 4,\n  \"assignedLgaId\": 101\n}"
+                },
+                "url": "{{election-eye-base-url}}/aspirants/me/users"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 10,\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.coord@example.com\",\n  \"phoneNumber\": \"08021234567\",\n  \"role\": {\n    \"id\": 4,\n    \"name\": \"LGA Coordinator\",\n    \"code\": \"LGA_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 2: Ward Coordinator (Team Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role_id\": 5,\n  \"assignedWardId\": 1001,\n  \"assignedLgaId\": 101\n}"
+                },
+                "url": "{{election-eye-base-url}}/aspirants/me/users"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 11,\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.coord@example.com\",\n  \"phoneNumber\": \"08039876543\",\n  \"role\": {\n    \"id\": 5,\n    \"name\": \"Ward Coordinator\",\n    \"code\": \"WARD_COORDINATOR\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 3: Polling Unit Agent (Team Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role_id\": 6,\n  \"assignedPuId\": 5001,\n  \"assignedWardId\": 1001,\n  \"assignedLgaId\": 101,\n  \"deviceImei\": \"358923058291024\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/aspirants/me/users"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"assignedPu\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\"\n  },\n  \"deviceImei\": \"358923058291024\",\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Scenario 4: Client Admin (Team Route)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
+                },
+                "url": "{{election-eye-base-url}}/aspirants/me/users"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client Admin\",\n    \"code\": \"CLIENT_ADMIN\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             }
           ]
         },
@@ -1811,15 +2495,40 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/aspirants?page=1&limit=20&search=&partyId=&officeId=&status=active",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["aspirants"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "aspirants"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "search", "value": "" },
-                { "key": "partyId", "value": "", "disabled": true },
-                { "key": "officeId", "value": "", "disabled": true },
-                { "key": "status", "value": "active", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "partyId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "officeId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "disabled": true
+                }
               ]
             }
           }
@@ -1842,33 +2551,6 @@
           }
         },
         {
-          "name": "Get Aspirant Campaign Team Users",
-          "request": {
-            "method": "GET",
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{access-token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/users?page=1&limit=20&role=&search=",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["aspirants", "{{aspirant-id}}", "users"],
-              "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "role", "value": "", "description": "Filter by role ID or code (LGA_COORDINATOR, WARD_COORDINATOR, PU_AGENT)" },
-                { "key": "search", "value": "", "disabled": true }
-              ]
-            }
-          }
-        },
-        {
           "name": "Get Aspirant LGA Coordinators",
           "request": {
             "method": "GET",
@@ -1884,11 +2566,23 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/lga-coordinators?page=1&limit=20",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["aspirants", "{{aspirant-id}}", "lga-coordinators"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "aspirants",
+                "{{aspirant-id}}",
+                "lga-coordinators"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -1909,11 +2603,23 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/ward-coordinators?page=1&limit=20",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["aspirants", "{{aspirant-id}}", "ward-coordinators"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "aspirants",
+                "{{aspirant-id}}",
+                "ward-coordinators"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -1934,11 +2640,23 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/polling-unit-agents?page=1&limit=20",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["aspirants", "{{aspirant-id}}", "polling-unit-agents"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "aspirants",
+                "{{aspirant-id}}",
+                "polling-unit-agents"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -1959,13 +2677,33 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/aspirants/me/users?page=1&limit=20&role=&search=",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["aspirants", "me", "users"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "aspirants",
+                "me",
+                "users"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "role", "value": "", "description": "Filter by role ID or code" },
-                { "key": "search", "value": "", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "role",
+                  "value": "",
+                  "description": "Filter by role ID or code"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
               ]
             }
           }
@@ -1986,11 +2724,23 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/aspirants/me/lga-coordinators?page=1&limit=20",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["aspirants", "me", "lga-coordinators"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "aspirants",
+                "me",
+                "lga-coordinators"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -2011,11 +2761,23 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/aspirants/me/ward-coordinators?page=1&limit=20",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["aspirants", "me", "ward-coordinators"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "aspirants",
+                "me",
+                "ward-coordinators"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -2036,11 +2798,23 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/aspirants/me/polling-unit-agents?page=1&limit=20",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["aspirants", "me", "polling-unit-agents"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "aspirants",
+                "me",
+                "polling-unit-agents"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -2064,7 +2838,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"electoralOfficeId\": {{office-id}},\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"aspirantId\": {{aspirant-id}},\n  \"totalRegisteredVoters\": 1200,\n  \"totalAccreditedVoters\": 750,\n  \"totalValidVotes\": 700,\n  \"rejectedVotes\": 30,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/sample-ec8a.jpg\",\n  \"partyBreakdown\": [\n    { \"politicalPartyId\": 1, \"votes\": 400 },\n    { \"politicalPartyId\": 2, \"votes\": 250 },\n    { \"politicalPartyId\": 3, \"votes\": 50 }\n  ]\n}"
@@ -2077,7 +2856,10 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -2095,7 +2877,10 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -2126,12 +2911,25 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/results?page=1&limit=20&electoralOfficeId={{office-id}}",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["results"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "results"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "electoralOfficeId", "value": "{{office-id}}" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "electoralOfficeId",
+                  "value": "{{office-id}}"
+                }
               ]
             }
           }
@@ -2286,7 +3084,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"auditStatus\": \"VERIFIED\",\n  \"rejectionReason\": null\n}"
@@ -2299,7 +3102,10 @@
               "originalRequest": {
                 "method": "PATCH",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -2317,7 +3123,10 @@
               "originalRequest": {
                 "method": "PATCH",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -2335,7 +3144,10 @@
               "originalRequest": {
                 "method": "PATCH",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -2369,7 +3181,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"categoryId\": 1,\n  \"description\": \"Ballot box snatching by armed thugs at polling unit.\",\n  \"severityLevel\": \"CRITICAL\",\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"geolocationLat\": 6.5244,\n  \"geolocationLng\": 3.3792,\n  \"mediaVideoUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/videos/clip1.mp4\"],\n  \"mediaPictureUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo1.jpg\", \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo2.jpg\"]\n}"
@@ -2382,7 +3199,10 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -2400,7 +3220,10 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -2431,12 +3254,25 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/incidents?page=1&limit=20&severityLevel=CRITICAL",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["incidents"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "incidents"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "severityLevel", "value": "CRITICAL" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "severityLevel",
+                  "value": "CRITICAL"
+                }
               ]
             }
           }
@@ -2491,13 +3327,30 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/incidents/map-clusters?minLat=6.400000&maxLat=6.700000&minLng=3.200000&maxLng=3.600000",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["incidents", "map-clusters"],
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "incidents",
+                "map-clusters"
+              ],
               "query": [
-                { "key": "minLat", "value": "6.400000" },
-                { "key": "maxLat", "value": "6.700000" },
-                { "key": "minLng", "value": "3.200000" },
-                { "key": "maxLng", "value": "3.600000" }
+                {
+                  "key": "minLat",
+                  "value": "6.400000"
+                },
+                {
+                  "key": "maxLat",
+                  "value": "6.700000"
+                },
+                {
+                  "key": "minLng",
+                  "value": "3.200000"
+                },
+                {
+                  "key": "maxLng",
+                  "value": "3.600000"
+                }
               ]
             }
           }
@@ -2516,7 +3369,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"INVESTIGATING\"\n}"
@@ -2599,7 +3457,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"isVotingActive\": true,\n  \"allowAgentSubmissions\": true,\n  \"allowIncidentReporting\": true,\n  \"maintenanceMode\": false,\n  \"submissionCloseNotice\": \"Voting and collation closed.\"\n}"
@@ -2645,9 +3508,18 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/political-parties?status=active",
-              "host": ["{{election-eye-base-url}}"],
-              "path": ["political-parties"],
-              "query": [{ "key": "status", "value": "active" }]
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "political-parties"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active"
+                }
+              ]
             }
           }
         },
@@ -2682,7 +3554,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"All Progressives Congress\",\n  \"code\": \"APC\",\n  \"partyColorHex\": \"#00BFFF\",\n  \"logoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/political-parties/logos/apc.png\",\n  \"status\": \"active\"\n}"
@@ -2704,7 +3581,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"All Progressives Congress Updated\",\n  \"code\": \"APC\",\n  \"partyColorHex\": \"#00BFFF\",\n  \"status\": \"active\"\n}"
@@ -2726,7 +3608,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"partyColorHex\": \"#0080FF\"\n}"
@@ -2748,7 +3635,12 @@
                 }
               ]
             },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"logoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/political-parties/logos/new-logo.png\"\n}"
