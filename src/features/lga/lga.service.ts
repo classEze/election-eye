@@ -7,7 +7,7 @@ import { Lga } from './lga.entity';
 import { CreateLgaDto, UpdateLgaDto, CreateLgaArrayDto } from './lga.dto';
 import { LgaRepository } from './lga.repository';
 import * as Papa from 'papaparse';
-import { uploadDataRows } from './lga.data';
+import { uploadDataRows, genericUploadDataRows } from './lga.data';
 import { InjectQueue } from '@nestjs/bullmq';
 import {
   APP_QUEUES,
@@ -25,6 +25,10 @@ export class LgaService {
 
   generateTemplate(): string {
     return Papa.unparse(uploadDataRows);
+  }
+
+  generateGenericTemplate(): string {
+    return Papa.unparse(genericUploadDataRows);
   }
 
   async uploadLgas(file: Express.Multer.File, stateId: number, user: User) {

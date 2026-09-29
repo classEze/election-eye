@@ -775,6 +775,23 @@
           }
         },
         {
+          "name": "Download LGA Generic Template",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/lgas/template-generic"
+          }
+        },
+        {
           "name": "Create LGAs For State",
           "request": {
             "method": "POST",
@@ -951,6 +968,23 @@
               ]
             },
             "url": "{{election-eye-base-url}}/wards/template"
+          }
+        },
+        {
+          "name": "Download Ward Generic Template",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/wards/template-generic"
           }
         },
         {
@@ -1132,6 +1166,23 @@
               ]
             },
             "url": "{{election-eye-base-url}}/polling-units/template"
+          }
+        },
+        {
+          "name": "Download Polling Unit Generic Template",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/polling-units/template-generic"
           }
         },
         {
@@ -1353,7 +1404,7 @@
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 1,\n  \"title\": \"Federal Republic of Nigeria Presidential Election\",\n  \"category\": \"PRESIDENTIAL\",\n  \"state\": null,\n  \"lgas\": [],\n  \"wards\": [],\n  \"isActive\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 1,\n  \"title\": \"Federal Republic of Nigeria Presidential Election\",\n  \"category\": \"PRESIDENTIAL\",\n  \"state\": null,\n  \"lgas\": [],\n  \"wards\": [],\n  \"status\": \"pending\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
             },
             {
               "name": "Scenario 2: Gubernatorial Office (State-wide, stateId required, no LGAs/Wards needed)",
@@ -1371,7 +1422,7 @@
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 2,\n  \"title\": \"Lagos State Governorship Election\",\n  \"category\": \"GUBERNATORIAL\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [],\n  \"wards\": [],\n  \"isActive\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 2,\n  \"title\": \"Lagos State Governorship Election\",\n  \"category\": \"GUBERNATORIAL\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [],\n  \"wards\": [],\n  \"status\": \"pending\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
             },
             {
               "name": "Scenario 3: Senatorial District (stateId & lgaIds required)",
@@ -1389,7 +1440,7 @@
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 3,\n  \"title\": \"Delta North Senatorial District\",\n  \"category\": \"SENATORIAL\",\n  \"state\": {\n    \"id\": 10,\n    \"name\": \"Delta\"\n  },\n  \"lgas\": [\n    { \"id\": 101, \"name\": \"Aniocha North\" },\n    { \"id\": 102, \"name\": \"Aniocha South\" }\n  ],\n  \"wards\": [],\n  \"isActive\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 3,\n  \"title\": \"Delta North Senatorial District\",\n  \"category\": \"SENATORIAL\",\n  \"state\": {\n    \"id\": 10,\n    \"name\": \"Delta\"\n  },\n  \"lgas\": [\n    { \"id\": 101, \"name\": \"Aniocha North\" },\n    { \"id\": 102, \"name\": \"Aniocha South\" }\n  ],\n  \"wards\": [],\n  \"status\": \"pending\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
             },
             {
               "name": "Scenario 4: House of Representatives (Federal Constituency: stateId & lgaIds or wardIds)",
@@ -1407,7 +1458,7 @@
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 4,\n  \"title\": \"Ikeja Federal Constituency\",\n  \"category\": \"REPS\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [\n    { \"id\": 301, \"name\": \"Ikeja\" }\n  ],\n  \"wards\": [],\n  \"isActive\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 4,\n  \"title\": \"Ikeja Federal Constituency\",\n  \"category\": \"REPS\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [\n    { \"id\": 301, \"name\": \"Ikeja\" }\n  ],\n  \"wards\": [],\n  \"status\": \"pending\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
             },
             {
               "name": "Scenario 5: State House of Assembly (State Constituency: stateId & wardIds/lgaIds)",
@@ -1425,7 +1476,7 @@
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 5,\n  \"title\": \"Alimosho Constituency 01\",\n  \"category\": \"STATE_HOUSE\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [\n    { \"id\": 302, \"name\": \"Alimosho\" }\n  ],\n  \"wards\": [\n    { \"id\": 1001, \"name\": \"Ipaja North\" },\n    { \"id\": 1002, \"name\": \"Ipaja South\" }\n  ],\n  \"isActive\": false,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 5,\n  \"title\": \"Alimosho Constituency 01\",\n  \"category\": \"STATE_HOUSE\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [\n    { \"id\": 302, \"name\": \"Alimosho\" }\n  ],\n  \"wards\": [\n    { \"id\": 1001, \"name\": \"Ipaja North\" },\n    { \"id\": 1002, \"name\": \"Ipaja South\" }\n  ],\n  \"status\": \"pending\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:00:00.000Z\"\n}"
             }
           ]
         },
@@ -1632,7 +1683,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Lagos State Governorship Election\",\n  \"category\": \"GUBERNATORIAL\",\n  \"stateId\": {{state-id}},\n  \"isActive\": true\n}"
+              "raw": "{\n  \"title\": \"Lagos State Governorship Election\",\n  \"category\": \"GUBERNATORIAL\",\n  \"stateId\": {{state-id}},\n  \"status\": \"active\"\n}"
             },
             "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}"
           },
@@ -1646,14 +1697,14 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"title\": \"Updated Lagos State Governorship Election 2027\",\n  \"isActive\": true\n}"
+                  "raw": "{\n  \"title\": \"Updated Lagos State Governorship Election 2027\",\n  \"status\": \"active\"\n}"
                 },
                 "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}"
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 2,\n  \"title\": \"Updated Lagos State Governorship Election 2027\",\n  \"category\": \"GUBERNATORIAL\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [],\n  \"wards\": [],\n  \"isActive\": true,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:15:00.000Z\"\n}"
+              "body": "{\n  \"id\": 2,\n  \"title\": \"Updated Lagos State Governorship Election 2027\",\n  \"category\": \"GUBERNATORIAL\",\n  \"state\": {\n    \"id\": 25,\n    \"name\": \"Lagos\"\n  },\n  \"lgas\": [],\n  \"wards\": [],\n  \"status\": \"active\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:15:00.000Z\"\n}"
             },
             {
               "name": "Scenario 2: Update Senatorial District LGAs",
@@ -1671,7 +1722,7 @@
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 3,\n  \"title\": \"Delta North Senatorial District\",\n  \"category\": \"SENATORIAL\",\n  \"state\": {\n    \"id\": 10,\n    \"name\": \"Delta\"\n  },\n  \"lgas\": [\n    { \"id\": 101, \"name\": \"Aniocha North\" },\n    { \"id\": 102, \"name\": \"Aniocha South\" },\n    { \"id\": 103, \"name\": \"Ika North East\" }\n  ],\n  \"wards\": [],\n  \"isActive\": true,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:20:00.000Z\"\n}"
+              "body": "{\n  \"id\": 3,\n  \"title\": \"Delta North Senatorial District\",\n  \"category\": \"SENATORIAL\",\n  \"state\": {\n    \"id\": 10,\n    \"name\": \"Delta\"\n  },\n  \"lgas\": [\n    { \"id\": 101, \"name\": \"Aniocha North\" },\n    { \"id\": 102, \"name\": \"Aniocha South\" },\n    { \"id\": 103, \"name\": \"Ika North East\" }\n  ],\n  \"wards\": [],\n  \"status\": \"active\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-26T10:20:00.000Z\"\n}"
             }
           ]
         },
@@ -1740,7 +1791,7 @@
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"politicalParty\": {\n    \"id\": 1,\n    \"name\": \"All Progressives Congress\",\n    \"code\": \"APC\"\n  },\n  \"electoralOffice\": {\n    \"id\": 2,\n    \"title\": \"Lagos State Governorship Election\",\n    \"category\": \"GUBERNATORIAL\"\n  },\n  \"accountUserId\": 25,\n  \"isActive\": true,\n  \"createdAt\": \"2026-09-28T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-28T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 12,\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"politicalParty\": {\n    \"id\": 1,\n    \"name\": \"All Progressives Congress\",\n    \"code\": \"APC\"\n  },\n  \"electoralOffice\": {\n    \"id\": 2,\n    \"title\": \"Lagos State Governorship Election\",\n    \"category\": \"GUBERNATORIAL\"\n  },\n  \"accountUserId\": 25,\n  \"status\": \"pending\",\n  \"createdAt\": \"2026-09-28T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-28T10:00:00.000Z\"\n}"
             }
           ]
         },
@@ -1759,7 +1810,7 @@
               ]
             },
             "url": {
-              "raw": "{{election-eye-base-url}}/aspirants?page=1&limit=20&search=&partyId=&officeId=&isActive=true",
+              "raw": "{{election-eye-base-url}}/aspirants?page=1&limit=20&search=&partyId=&officeId=&status=active",
               "host": ["{{election-eye-base-url}}"],
               "path": ["aspirants"],
               "query": [
@@ -1768,7 +1819,7 @@
                 { "key": "search", "value": "" },
                 { "key": "partyId", "value": "", "disabled": true },
                 { "key": "officeId", "value": "", "disabled": true },
-                { "key": "isActive", "value": "true", "disabled": true }
+                { "key": "status", "value": "active", "disabled": true }
               ]
             }
           }
@@ -2593,10 +2644,10 @@
               ]
             },
             "url": {
-              "raw": "{{election-eye-base-url}}/political-parties?is_active=true",
+              "raw": "{{election-eye-base-url}}/political-parties?status=active",
               "host": ["{{election-eye-base-url}}"],
               "path": ["political-parties"],
-              "query": [{ "key": "is_active", "value": "true" }]
+              "query": [{ "key": "status", "value": "active" }]
             }
           }
         },
@@ -2634,7 +2685,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"All Progressives Congress\",\n  \"code\": \"APC\",\n  \"partyColorHex\": \"#00BFFF\",\n  \"logoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/political-parties/logos/apc.png\",\n  \"isActive\": true\n}"
+              "raw": "{\n  \"name\": \"All Progressives Congress\",\n  \"code\": \"APC\",\n  \"partyColorHex\": \"#00BFFF\",\n  \"logoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/political-parties/logos/apc.png\",\n  \"status\": \"active\"\n}"
             },
             "url": "{{election-eye-base-url}}/political-parties"
           }
@@ -2656,7 +2707,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"All Progressives Congress Updated\",\n  \"code\": \"APC\",\n  \"partyColorHex\": \"#00BFFF\",\n  \"isActive\": true\n}"
+              "raw": "{\n  \"name\": \"All Progressives Congress Updated\",\n  \"code\": \"APC\",\n  \"partyColorHex\": \"#00BFFF\",\n  \"status\": \"active\"\n}"
             },
             "url": "{{election-eye-base-url}}/political-parties/{{party-id}}"
           }

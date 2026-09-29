@@ -74,14 +74,51 @@ export default async function seedData(dataSource: DataSource): Promise<void> {
     // 4. SEED DEFAULT SYSTEM CONFIGURATION
     // ==========================================
     await dataSource.query(`
-      INSERT INTO "system_configurations" (id, is_voting_active, allow_agent_submissions, allow_incident_reporting, maintenance_mode, submission_close_notice, created_at, updated_at)
+      INSERT INTO "system_configurations" (
+        id,
+        is_voting_active,
+        allow_agent_submissions,
+        allow_incident_reporting,
+        maintenance_mode,
+        enable_otp,
+        otp_validity,
+        password_minimum_length,
+        maximum_login_attempts,
+        maximum_upload_size,
+        maximum_files_per_submission,
+        allowed_image_format,
+        require_result_sheet,
+        require_incident_evidence,
+        mandatory_result_fields,
+        mandatory_incident_fields,
+        submission_close_notice,
+        voting_start_time,
+        voting_end_time,
+        updated_by_admin_id,
+        created_at,
+        updated_at
+      )
       VALUES (
         1,
         true,
         true,
         true,
         false,
+        false,
+        300,
+        8,
+        5,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
         'The voting and result collation window is currently closed. Submissions are temporarily disabled.',
+        NULL,
+        NULL,
+        NULL,
         NOW(),
         NOW()
       )

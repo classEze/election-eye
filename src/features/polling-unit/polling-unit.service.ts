@@ -11,7 +11,7 @@ import {
 } from './polling-unit.dto';
 import { PollingUnitRepository } from './polling-unit.repository';
 import * as Papa from 'papaparse';
-import { uploadDataRows } from './polling-unit.data';
+import { uploadDataRows, genericUploadDataRows } from './polling-unit.data';
 import { InjectQueue } from '@nestjs/bullmq';
 import {
   APP_QUEUES,
@@ -31,6 +31,10 @@ export class PollingUnitService {
 
   generateTemplate(): string {
     return Papa.unparse(uploadDataRows);
+  }
+
+  generateGenericTemplate(): string {
+    return Papa.unparse(genericUploadDataRows);
   }
 
   async uploadPollingUnits(

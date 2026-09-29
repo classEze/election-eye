@@ -7,7 +7,7 @@ import { Ward } from './ward.entity';
 import { CreateWardDto, UpdateWardDto, CreateWardArrayDto } from './ward.dto';
 import { WardRepository } from './ward.repository';
 import * as Papa from 'papaparse';
-import { uploadDataRows } from './ward.data';
+import { uploadDataRows, genericUploadDataRows } from './ward.data';
 import { InjectQueue } from '@nestjs/bullmq';
 import {
   APP_QUEUES,
@@ -27,6 +27,10 @@ export class WardService {
 
   generateTemplate(): string {
     return Papa.unparse(uploadDataRows);
+  }
+
+  generateGenericTemplate(): string {
+    return Papa.unparse(genericUploadDataRows);
   }
 
   async uploadWards(
