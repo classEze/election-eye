@@ -11,6 +11,7 @@ import { UserEmailVerificationToken } from '../entities/user-email-verification-
 import { InjectQueue } from '@nestjs/bullmq';
 import { APP_QUEUES, QueueDictionary } from '../constants/queue.constants';
 import { Queue } from 'bullmq';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 @Injectable()
 export class EmailVerificationService {
@@ -83,7 +84,7 @@ export class EmailVerificationService {
     }
     await this.users.update(record.user.id, {
       isVerified: true,
-      isActive: true,
+      status: UserStatus.ACTIVE,
     });
     await this.userTokens.update(record.id, { usedAt: new Date() });
   }
@@ -112,7 +113,7 @@ export class EmailVerificationService {
     }
     await this.admins.update(record.admin.id, {
       isVerified: true,
-      isActive: true,
+      status: UserStatus.ACTIVE,
     });
     await this.adminTokens.update(record.id, { usedAt: new Date() });
   }

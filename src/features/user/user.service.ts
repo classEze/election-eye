@@ -4,17 +4,18 @@ import {
   BadRequestException,
   Inject,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateUserDto, UpdateUserDto, UserQueryDto } from './user.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UserQueryDto,
+  AspirantUsersQueryDto,
+} from './user.dto';
 import { UserRepository } from './user.repository';
-import { Role } from '../role/role.entity';
+import { RoleService } from '../role/role.service';
 import { RoleCode } from '../role/role.enum';
 import PasswordHelper from 'src/shared/helpers/password.helper';
 import { EmailVerificationService } from 'src/shared/verification/email-verification.service';
-import {
-  APP_QUEUES,
-} from '@/shared/constants/queue.constants';
+import { APP_QUEUES } from '@/shared/constants/queue.constants';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -26,8 +27,7 @@ export class UserService {
   private readonly passwordHelper = new PasswordHelper();
 
   constructor(
-    @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
+    private readonly roleService: RoleService,
     private readonly repo: UserRepository,
     private readonly verification: EmailVerificationService,
     @InjectQueue(APP_QUEUES.mail) private readonly mailQueue: Queue,
@@ -35,11 +35,9 @@ export class UserService {
   ) {}
 
   async create(userDto: CreateUserDto) {
-    const role = await this.roleRepository.findOne({
-      where: { id: userDto.role_id, status: true },
-    });
+    const role = await this.roleService.getRoleById(userDto.role_id);
 
-    if (!role) {
+    if (!role || !role.status) {
       throw new NotFoundException('Active role not found');
     }
 
@@ -48,11 +46,19 @@ export class UserService {
         RoleCode.LGA_COORDINATOR,
         RoleCode.WARD_COORDINATOR,
         RoleCode.PU_AGENT,
-      ].includes(role.code as RoleCode)
+      ].includes(role.code)
     ) {
       throw new BadRequestException(
         'Invalid role for user creation. Only LGA_COORDINATOR, WARD_COORDINATOR, and PU_AGENT roles are permitted for user accounts.',
       );
+    }
+
+    // Geographic sanitization according to hierarchical role assignment
+    if (role.code === RoleCode.LGA_COORDINATOR) {
+      userDto.assignedWardId = undefined;
+      userDto.assignedPuId = undefined;
+    } else if (role.code === RoleCode.WARD_COORDINATOR) {
+      userDto.assignedPuId = undefined;
     }
 
     const randomPassword = this.passwordHelper.generatePassword(18);
@@ -90,6 +96,30 @@ export class UserService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     await this.findOne(id);
 
+    if (updateUserDto.role_id) {
+      const role = await this.roleService.getRoleById(updateUserDto.role_id);
+      if (!role || !role.status) {
+        throw new NotFoundException('Active role not found');
+      }
+      if (
+        ![
+          RoleCode.LGA_COORDINATOR,
+          RoleCode.WARD_COORDINATOR,
+          RoleCode.PU_AGENT,
+        ].includes(role.code)
+      ) {
+        throw new BadRequestException(
+          'Invalid role. Only LGA_COORDINATOR, WARD_COORDINATOR, and PU_AGENT roles are permitted for user accounts.',
+        );
+      }
+      if (role.code === RoleCode.LGA_COORDINATOR) {
+        updateUserDto.assignedWardId = undefined;
+        updateUserDto.assignedPuId = undefined;
+      } else if (role.code === RoleCode.WARD_COORDINATOR) {
+        updateUserDto.assignedPuId = undefined;
+      }
+    }
+
     const updated = await this.repo.update(id, updateUserDto);
 
     // Invalidate cached user session in Redis
@@ -112,5 +142,68 @@ export class UserService {
     return {
       message: `User with ID #${id} was successfully soft-deleted.`,
     };
+  }
+
+  async findAspirantUsers(
+    aspirantId: number,
+    roleIdOrCode?: number | string,
+    queryDto?: AspirantUsersQueryDto,
+  ) {
+    return this.repo.findAspirantUsers(aspirantId, roleIdOrCode, queryDto);
+  }
+
+  async findAspirantLgaCoordinators(
+    aspirantId: number,
+    queryDto?: AspirantUsersQueryDto,
+  ) {
+    return this.repo.findAspirantUsers(
+      aspirantId,
+      RoleCode.LGA_COORDINATOR,
+      queryDto,
+    );
+  }
+
+  async findAspirantWardCoordinators(
+    aspirantId: number,
+    queryDto?: AspirantUsersQueryDto,
+  ) {
+    return this.repo.findAspirantUsers(
+      aspirantId,
+      RoleCode.WARD_COORDINATOR,
+      queryDto,
+    );
+  }
+
+  async findAspirantPuAgents(
+    aspirantId: number,
+    queryDto?: AspirantUsersQueryDto,
+  ) {
+    return this.repo.findAspirantUsers(aspirantId, RoleCode.PU_AGENT, queryDto);
+  }
+
+  async findMyAspirantUsers(
+    user: any,
+    roleIdOrCode?: number | string,
+    queryDto?: AspirantUsersQueryDto,
+  ) {
+    const aspirantId = user?.aspirantAccount?.id || user?.aspirant?.id;
+    if (!aspirantId) {
+      throw new BadRequestException(
+        'No associated aspirant account found for the current authenticated user.',
+      );
+    }
+    return this.repo.findAspirantUsers(aspirantId, roleIdOrCode, queryDto);
+  }
+
+  async findMyLgaCoordinators(user: any, queryDto?: AspirantUsersQueryDto) {
+    return this.findMyAspirantUsers(user, RoleCode.LGA_COORDINATOR, queryDto);
+  }
+
+  async findMyWardCoordinators(user: any, queryDto?: AspirantUsersQueryDto) {
+    return this.findMyAspirantUsers(user, RoleCode.WARD_COORDINATOR, queryDto);
+  }
+
+  async findMyPuAgents(user: any, queryDto?: AspirantUsersQueryDto) {
+    return this.findMyAspirantUsers(user, RoleCode.PU_AGENT, queryDto);
   }
 }

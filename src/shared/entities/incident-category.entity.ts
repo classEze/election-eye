@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserStatus } from '../enums/status.enum';
 import { Incident } from '../../features/incident/incident.entity';
 
 @Entity('incident_categories')
@@ -24,8 +25,12 @@ export class IncidentCategory {
   @Column({ type: 'text', nullable: true })
   description!: string;
 
-  @Column({ name: 'is_active', default: true })
-  isActive!: boolean;
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.ACTIVE,
+  })
+  status!: UserStatus;
 
   @OneToMany(() => Incident, (incident) => incident.category)
   incidents!: Incident[];

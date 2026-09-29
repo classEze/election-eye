@@ -8,13 +8,14 @@ import { DataSource, Repository } from 'typeorm';
 import { Aspirant } from './aspirant.entity';
 import { CreateAspirantDto, AspirantQueryDto } from './aspirant.dto';
 import { AspirantRepository } from './aspirant.repository';
-import { Role } from '../role/role.entity';
+import { RoleService } from '../role/role.service';
 import { RoleCode } from '../role/role.enum';
 import { EmailVerificationService } from 'src/shared/verification/email-verification.service';
 import { User } from '../user/user.entity';
 import PasswordHelper from 'src/shared/helpers/password.helper';
 import { PoliticalParty } from '../political-party/political-party.entity';
 import { ElectoralOffice } from '../electoral-office/electoral-office.entity';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 @Injectable()
 export class AspirantService {
@@ -27,36 +28,19 @@ export class AspirantService {
     private readonly parties: Repository<PoliticalParty>,
     @InjectRepository(ElectoralOffice)
     private readonly offices: Repository<ElectoralOffice>,
-    @InjectRepository(Role)
-    private readonly roles: Repository<Role>,
+    private readonly roleService: RoleService,
     private readonly verification: EmailVerificationService,
   ) {}
 
-  async create(dto: CreateAspirantDto) {
-    let role: Role | null;
-
-    if (dto.role_id) {
-      role = await this.roles.findOne({ where: { id: dto.role_id } });
-      if (!role) {
-        throw new NotFoundException(`Role with ID #${dto.role_id} not found.`);
-      }
-      if (role.code !== RoleCode.ASPIRANT) {
-        throw new BadRequestException(
-          'Invalid role for aspirant creation. Only the ASPIRANT role is permitted.',
-        );
-      }
-      if (!role.status) {
-        throw new BadRequestException(
-          'The specified ASPIRANT role is currently inactive.',
-        );
-      }
-    } else {
-      role = await this.roles.findOne({
-        where: { code: RoleCode.ASPIRANT, status: true },
-      });
-      if (!role) {
-        throw new NotFoundException('Active aspirant role not found.');
-      }
+  async create(dto: CreateAspirantDto, createdByAdminId: number) {
+    const role = await this.roleService.getRoleByCode(RoleCode.ASPIRANT);
+    if (!role) {
+      throw new NotFoundException('Active aspirant role not found.');
+    }
+    if (!role.status) {
+      throw new BadRequestException(
+        'The specified ASPIRANT role is currently inactive.',
+      );
     }
 
     const [party, office] = await Promise.all([
@@ -81,8 +65,7 @@ export class AspirantService {
         lastName: dto.lastName,
         politicalParty: party,
         electoralOffice: office,
-        logoUrl: dto.logoUrl,
-        createdByAdminId: dto.createdByAdminId,
+        createdByAdminId,
       });
       const savedAspirant = await manager.save(aspirant);
 
@@ -93,7 +76,7 @@ export class AspirantService {
         phoneNumber: dto.phoneNumber,
         password,
         role,
-        isActive: false,
+        status: UserStatus.PENDING,
         isVerified: false,
       });
       const savedAccount = await manager.save(account);
@@ -104,7 +87,6 @@ export class AspirantService {
       return { account: savedAccount, aspirant: savedAspirant };
     });
 
-    // Single unified email containing verification link + temporary password login instructions
     await this.verification.issueForUser(result.account, temporaryPassword);
 
     return {
@@ -114,7 +96,7 @@ export class AspirantService {
       politicalParty: result.aspirant.politicalParty,
       electoralOffice: result.aspirant.electoralOffice,
       accountUserId: result.account.id,
-      isActive: result.aspirant.isActive,
+      status: result.aspirant.status,
       createdAt: result.aspirant.createdAt,
       updatedAt: result.aspirant.updatedAt,
     };

@@ -2,8 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/features/user/user.entity';
-import { CreateUserDto, UpdateUserDto, UserQueryDto } from './user.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UserQueryDto,
+  AspirantUsersQueryDto,
+} from './user.dto';
 import { RoleCode } from '../role/role.enum';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 @Injectable()
 export class UserRepository {
@@ -12,10 +18,7 @@ export class UserRepository {
     private readonly repo: Repository<User>,
   ) {}
 
-  async insertOne(
-    user: CreateUserDto,
-    hashedPassword?: string,
-  ): Promise<User> {
+  async insertOne(user: CreateUserDto, hashedPassword?: string): Promise<User> {
     try {
       const newUser = this.repo.create({
         firstName: user.firstName,
@@ -24,12 +27,22 @@ export class UserRepository {
         phoneNumber: user.phoneNumber,
         password: hashedPassword || user.password,
         role: { id: user.role_id } as any,
-        assignedLga: user.assignedLgaId ? ({ id: user.assignedLgaId } as any) : undefined,
-        assignedWard: user.assignedWardId ? ({ id: user.assignedWardId } as any) : undefined,
-        assignedPu: user.assignedPuId ? ({ id: user.assignedPuId } as any) : undefined,
-        aspirant: user.aspirantId ? ({ id: user.aspirantId } as any) : undefined,
-        onboardedByUser: user.onboardedByUserId ? ({ id: user.onboardedByUserId } as any) : undefined,
-        isActive: user.isActive !== undefined ? user.isActive : false,
+        assignedLga: user.assignedLgaId
+          ? ({ id: user.assignedLgaId } as any)
+          : undefined,
+        assignedWard: user.assignedWardId
+          ? ({ id: user.assignedWardId } as any)
+          : undefined,
+        assignedPu: user.assignedPuId
+          ? ({ id: user.assignedPuId } as any)
+          : undefined,
+        aspirant: user.aspirantId
+          ? ({ id: user.aspirantId } as any)
+          : undefined,
+        onboardedByUser: user.onboardedByUserId
+          ? ({ id: user.onboardedByUserId } as any)
+          : undefined,
+        status: UserStatus.PENDING,
         deviceImei: user.deviceImei,
         fcmToken: user.fcmToken,
       });
@@ -60,6 +73,7 @@ export class UserRepository {
           'user.firstName',
           'user.lastName',
           'user.isVerified',
+          'user.status',
           'role.id',
           'role.name',
           'role.code',
@@ -83,7 +97,7 @@ export class UserRepository {
         'user.lastName',
         'user.emailAddress',
         'user.password',
-        'user.isActive',
+        'user.status',
         'user.isVerified',
         'user.forcePasswordReset',
         'user.loginCount',
@@ -107,7 +121,7 @@ export class UserRepository {
           'user.lastName',
           'user.emailAddress',
           'user.isVerified',
-          'user.isActive',
+          'user.status',
         ])
         .getOne();
     } catch (error) {
@@ -129,7 +143,12 @@ export class UserRepository {
     try {
       await this.repo.update(
         { id },
-        { password, forcePasswordReset: false, isVerified: true },
+        {
+          password,
+          forcePasswordReset: false,
+          isVerified: true,
+          status: UserStatus.ACTIVE,
+        },
       );
     } catch (error) {
       console.error('Error updating and verifying password:', error);
@@ -137,9 +156,7 @@ export class UserRepository {
     }
   }
 
-  async findAll(
-    queryDto?: UserQueryDto,
-  ): Promise<{
+  async findAll(queryDto?: UserQueryDto): Promise<{
     data: User[];
     meta: { total: number; page: number; limit: number; totalPages: number };
   }> {
@@ -150,6 +167,7 @@ export class UserRepository {
       .leftJoinAndSelect('user.assignedWard', 'assignedWard')
       .leftJoinAndSelect('user.assignedPu', 'assignedPu')
       .leftJoinAndSelect('user.aspirant', 'aspirant')
+      .leftJoinAndSelect('user.aspirantAccount', 'aspirantAccount')
       .leftJoinAndSelect('user.onboardedByUser', 'onboardedByUser');
 
     if (queryDto?.search) {
@@ -175,9 +193,9 @@ export class UserRepository {
       qb.andWhere('assignedPu.id = :puId', { puId: queryDto.puId });
     }
 
-    if (queryDto?.isActive !== undefined) {
-      qb.andWhere('user.isActive = :isActive', {
-        isActive: queryDto.isActive,
+    if (queryDto?.status !== undefined) {
+      qb.andWhere('user.status = :status', {
+        status: queryDto.status,
       });
     }
 
@@ -185,9 +203,75 @@ export class UserRepository {
     const limit = queryDto?.limit || 20;
     const skip = (page - 1) * limit;
 
-    qb.orderBy('user.createdAt', 'DESC')
-      .skip(skip)
-      .take(limit);
+    qb.orderBy('user.createdAt', 'DESC').skip(skip).take(limit);
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
+    };
+  }
+
+  async findAspirantUsers(
+    aspirantId: number,
+    roleIdOrCode?: number | string,
+    queryDto?: AspirantUsersQueryDto,
+  ): Promise<{
+    data: User[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    const qb = this.repo
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role')
+      .leftJoinAndSelect('user.aspirant', 'aspirant')
+      .leftJoinAndSelect('user.assignedLga', 'assignedLga')
+      .leftJoinAndSelect('user.assignedWard', 'assignedWard')
+      .leftJoinAndSelect('user.assignedPu', 'assignedPu')
+      .where('aspirant.id = :aspirantId', { aspirantId });
+
+    const effectiveRole = roleIdOrCode ?? queryDto?.roleId ?? queryDto?.role;
+    if (effectiveRole) {
+      if (typeof effectiveRole === 'number' || !isNaN(Number(effectiveRole))) {
+        qb.andWhere('role.id = :roleId', { roleId: Number(effectiveRole) });
+      } else {
+        qb.andWhere('role.code = :roleCode', { roleCode: effectiveRole });
+      }
+    }
+
+    if (queryDto?.search) {
+      qb.andWhere(
+        '(user.firstName ILIKE :search OR user.lastName ILIKE :search OR user.emailAddress ILIKE :search OR user.phoneNumber ILIKE :search)',
+        { search: `%${queryDto.search}%` },
+      );
+    }
+
+    if (queryDto?.lgaId) {
+      qb.andWhere('assignedLga.id = :lgaId', { lgaId: queryDto.lgaId });
+    }
+
+    if (queryDto?.wardId) {
+      qb.andWhere('assignedWard.id = :wardId', { wardId: queryDto.wardId });
+    }
+
+    if (queryDto?.puId) {
+      qb.andWhere('assignedPu.id = :puId', { puId: queryDto.puId });
+    }
+
+    if (queryDto?.status !== undefined) {
+      qb.andWhere('user.status = :status', { status: queryDto.status });
+    }
+
+    const page = queryDto?.page || 1;
+    const limit = queryDto?.limit || 20;
+    const skip = (page - 1) * limit;
+
+    qb.orderBy('user.createdAt', 'DESC').skip(skip).take(limit);
 
     const [data, total] = await qb.getManyAndCount();
 
@@ -213,7 +297,7 @@ export class UserRepository {
           'user.lastName',
           'user.emailAddress',
           'user.phoneNumber',
-          'user.isActive',
+          'user.status',
           'user.isVerified',
           'user.forcePasswordReset',
           'user.loginCount',
@@ -239,6 +323,7 @@ export class UserRepository {
         .createQueryBuilder('user')
         .leftJoinAndSelect('user.role', 'role')
         .leftJoinAndSelect('user.aspirant', 'aspirant')
+        .leftJoinAndSelect('user.aspirantAccount', 'aspirantAccount')
         .leftJoinAndSelect('user.assignedLga', 'assignedLga')
         .leftJoinAndSelect('user.assignedWard', 'assignedWard')
         .leftJoinAndSelect('user.assignedPu', 'assignedPu')
@@ -260,31 +345,44 @@ export class UserRepository {
     return this.findByIdWithRelations(id);
   }
 
-  async update(
-    id: number,
-    updateUserDto: UpdateUserDto,
-  ): Promise<User | null> {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User | null> {
     const updateData: Partial<User> = {};
 
-    if (updateUserDto.firstName !== undefined) updateData.firstName = updateUserDto.firstName;
-    if (updateUserDto.lastName !== undefined) updateData.lastName = updateUserDto.lastName;
-    if (updateUserDto.emailAddress !== undefined) updateData.emailAddress = updateUserDto.emailAddress;
-    if (updateUserDto.phoneNumber !== undefined) updateData.phoneNumber = updateUserDto.phoneNumber;
-    if (updateUserDto.isActive !== undefined) updateData.isActive = updateUserDto.isActive;
-    if (updateUserDto.deviceImei !== undefined) updateData.deviceImei = updateUserDto.deviceImei;
-    if (updateUserDto.fcmToken !== undefined) updateData.fcmToken = updateUserDto.fcmToken;
-    if (updateUserDto.role_id !== undefined) updateData.role = { id: updateUserDto.role_id } as any;
+    if (updateUserDto.firstName !== undefined)
+      updateData.firstName = updateUserDto.firstName;
+    if (updateUserDto.lastName !== undefined)
+      updateData.lastName = updateUserDto.lastName;
+    if (updateUserDto.emailAddress !== undefined)
+      updateData.emailAddress = updateUserDto.emailAddress;
+    if (updateUserDto.phoneNumber !== undefined)
+      updateData.phoneNumber = updateUserDto.phoneNumber;
+    if (updateUserDto.status !== undefined)
+      updateData.status = updateUserDto.status;
+    if (updateUserDto.deviceImei !== undefined)
+      updateData.deviceImei = updateUserDto.deviceImei;
+    if (updateUserDto.fcmToken !== undefined)
+      updateData.fcmToken = updateUserDto.fcmToken;
+    if (updateUserDto.role_id !== undefined)
+      updateData.role = { id: updateUserDto.role_id } as any;
     if (updateUserDto.assignedLgaId !== undefined) {
-      updateData.assignedLga = updateUserDto.assignedLgaId ? ({ id: updateUserDto.assignedLgaId } as any) : null as any;
+      updateData.assignedLga = updateUserDto.assignedLgaId
+        ? ({ id: updateUserDto.assignedLgaId } as any)
+        : (null as any);
     }
     if (updateUserDto.assignedWardId !== undefined) {
-      updateData.assignedWard = updateUserDto.assignedWardId ? ({ id: updateUserDto.assignedWardId } as any) : null as any;
+      updateData.assignedWard = updateUserDto.assignedWardId
+        ? ({ id: updateUserDto.assignedWardId } as any)
+        : (null as any);
     }
     if (updateUserDto.assignedPuId !== undefined) {
-      updateData.assignedPu = updateUserDto.assignedPuId ? ({ id: updateUserDto.assignedPuId } as any) : null as any;
+      updateData.assignedPu = updateUserDto.assignedPuId
+        ? ({ id: updateUserDto.assignedPuId } as any)
+        : (null as any);
     }
     if (updateUserDto.aspirantId !== undefined) {
-      updateData.aspirant = updateUserDto.aspirantId ? ({ id: updateUserDto.aspirantId } as any) : null as any;
+      updateData.aspirant = updateUserDto.aspirantId
+        ? ({ id: updateUserDto.aspirantId } as any)
+        : (null as any);
     }
 
     await this.repo.update({ id }, updateData);
@@ -292,7 +390,7 @@ export class UserRepository {
   }
 
   async softDelete(id: number): Promise<boolean> {
-    await this.repo.update({ id }, { isActive: false });
+    await this.repo.update({ id }, { status: UserStatus.INACTIVE });
     const result = await this.repo.softDelete(id);
     return (result.affected || 0) > 0;
   }

@@ -28,14 +28,9 @@ export class PoliticalPartyService {
   ) {}
 
   async findAll(queryDto?: PoliticalPartyQueryDto): Promise<PoliticalParty[]> {
-    const activeFilter =
-      queryDto?.is_active !== undefined
-        ? queryDto.is_active
-        : queryDto?.isActive !== undefined
-          ? queryDto.isActive
-          : 'all';
+    const statusFilter = queryDto?.status || 'all';
 
-    const cacheKey = `${PARTY_CACHE_PREFIX}list:${activeFilter}:${queryDto?.search || 'none'}`;
+    const cacheKey = `${PARTY_CACHE_PREFIX}list:${statusFilter}:${queryDto?.search || 'none'}`;
     const cached = await this.cacheManager.get<PoliticalParty[]>(cacheKey);
     if (cached) return cached;
 
@@ -147,7 +142,8 @@ export class PoliticalPartyService {
   private async invalidatePartyCache(): Promise<void> {
     // Delete known list cache variations
     await this.cacheManager.del(`${PARTY_CACHE_PREFIX}list:all:none`);
-    await this.cacheManager.del(`${PARTY_CACHE_PREFIX}list:true:none`);
-    await this.cacheManager.del(`${PARTY_CACHE_PREFIX}list:false:none`);
+    await this.cacheManager.del(`${PARTY_CACHE_PREFIX}list:active:none`);
+    await this.cacheManager.del(`${PARTY_CACHE_PREFIX}list:inactive:none`);
+    await this.cacheManager.del(`${PARTY_CACHE_PREFIX}list:pending:none`);
   }
 }

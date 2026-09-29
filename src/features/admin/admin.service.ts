@@ -4,17 +4,13 @@ import {
   BadRequestException,
   Inject,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { CreateAdminDto, UpdateAdminDto, AdminQueryDto } from './admin.dto';
 import { AdminRepository } from './admin.repository';
-import { Role } from '../role/role.entity';
+import { RoleService } from '../role/role.service';
 import { RoleCode } from '../role/role.enum';
 import PasswordHelper from 'src/shared/helpers/password.helper';
 import { EmailVerificationService } from 'src/shared/verification/email-verification.service';
-import {
-  APP_QUEUES,
-} from '@/shared/constants/queue.constants';
+import { APP_QUEUES } from '@/shared/constants/queue.constants';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -26,8 +22,7 @@ export class AdminService {
   private readonly passwordHelper = new PasswordHelper();
 
   constructor(
-    @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
+    private readonly roleService: RoleService,
     private readonly adminRepo: AdminRepository,
     private readonly verification: EmailVerificationService,
     @InjectQueue(APP_QUEUES.mail) private readonly mailQueue: Queue,
@@ -35,11 +30,9 @@ export class AdminService {
   ) {}
 
   async create(createAdminDto: CreateAdminDto) {
-    const role = await this.roleRepository.findOne({
-      where: { id: createAdminDto.role_id, status: true },
-    });
+    const role = await this.roleService.getRoleById(createAdminDto.role_id);
 
-    if (!role) {
+    if (!role || !role.status) {
       throw new NotFoundException('Active role not found');
     }
 
@@ -74,7 +67,7 @@ export class AdminService {
       emailAddress: result.emailAddress,
       phoneNumber: result.phoneNumber,
       role: result.role,
-      isActive: result.isActive,
+      status: result.status,
       isVerified: result.isVerified,
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
@@ -95,6 +88,24 @@ export class AdminService {
 
   async update(id: number, updateAdminDto: UpdateAdminDto) {
     await this.findOne(id);
+
+    if (updateAdminDto.role_id) {
+      const role = await this.roleService.getRoleById(updateAdminDto.role_id);
+      if (!role || !role.status) {
+        throw new NotFoundException('Active role not found');
+      }
+      if (
+        ![
+          RoleCode.SUPER_ADMIN,
+          RoleCode.SYSTEM_ADMIN,
+          RoleCode.CLIENT_ADMIN,
+        ].includes(role.code as RoleCode)
+      ) {
+        throw new BadRequestException(
+          'Invalid role for admin update. Only SUPER_ADMIN, SYSTEM_ADMIN, and CLIENT_ADMIN roles are permitted.',
+        );
+      }
+    }
 
     const updated = await this.adminRepo.update(id, updateAdminDto);
 
