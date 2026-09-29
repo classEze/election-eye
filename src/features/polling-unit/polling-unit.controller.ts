@@ -41,6 +41,17 @@ export class PollingUnitController {
     return csv;
   }
 
+  @Get('template-generic')
+  downloadGenericTemplate(@Res({ passthrough: true }) res: Response): string {
+    const csv = this.pollingUnitService.generateGenericTemplate();
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-Disposition':
+        'attachment; filename="polling_units_generic_upload_template.csv"',
+    });
+    return csv;
+  }
+
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
   @Post('batch')
   @HttpCode(HttpStatus.CREATED)
