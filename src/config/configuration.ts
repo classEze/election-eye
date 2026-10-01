@@ -41,4 +41,11 @@ export default () => ({
   http: {
     timeout: process.env.HTTP_TIMEOUT ?? 10000,
   },
+  storage: {
+    provider: process.env.STORAGE_PROVIDER ?? 'CLOUDFLARE_R2',
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    endpointUrl: process.env.R2_ENDPOINT_URL,
+    bucketName: process.env.R2_BUCKET_NAME,
+  },
 });

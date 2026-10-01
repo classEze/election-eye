@@ -3821,6 +3821,34 @@
           }
         },
         {
+          "name": "Get Logo Upload URL",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"contentType\": \"image/png\",\n    \"originalFilename\": \"pdp-logo.png\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/political-parties/logo-upload-url",
+            "description": "Generates a direct-to-bucket presigned POST URL for uploading a political party logo. The client should make a multipart/form-data request to the returned `uploadUrl` using the `uploadFields` and attaching the file."
+          }
+        },
+        {
           "name": "Update Political Party (PUT)",
           "request": {
             "method": "PUT",
@@ -4033,7 +4061,7 @@
               ]
             },
             "url": {
-              "raw": "{{election-eye-base-url}}/audit-logs?actorId=&actorType=&action=&entityName=&entityId=&status=&startDate=2026-01-01&endDate=2026-12-31&search=&page=1&limit=20",
+              "raw": "{{election-eye-base-url}}/audit-logs?actorId=&actorType=&action=&entityName=&status=&startDate=2026-01-01&endDate=2026-12-31&search=&page=1&limit=20",
               "host": [
                 "{{election-eye-base-url}}"
               ],
@@ -4060,11 +4088,6 @@
                   "key": "entityName",
                   "value": "",
                   "description": "Filter by entity e.g. Admin, Result, User"
-                },
-                {
-                  "key": "entityId",
-                  "value": "",
-                  "description": "Filter by specific entity ID"
                 },
                 {
                   "key": "status",

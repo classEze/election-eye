@@ -20,7 +20,7 @@ export enum AuditStatus {
 
 @Entity('audit_logs')
 @Index('idx_audit_actor', ['actorType', 'actorId'])
-@Index('idx_audit_entity', ['entityName', 'entityId'])
+@Index('idx_audit_entity_name', ['entityName'])
 @Index('idx_audit_action_date', ['action', 'createdAt'])
 export class AuditLog {
   @PrimaryGeneratedColumn()
@@ -49,16 +49,13 @@ export class AuditLog {
   @Column({ name: 'entity_name', type: 'varchar', length: 100, nullable: true })
   entityName!: string | null; // e.g. 'Result', 'User', 'Admin', 'Incident'
 
-  @Column({ name: 'entity_id', type: 'varchar', length: 100, nullable: true })
-  entityId!: string | null;
-
   @Column({ name: 'http_method', type: 'varchar', length: 10, nullable: true })
   httpMethod!: string | null;
 
   @Column({ type: 'text', nullable: true })
   endpoint!: string | null;
 
-  @Column({ name: 'status_code', type: 'int', nullable: true })
+  @Column({ name: 'status_code', type: 'int', nullable: true, select: false })
   statusCode!: number | null;
 
   @Column({
@@ -81,6 +78,7 @@ export class AuditLog {
     name: 'request_payload',
     type: 'jsonb',
     nullable: true,
+    select: false,
   })
   requestPayload!: Record<string, unknown> | null;
 
@@ -88,6 +86,7 @@ export class AuditLog {
     name: 'old_state',
     type: 'jsonb',
     nullable: true,
+    select: false,
   })
   oldState!: Record<string, unknown> | null;
 
@@ -95,6 +94,7 @@ export class AuditLog {
     name: 'new_state',
     type: 'jsonb',
     nullable: true,
+    select: false,
   })
   newState!: Record<string, unknown> | null;
 
@@ -102,6 +102,7 @@ export class AuditLog {
     name: 'diff',
     type: 'jsonb',
     nullable: true,
+    select: false,
   })
   diff!: Record<string, unknown> | null;
 
@@ -109,6 +110,7 @@ export class AuditLog {
     name: 'metadata',
     type: 'jsonb',
     nullable: true,
+    select: false,
   })
   metadata!: Record<string, unknown> | null;
 

@@ -43,10 +43,6 @@ export class AuditRepository {
       });
     }
 
-    if (filters.entityId) {
-      qb.andWhere('a.entity_id = :entityId', { entityId: filters.entityId });
-    }
-
     if (filters.status) {
       qb.andWhere('a.status = :status', { status: filters.status });
     }

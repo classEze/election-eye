@@ -91,17 +91,11 @@ export class AuditService {
       RoleCode: log.roleCode ?? 'N/A',
       Action: log.action,
       EntityName: log.entityName ?? 'N/A',
-      EntityID: log.entityId ?? 'N/A',
       HTTPMethod: log.httpMethod ?? 'N/A',
       Endpoint: log.endpoint ?? 'N/A',
-      StatusCode: log.statusCode ?? 'N/A',
       Status: log.status,
       ClientIP: log.ipAddress ?? 'N/A',
       ErrorMessage: log.errorMessage ?? '',
-      RequestPayload: log.requestPayload
-        ? JSON.stringify(log.requestPayload)
-        : '',
-      Diff: log.diff ? JSON.stringify(log.diff) : '',
     }));
 
     const csvContent = Papa.unparse(formattedRows);

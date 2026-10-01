@@ -54,7 +54,6 @@ export class AuditInterceptor implements NestInterceptor {
       `${controller.toUpperCase()}.${handler.replace(/[A-Z]/g, (letter) => `_${letter}`).toUpperCase()}`;
 
     const entityName = options?.entityName || controller;
-    const entityId = req.params?.id || req.params?.aspirantId || null;
     const clientIp = getClientIp(req);
     const userAgent = (req.headers['user-agent'] as string) || null;
 
@@ -84,7 +83,6 @@ export class AuditInterceptor implements NestInterceptor {
             roleCode,
             action,
             entityName,
-            entityId: entityId ? String(entityId) : null,
             httpMethod: method,
             endpoint: req.originalUrl,
             statusCode,
@@ -117,7 +115,6 @@ export class AuditInterceptor implements NestInterceptor {
             roleCode,
             action,
             entityName,
-            entityId: entityId ? String(entityId) : null,
             httpMethod: method,
             endpoint: req.originalUrl,
             statusCode,

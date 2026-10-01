@@ -20,4 +20,10 @@ export const envValidationSchema = Joi.object({
   TERMII_SENDER_ID: Joi.string().optional(),
 
   HTTP_TIMEOUT: Joi.number().optional(),
+
+  STORAGE_PROVIDER: Joi.string().valid('CLOUDFLARE_R2', 'AWS_S3').default('CLOUDFLARE_R2'),
+  R2_ACCESS_KEY_ID: Joi.string().required(),
+  R2_SECRET_ACCESS_KEY: Joi.string().required(),
+  R2_ENDPOINT_URL: Joi.string().uri().required(),
+  R2_BUCKET_NAME: Joi.string().required(),
 });

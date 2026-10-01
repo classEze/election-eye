@@ -28,10 +28,6 @@ export class AuditLogFilterDto {
   entityName?: string;
 
   @IsOptional()
-  @IsString()
-  entityId?: string;
-
-  @IsOptional()
   @IsEnum(AuditStatus)
   status?: AuditStatus;
 
@@ -67,7 +63,6 @@ export interface CreateAuditLogJobData {
   roleCode?: string | null;
   action: string;
   entityName?: string | null;
-  entityId?: string | null;
   httpMethod?: string | null;
   endpoint?: string | null;
   statusCode?: number | null;
