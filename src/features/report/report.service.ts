@@ -10,9 +10,17 @@ import { UserRepository } from '../user/user.repository';
 import { PoliticalPartyRepository } from '../political-party/political-party.repository';
 import { ElectoralOfficeRepository } from '../electoral-office/electoral-office.repository';
 import { AdminRepository } from '../admin/admin.repository';
-import { SystemActorsSummaryDto } from './report.dto';
+import { ResultRepository } from '../result/result.repository';
+import { IncidentRepository } from '../incident/incident.repository';
+import {
+  AllTimeIncidentSubmissionStatsDto,
+  SubmissionsAndIncidentsFilterDto,
+  SubmissionsAndIncidentsResponseDto,
+  SystemActorsSummaryDto,
+} from './report.dto';
 
 const REPORT_CACHE_KEY = 'report:system:actors_summary';
+const REPORT_STATS_CACHE_KEY = 'report:system:incident_submission_stats';
 const REPORT_CACHE_TTL = 60 * 1000; // 60 seconds
 
 @Injectable()
@@ -27,6 +35,8 @@ export class ReportService {
     private readonly politicalPartyRepository: PoliticalPartyRepository,
     private readonly electoralOfficeRepository: ElectoralOfficeRepository,
     private readonly adminRepository: AdminRepository,
+    private readonly resultRepository: ResultRepository,
+    private readonly incidentRepository: IncidentRepository,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -81,5 +91,72 @@ export class ReportService {
     await this.cacheManager.set(REPORT_CACHE_KEY, summary, REPORT_CACHE_TTL);
 
     return summary;
+  }
+
+  /**
+   * Fetches submissions (results) and incident activity data.
+   * Filterable by electoral office, status, and date range with pagination.
+   */
+  async getSubmissionsAndIncidents(
+    filterDto: SubmissionsAndIncidentsFilterDto,
+  ): Promise<SubmissionsAndIncidentsResponseDto> {
+    const page = filterDto.page || 1;
+    const limit = filterDto.limit || 20;
+
+    const [submissions, incidents] = await Promise.all([
+      this.resultRepository.findSubmissionsForActivity({
+        electoralOfficeId: filterDto.electoralOfficeId,
+        status: filterDto.status,
+        startDate: filterDto.startDate,
+        endDate: filterDto.endDate,
+        page,
+        limit,
+      }),
+      this.incidentRepository.findIncidentsForActivity({
+        electoralOfficeId: filterDto.electoralOfficeId,
+        status: filterDto.status,
+        startDate: filterDto.startDate,
+        endDate: filterDto.endDate,
+        page,
+        limit,
+      }),
+    ]);
+
+    return {
+      submissions,
+      incidents,
+    };
+  }
+
+  /**
+   * Fetches all-time aggregated metrics for submissions and incidents:
+   * Total counts, peak activity dates and counts, and daily averages.
+   */
+  async getAllTimeIncidentSubmissionStats(): Promise<AllTimeIncidentSubmissionStatsDto> {
+    const cached =
+      await this.cacheManager.get<AllTimeIncidentSubmissionStatsDto>(
+        REPORT_STATS_CACHE_KEY,
+      );
+    if (cached) {
+      return cached;
+    }
+
+    const [submissions, incidents] = await Promise.all([
+      this.resultRepository.getSubmissionStatsOverview(),
+      this.incidentRepository.getIncidentStatsOverview(),
+    ]);
+
+    const stats: AllTimeIncidentSubmissionStatsDto = {
+      submissions,
+      incidents,
+    };
+
+    await this.cacheManager.set(
+      REPORT_STATS_CACHE_KEY,
+      stats,
+      REPORT_CACHE_TTL,
+    );
+
+    return stats;
   }
 }

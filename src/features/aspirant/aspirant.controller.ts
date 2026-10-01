@@ -1,20 +1,29 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { CreateAspirantDto, AspirantQueryDto } from './aspirant.dto';
 import { AspirantService } from './aspirant.service';
 import { UserService } from '../user/user.service';
-import { AspirantUsersQueryDto, CreateUserDto } from '../user/user.dto';
+import {
+  AspirantUsersQueryDto,
+  CreateUserDto,
+  UpdateUserDto,
+} from '../user/user.dto';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
 import { GetUser } from 'src/shared/decorators/get-user.decorator';
 import { RoleCode } from '../role/role.enum';
+import { Admin } from '../admin/admin.entity';
+import { User } from '../user/user.entity';
 
 @Controller('aspirants')
 export class AspirantController {
@@ -23,22 +32,15 @@ export class AspirantController {
     private readonly userService: UserService,
   ) {}
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@GetUser() admin: any, @Body() dto: CreateAspirantDto) {
-    const adminId = Number(admin?.id || admin?.sub);
+  create(@GetUser() admin: Admin, @Body() dto: CreateAspirantDto) {
+    const adminId = Number(admin?.id);
     return this.aspirantService.create(dto, adminId);
   }
 
-  @Allowed([
-    RoleCode.SUPER_ADMIN,
-    RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
-    RoleCode.LGA_COORDINATOR,
-    RoleCode.WARD_COORDINATOR,
-    RoleCode.ASPIRANT,
-  ])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Get()
   findAll(@Query() query: AspirantQueryDto) {
     return this.aspirantService.findAll(query);
@@ -48,19 +50,24 @@ export class AspirantController {
 
   @Allowed([
     RoleCode.ASPIRANT,
-    RoleCode.CLIENT_ADMIN,
+    RoleCode.CLIENT_USER,
     RoleCode.LGA_COORDINATOR,
     RoleCode.WARD_COORDINATOR,
   ])
   @Post('me/users')
   @HttpCode(HttpStatus.CREATED)
-  createMyUser(@GetUser() user: any, @Body() dto: CreateUserDto) {
+  createMyUser(@GetUser() user: User, @Body() dto: CreateUserDto) {
     return this.userService.createForTeam(dto, user);
   }
 
-  @Allowed([RoleCode.ASPIRANT])
+  @Allowed([
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
   @Get('me/users')
-  findMyUsers(@GetUser() user: any, @Query() query: AspirantUsersQueryDto) {
+  findMyUsers(@GetUser() user: User, @Query() query: AspirantUsersQueryDto) {
     return this.userService.findMyAspirantUsers(
       user,
       query?.roleId ?? query?.role,
@@ -68,28 +75,81 @@ export class AspirantController {
     );
   }
 
-  @Allowed([RoleCode.ASPIRANT])
+  @Allowed([RoleCode.ASPIRANT, RoleCode.CLIENT_USER])
   @Get('me/lga-coordinators')
   findMyLgaCoordinators(
-    @GetUser() user: any,
+    @GetUser() user: User,
     @Query() query: AspirantUsersQueryDto,
   ) {
     return this.userService.findMyLgaCoordinators(user, query);
   }
 
-  @Allowed([RoleCode.ASPIRANT])
+  @Allowed([RoleCode.ASPIRANT, RoleCode.CLIENT_USER, RoleCode.LGA_COORDINATOR])
   @Get('me/ward-coordinators')
   findMyWardCoordinators(
-    @GetUser() user: any,
+    @GetUser() user: User,
     @Query() query: AspirantUsersQueryDto,
   ) {
     return this.userService.findMyWardCoordinators(user, query);
   }
 
-  @Allowed([RoleCode.ASPIRANT])
-  @Get('me/polling-unit-agents')
-  findMyPuAgents(@GetUser() user: any, @Query() query: AspirantUsersQueryDto) {
-    return this.userService.findMyPuAgents(user, query);
+  @Allowed([
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
+  @Get('me/team-members')
+  findMyTeamMembers(
+    @GetUser() user: User,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findMyAspirantUsers(
+      user,
+      query?.roleId ?? query?.role,
+      query,
+    );
+  }
+
+  @Allowed([
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
+  @Patch('me/users/:id')
+  updateMyUser(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @GetUser() user: User,
+  ) {
+    return this.userService.updateForTeam(+id, dto, user);
+  }
+
+  @Allowed([
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
+  @Put('me/users/:id')
+  updateMyUserPut(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @GetUser() user: User,
+  ) {
+    return this.userService.updateForTeam(+id, dto, user);
+  }
+
+  @Allowed([
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
+  @Delete('me/users/:id')
+  removeMyUser(@Param('id') id: string, @GetUser() user: User) {
+    return this.userService.removeForTeam(+id, user);
   }
 
   // --- Specific Aspirant Campaign Team Endpoints ---
@@ -100,19 +160,12 @@ export class AspirantController {
   createAspirantUser(
     @Param('aspirantId') aspirantId: string,
     @Body() dto: CreateUserDto,
-    @GetUser() admin: any,
+    @GetUser() admin: Admin,
   ) {
     return this.userService.createForAdmin(+aspirantId, dto, admin);
   }
 
-  @Allowed([
-    RoleCode.SUPER_ADMIN,
-    RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
-    RoleCode.ASPIRANT,
-    RoleCode.LGA_COORDINATOR,
-    RoleCode.WARD_COORDINATOR,
-  ])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Get(':aspirantId/users')
   findAspirantUsers(
     @Param('aspirantId') aspirantId: string,
@@ -125,14 +178,20 @@ export class AspirantController {
     );
   }
 
-  @Allowed([
-    RoleCode.SUPER_ADMIN,
-    RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
-    RoleCode.ASPIRANT,
-    RoleCode.LGA_COORDINATOR,
-    RoleCode.WARD_COORDINATOR,
-  ])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
+  @Get(':aspirantId/team-members')
+  findAspirantTeamMembers(
+    @Param('aspirantId') aspirantId: string,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findAspirantUsers(
+      +aspirantId,
+      query?.roleId ?? query?.role,
+      query,
+    );
+  }
+
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Get(':aspirantId/lga-coordinators')
   findAspirantLgaCoordinators(
     @Param('aspirantId') aspirantId: string,
@@ -141,14 +200,7 @@ export class AspirantController {
     return this.userService.findAspirantLgaCoordinators(+aspirantId, query);
   }
 
-  @Allowed([
-    RoleCode.SUPER_ADMIN,
-    RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
-    RoleCode.ASPIRANT,
-    RoleCode.LGA_COORDINATOR,
-    RoleCode.WARD_COORDINATOR,
-  ])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Get(':aspirantId/ward-coordinators')
   findAspirantWardCoordinators(
     @Param('aspirantId') aspirantId: string,
@@ -157,14 +209,7 @@ export class AspirantController {
     return this.userService.findAspirantWardCoordinators(+aspirantId, query);
   }
 
-  @Allowed([
-    RoleCode.SUPER_ADMIN,
-    RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
-    RoleCode.ASPIRANT,
-    RoleCode.LGA_COORDINATOR,
-    RoleCode.WARD_COORDINATOR,
-  ])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Get(':aspirantId/polling-unit-agents')
   findAspirantPuAgents(
     @Param('aspirantId') aspirantId: string,
@@ -173,13 +218,58 @@ export class AspirantController {
     return this.userService.findAspirantPuAgents(+aspirantId, query);
   }
 
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
+  @Patch(':aspirantId/users/:id')
+  updateAspirantUser(
+    @Param('aspirantId') aspirantId: string,
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @GetUser() admin: Admin,
+  ) {
+    return this.userService.updateForAdmin(+id, dto, admin);
+  }
+
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
+  @Put(':aspirantId/users/:id')
+  updateAspirantUserPut(
+    @Param('aspirantId') aspirantId: string,
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @GetUser() admin: Admin,
+  ) {
+    return this.userService.updateForAdmin(+id, dto, admin);
+  }
+
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
+  @Delete(':aspirantId/users/:id')
+  removeAspirantUser(
+    @Param('aspirantId') aspirantId: string,
+    @Param('id') id: string,
+    @GetUser() admin: Admin,
+  ) {
+    return this.userService.removeForAdmin(+id, admin);
+  }
+
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
     RoleCode.LGA_COORDINATOR,
     RoleCode.WARD_COORDINATOR,
+  ])
+  @Get('stats')
+  getStats() {
+    return this.aspirantService.getStats();
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
     RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
   ])
   @Get(':id')
   findOne(@Param('id') id: string) {

@@ -48,7 +48,7 @@ export class WardController {
     return csv;
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('batch')
   @HttpCode(HttpStatus.CREATED)
   async createMultiple(
@@ -57,7 +57,7 @@ export class WardController {
     return this.wardService.createMultiple(createWardArrayDto);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('upload')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file'))
@@ -79,7 +79,7 @@ export class WardController {
     return this.wardService.uploadWards(file, +lgaId, user);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('upload-generic')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file'))
@@ -115,7 +115,7 @@ export class WardController {
     return this.wardService.findOne(+id);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -124,7 +124,7 @@ export class WardController {
     return this.wardService.update(+id, updateWardDto);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<Ward> {
     return this.wardService.remove(+id);

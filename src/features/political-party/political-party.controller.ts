@@ -42,7 +42,7 @@ export class PoliticalPartyController {
     return this.politicalPartyService.findOne(+id);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('logo'))
@@ -63,7 +63,7 @@ export class PoliticalPartyController {
     return this.politicalPartyService.create(createDto, file);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -72,7 +72,7 @@ export class PoliticalPartyController {
     return this.politicalPartyService.update(+id, updateDto);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Patch(':id')
   async patch(
     @Param('id') id: string,
@@ -81,7 +81,7 @@ export class PoliticalPartyController {
     return this.politicalPartyService.update(+id, updateDto);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Patch(':id/logo')
   @UseInterceptors(FileInterceptor('logo'))
   async updateLogo(
@@ -102,7 +102,7 @@ export class PoliticalPartyController {
     return this.politicalPartyService.updateLogo(+id, updateLogoDto, file);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':id')
   async softDelete(@Param('id') id: string): Promise<{ message: string }> {
     return this.politicalPartyService.softDelete(+id);

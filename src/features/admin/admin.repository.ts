@@ -78,7 +78,12 @@ export class AdminRepository {
   async updatePasswordAndVerify(id: number, password: string): Promise<void> {
     await this.repo.update(
       { id },
-      { password, forcePasswordReset: false, isVerified: true, status: UserStatus.ACTIVE },
+      {
+        password,
+        forcePasswordReset: false,
+        isVerified: true,
+        status: UserStatus.ACTIVE,
+      },
     );
   }
 
@@ -152,6 +157,19 @@ export class AdminRepository {
     }
   }
 
+  async findByIdWithPassword(id: number): Promise<Admin | null> {
+    try {
+      return await this.repo
+        .createQueryBuilder('admin')
+        .where('admin.id = :id', { id })
+        .addSelect('admin.password')
+        .getOne();
+    } catch (error) {
+      console.error('Error finding admin by id with password:', error);
+      return null;
+    }
+  }
+
   async findByIdWithRelations(
     id: number,
     includeDeleted = false,
@@ -183,18 +201,16 @@ export class AdminRepository {
   ): Promise<Admin | null> {
     const updateData: Partial<Admin> = {};
 
-    if (updateAdminDto.firstName !== undefined)
+    if (updateAdminDto.firstName)
       updateData.firstName = updateAdminDto.firstName;
-    if (updateAdminDto.lastName !== undefined)
-      updateData.lastName = updateAdminDto.lastName;
-    if (updateAdminDto.emailAddress !== undefined)
+    if (updateAdminDto.lastName) updateData.lastName = updateAdminDto.lastName;
+    if (updateAdminDto.emailAddress)
       updateData.emailAddress = updateAdminDto.emailAddress;
-    if (updateAdminDto.phoneNumber !== undefined)
+    if (updateAdminDto.phoneNumber)
       updateData.phoneNumber = updateAdminDto.phoneNumber;
-    if (updateAdminDto.status !== undefined)
-      updateData.status = updateAdminDto.status;
-    if (updateAdminDto.role_id !== undefined)
-      updateData.role = { id: updateAdminDto.role_id } as any;
+    if (updateAdminDto.status) updateData.status = updateAdminDto.status;
+    if (updateAdminDto.role_id)
+      updateData.role = { id: updateAdminDto.role_id } as Admin['role'];
 
     await this.repo.update({ id }, updateData);
     return this.findOneById(id);
@@ -211,7 +227,7 @@ export class AdminRepository {
     systemAdmins: number;
     superAdmins: number;
   }> {
-    const raw = await this.repo
+    const raw: { roleCode: RoleCode; count: number }[] = await this.repo
       .createQueryBuilder('admin')
       .innerJoin('admin.role', 'role')
       .select('role.code', 'roleCode')

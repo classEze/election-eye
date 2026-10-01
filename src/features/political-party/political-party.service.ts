@@ -35,7 +35,7 @@ export class PoliticalPartyService {
     if (cached) return cached;
 
     const parties = await this.repository.findAll(queryDto);
-    await this.cacheManager.set(cacheKey, parties, 1000 * 60 * 15); // 15 mins TTL
+    await this.cacheManager.set(cacheKey, parties, 1000 * 60 * 60 * 24);
     return parties;
   }
 

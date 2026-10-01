@@ -97,9 +97,7 @@ export class IncidentRepository {
     const limit = filters.limit || 20;
     const skip = (page - 1) * limit;
 
-    qb.orderBy('i.createdAt', 'DESC')
-      .skip(skip)
-      .take(limit);
+    qb.orderBy('i.createdAt', 'DESC').skip(skip).take(limit);
 
     const [data, total] = await qb.getManyAndCount();
     return { data, total, page, limit };
@@ -151,7 +149,9 @@ export class IncidentRepository {
   }
 
   // Geolocation bounding-box spatial query taking advantage of idx_incidents_geolocation
-  async findMapClusters(query: IncidentMapClusterQueryDto): Promise<Incident[]> {
+  async findMapClusters(
+    query: IncidentMapClusterQueryDto,
+  ): Promise<Incident[]> {
     return this.repository
       .createQueryBuilder('i')
       .leftJoinAndSelect('i.category', 'cat')
@@ -169,7 +169,10 @@ export class IncidentRepository {
       .getMany();
   }
 
-  async updateStatus(id: number, status: IncidentStatus): Promise<Incident | null> {
+  async updateStatus(
+    id: number,
+    status: IncidentStatus,
+  ): Promise<Incident | null> {
     await this.repository.update({ id }, { status });
     return this.findById(id);
   }
@@ -177,5 +180,110 @@ export class IncidentRepository {
   async remove(id: number): Promise<boolean> {
     const result = await this.repository.delete({ id });
     return (result.affected || 0) > 0;
+  }
+
+  async findIncidentsForActivity(params: {
+    electoralOfficeId?: number;
+    status?: string;
+    startDate?: string;
+    endDate?: string;
+    page: number;
+    limit: number;
+  }): Promise<{
+    data: Incident[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const qb = this.repository
+      .createQueryBuilder('i')
+      .leftJoinAndSelect('i.category', 'cat')
+      .leftJoinAndSelect('i.pollingUnit', 'pu')
+      .leftJoinAndSelect('pu.ward', 'ward')
+      .leftJoinAndSelect('ward.lga', 'lga')
+      .leftJoinAndSelect('lga.state', 'state')
+      .leftJoinAndSelect('i.reportedByUser', 'user');
+
+    if (params.electoralOfficeId) {
+      qb.andWhere((subQb) => {
+        const subQueryLga = subQb
+          .subQuery()
+          .select('ol.lga_id')
+          .from('office_lgas', 'ol')
+          .where('ol.office_id = :officeId')
+          .getQuery();
+
+        const subQueryWard = subQb
+          .subQuery()
+          .select('ow.ward_id')
+          .from('office_wards', 'ow')
+          .where('ow.office_id = :officeId')
+          .getQuery();
+
+        return `(ward.lga_id IN ${subQueryLga} OR pu.ward_id IN ${subQueryWard})`;
+      }).setParameter('officeId', params.electoralOfficeId);
+    }
+
+    if (params.status) {
+      qb.andWhere('i.status = :status', {
+        status: params.status.toUpperCase(),
+      });
+    }
+
+    if (params.startDate) {
+      qb.andWhere('i.created_at >= :startDate', {
+        startDate: new Date(params.startDate),
+      });
+    }
+
+    if (params.endDate) {
+      qb.andWhere('i.created_at <= :endDate', {
+        endDate: new Date(params.endDate),
+      });
+    }
+
+    const page = params.page || 1;
+    const limit = params.limit || 20;
+    const skip = (page - 1) * limit;
+
+    qb.orderBy('i.created_at', 'DESC').skip(skip).take(limit);
+
+    const [data, total] = await qb.getManyAndCount();
+    return { data, total, page, limit };
+  }
+
+  async getIncidentStatsOverview(): Promise<{
+    total: number;
+    peakDay: string | null;
+    peakCount: number;
+    averagePerDay: number;
+  }> {
+    const rawCounts = await this.repository
+      .createQueryBuilder('i')
+      .select('COUNT(*)::int', 'total')
+      .addSelect('COUNT(DISTINCT DATE(i.created_at))::int', 'active_days')
+      .getRawOne<{ total: number; active_days: number }>();
+
+    const peakRaw = await this.repository
+      .createQueryBuilder('i')
+      .select("TO_CHAR(i.created_at, 'YYYY-MM-DD')", 'day')
+      .addSelect('COUNT(*)::int', 'count')
+      .groupBy("TO_CHAR(i.created_at, 'YYYY-MM-DD')")
+      .orderBy('count', 'DESC')
+      .addOrderBy('day', 'DESC')
+      .limit(1)
+      .getRawOne<{ day: string; count: number }>();
+
+    const total = Number(rawCounts?.total || 0);
+    const activeDays = Number(rawCounts?.active_days || 0);
+    const averagePerDay =
+      activeDays > 0 ? Number((total / activeDays).toFixed(2)) : 0;
+
+    return {
+      total,
+      peakDay: peakRaw?.day || null,
+      peakCount: Number(peakRaw?.count || 0),
+      averagePerDay,
+    };
   }
 }

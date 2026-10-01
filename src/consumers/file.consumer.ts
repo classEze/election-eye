@@ -381,9 +381,8 @@ export class FileConsumer extends WorkerHost {
             break;
           }
 
-          const dbPropertyName = wardColumnMap[
-            headerName as keyof typeof wardColumnMap
-          ] as string;
+          const dbPropertyName =
+            wardColumnMap[headerName as keyof typeof wardColumnMap];
           wardData[dbPropertyName] = rawVal.trim();
         }
 
@@ -520,9 +519,8 @@ export class FileConsumer extends WorkerHost {
             break;
           }
 
-          const dbPropertyName = wardColumnMap[
-            headerName as keyof typeof wardColumnMap
-          ] as string;
+          const dbPropertyName =
+            wardColumnMap[headerName as keyof typeof wardColumnMap];
           wardData[dbPropertyName] = rawVal.trim();
         }
 
@@ -638,9 +636,10 @@ export class FileConsumer extends WorkerHost {
             break;
           }
 
-          const dbPropertyName = pollingUnitColumnMap[
-            headerName as keyof typeof pollingUnitColumnMap
-          ] as string;
+          const dbPropertyName =
+            pollingUnitColumnMap[
+              headerName as keyof typeof pollingUnitColumnMap
+            ];
           puData[dbPropertyName] = rawVal.trim();
         }
 
@@ -777,9 +776,10 @@ export class FileConsumer extends WorkerHost {
             break;
           }
 
-          const dbPropertyName = pollingUnitColumnMap[
-            headerName as keyof typeof pollingUnitColumnMap
-          ] as string;
+          const dbPropertyName =
+            pollingUnitColumnMap[
+              headerName as keyof typeof pollingUnitColumnMap
+            ];
           puData[dbPropertyName] = rawVal.trim();
         }
 

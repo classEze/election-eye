@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { RoleModule } from './features/role/role.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './features/user/user.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { NotificationModule } from './shared/notification/notification.module';
 import { HttpClientModule } from './shared/default-modules/http.module';
 import { JwtDefaultModule } from './shared/default-modules/jwt.module';
@@ -31,6 +31,9 @@ import { SystemConfigurationModule } from './features/system-configuration/syste
 import { StorageModule } from './shared/storage/storage.module';
 import { PoliticalPartyModule } from './features/political-party/political-party.module';
 import { ReportModule } from './features/report/report.module';
+import { AuditModule } from './features/audit/audit.module';
+import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
+import { AuditInterceptor } from './shared/interceptors/audit.interceptor';
 
 @Module({
   imports: [
@@ -66,10 +69,19 @@ import { ReportModule } from './features/report/report.module';
     SystemConfigurationModule,
     PoliticalPartyModule,
     ReportModule,
+    AuditModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    },
     {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,

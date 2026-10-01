@@ -69,11 +69,7 @@ export class IncidentController {
     @Query('page') page = '1',
     @Query('limit') limit = '20',
   ) {
-    return this.incidentService.findByElectoralOffice(
-      +officeId,
-      +page,
-      +limit,
-    );
+    return this.incidentService.findByElectoralOffice(+officeId, +page, +limit);
   }
 
   @Get()
@@ -89,7 +85,8 @@ export class IncidentController {
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
     RoleCode.LGA_COORDINATOR,
     RoleCode.WARD_COORDINATOR,
   ])

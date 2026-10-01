@@ -47,42 +47,33 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
 
     if (exception instanceof UnauthorizedException) {
       myResObj.responseCode = exception.getStatus();
-      myResObj.responseMessage = 'Unauthorized';
-      this.logger.error(
-        `UnauthorizedException [${request.method} ${request.url}]: ${JSON.stringify(exception.getResponse())}`,
-        stack,
+      myResObj.responseMessage = 'Unauthorized: invalid credentials';
+      this.logger.warn(
+        `Unauthorized [${request.method} ${request.url}]: ${JSON.stringify(exception.getResponse())}`,
         contextName,
       );
     } else if (exception instanceof HttpException) {
       myResObj.responseCode = exception.getStatus();
       myResObj.responseMessage = exception.getResponse();
-      this.logger.error(
+      this.logger.warn(
         `HttpException [${request.method} ${request.url}]: ${JSON.stringify(exception.getResponse())}`,
-        stack,
         contextName,
       );
     } else if (exception instanceof TypeORMError) {
       myResObj.responseCode = 422;
-      myResObj.responseMessage = 'operation failed due to invalid data';
+      myResObj.responseMessage =
+        'operation failed due to invalid data. Please contact Support';
       this.logger.error(
         `TypeORMError [${request.method} ${request.url}]: ${exception.message}`,
-        stack,
-        contextName,
-      );
-    } else if (exception instanceof Error) {
-      myResObj.responseMessage =
-        'An Unexpected Error Occured. Please contact System Admin';
-      this.logger.error(
-        `Error [${request.method} ${request.url}]: ${exception.message}`,
         stack,
         contextName,
       );
     } else {
       myResObj.responseCode = 500;
       myResObj.responseMessage =
-        'internal server error, please read API documentation for more information';
+        'An Unexpected Error Occurred. Please contact System Admin';
       this.logger.error(
-        `Unknown Exception [${request.method} ${request.url}]: ${JSON.stringify(exception)}`,
+        `ServerError [${request.method} ${request.url}]: ${(exception as Error)?.message || JSON.stringify(exception)}`,
         stack,
         contextName,
       );

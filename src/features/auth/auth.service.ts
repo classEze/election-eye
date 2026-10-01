@@ -13,7 +13,11 @@ import { CreateUserDto } from 'src/features/user/user.dto';
 import { User } from 'src/features/user/user.entity';
 import { UserRepository } from 'src/features/user/user.repository';
 import { IsNull, Repository } from 'typeorm';
-import { ResendVerificationDto, ResetPasswordDto } from './auth.dto';
+import {
+  ChangePasswordDto,
+  ResendVerificationDto,
+  ResetPasswordDto,
+} from './auth.dto';
 import { EmailVerificationService } from 'src/shared/verification/email-verification.service';
 import { PasswordResets } from 'src/shared/entities/password-resets.entity';
 import { AdminRepository } from 'src/features/admin/admin.repository';
@@ -377,6 +381,82 @@ export class AuthService {
       }),
     );
     return passwordResetToken;
+  }
+
+  async changeUserPassword(userId: number, dto: ChangePasswordDto) {
+    if (dto.newPassword === dto.currentPassword) {
+      throw new BadRequestException(
+        'New password cannot be the same as the current password.',
+      );
+    }
+
+    this.validateNewPassword({
+      password: dto.newPassword,
+      confirmPassword: dto.confirmPassword,
+      passwordResetToken: '',
+    });
+
+    const user = await this.userRepo.findByIdWithPassword(userId);
+    if (!user || !user.password) {
+      throw new UnauthorizedException('User account not found.');
+    }
+
+    const isMatch = await this.passwordHelper.verifyUserPassword(
+      dto.currentPassword,
+      user.password,
+    );
+    if (!isMatch) {
+      throw new BadRequestException('Current password is incorrect.');
+    }
+
+    const hashedPassword = await this.passwordHelper.hashUserPassword(
+      dto.newPassword,
+    );
+
+    await this.userRepo.updatePassword(userId, hashedPassword);
+    await this.cacheManager.del(getUserInfoCacheKey(userId));
+
+    return {
+      message: 'Password changed successfully.',
+    };
+  }
+
+  async changeAdminPassword(adminId: number, dto: ChangePasswordDto) {
+    if (dto.newPassword === dto.currentPassword) {
+      throw new BadRequestException(
+        'New password cannot be the same as the current password.',
+      );
+    }
+
+    this.validateNewPassword({
+      password: dto.newPassword,
+      confirmPassword: dto.confirmPassword,
+      passwordResetToken: '',
+    });
+
+    const admin = await this.adminRepo.findByIdWithPassword(adminId);
+    if (!admin || !admin.password) {
+      throw new UnauthorizedException('Administrator account not found.');
+    }
+
+    const isMatch = await this.passwordHelper.verifyUserPassword(
+      dto.currentPassword,
+      admin.password,
+    );
+    if (!isMatch) {
+      throw new BadRequestException('Current password is incorrect.');
+    }
+
+    const hashedPassword = await this.passwordHelper.hashUserPassword(
+      dto.newPassword,
+    );
+
+    await this.adminRepo.updatePassword(adminId, hashedPassword);
+    await this.cacheManager.del(getAdminInfoCacheKey(adminId));
+
+    return {
+      message: 'Admin password changed successfully.',
+    };
   }
 
   private validateNewPassword(resetObj: ResetPasswordDto): void {

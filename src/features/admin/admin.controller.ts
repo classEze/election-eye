@@ -14,7 +14,9 @@ import {
 import { AdminService } from './admin.service';
 import { CreateAdminDto, UpdateAdminDto, AdminQueryDto } from './admin.dto';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
+import { GetUser } from 'src/shared/decorators/get-user.decorator';
 import { RoleCode } from '../role/role.enum';
+import { Admin } from './admin.entity';
 
 @Controller('admins')
 export class AdminController {
@@ -39,16 +41,24 @@ export class AdminController {
     return this.adminService.findOne(+id);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN])
   @Put(':id')
-  updatePut(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
+  updatePut(
+    @Param('id') id: string,
+    @Body() updateAdminDto: UpdateAdminDto,
+    @GetUser() currentAdmin: Admin,
+  ) {
+    return this.adminService.update(+id, updateAdminDto, currentAdmin);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN])
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateAdminDto: UpdateAdminDto,
+    @GetUser() currentAdmin: Admin,
+  ) {
+    return this.adminService.update(+id, updateAdminDto, currentAdmin);
   }
 
   @Allowed([RoleCode.SUPER_ADMIN])

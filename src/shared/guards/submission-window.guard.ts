@@ -17,7 +17,8 @@ export class SubmissionWindowGuard implements CanActivate {
     const path = request.url || '';
 
     if (path.includes('incident')) {
-      const status = await this.systemConfigService.isIncidentReportingAllowed();
+      const status =
+        await this.systemConfigService.isIncidentReportingAllowed();
       if (!status.allowed) {
         throw new ForbiddenException(status.reason);
       }

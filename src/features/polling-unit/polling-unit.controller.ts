@@ -52,7 +52,7 @@ export class PollingUnitController {
     return csv;
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('batch')
   @HttpCode(HttpStatus.CREATED)
   async createMultiple(
@@ -61,7 +61,7 @@ export class PollingUnitController {
     return this.pollingUnitService.createMultiple(createPollingUnitArrayDto);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('upload')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file'))
@@ -83,7 +83,7 @@ export class PollingUnitController {
     return this.pollingUnitService.uploadPollingUnits(file, +wardId, user);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('upload-generic')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file'))
@@ -119,7 +119,7 @@ export class PollingUnitController {
     return this.pollingUnitService.findOne(+id);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -128,7 +128,7 @@ export class PollingUnitController {
     return this.pollingUnitService.update(+id, updatePollingUnitDto);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<PollingUnit> {
     return this.pollingUnitService.remove(+id);

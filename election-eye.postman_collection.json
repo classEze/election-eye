@@ -371,6 +371,60 @@
             },
             "url": "{{election-eye-base-url}}/auth/resend-admin-verification"
           }
+        },
+        {
+          "name": "Change User Password",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"OldUserPass@2026\",\n  \"newPassword\": \"NewUserPass@2026\",\n  \"confirmPassword\": \"NewUserPass@2026\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/change-password"
+          }
+        },
+        {
+          "name": "Change Admin Password",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"OldAdminPass@2026\",\n  \"newPassword\": \"NewAdminPass@2026\",\n  \"confirmPassword\": \"NewAdminPass@2026\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/auth/admin-change-password"
+          }
         }
       ]
     },
@@ -502,7 +556,7 @@
               "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"assignedPu\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\"\n  },\n  \"deviceImei\": \"358923058291024\",\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             },
             {
-              "name": "Scenario 4: Client Admin (Admin Route)",
+              "name": "Scenario 4: Client User (Admin Route)",
               "originalRequest": {
                 "method": "POST",
                 "header": [
@@ -513,19 +567,19 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
+                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.user@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
                 },
                 "url": "{{election-eye-base-url}}/user/aspirant/{{aspirant-id}}"
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client Admin\",\n    \"code\": \"CLIENT_ADMIN\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.user@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client User\",\n    \"code\": \"CLIENT_USER\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             }
           ]
         },
         {
-          "name": "Create User as Campaign Team (Aspirant / Client Admin / LGA Coord / Ward Coord)",
+          "name": "Create User as Campaign Team (Aspirant / Client User / LGA Coord / Ward Coord)",
           "request": {
             "method": "POST",
             "auth": {
@@ -615,7 +669,7 @@
               "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"assignedPu\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\"\n  },\n  \"deviceImei\": \"358923058291024\",\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             },
             {
-              "name": "Scenario 4: Client Admin (Team Route)",
+              "name": "Scenario 4: Client User (Team Route)",
               "originalRequest": {
                 "method": "POST",
                 "header": [
@@ -626,14 +680,14 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
+                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.user@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
                 },
                 "url": "{{election-eye-base-url}}/user"
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client Admin\",\n    \"code\": \"CLIENT_ADMIN\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.user@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client User\",\n    \"code\": \"CLIENT_USER\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             }
           ]
         },
@@ -2344,7 +2398,7 @@
               "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"assignedPu\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\"\n  },\n  \"deviceImei\": \"358923058291024\",\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             },
             {
-              "name": "Scenario 4: Client Admin (Admin Route)",
+              "name": "Scenario 4: Client User (Admin Route)",
               "originalRequest": {
                 "method": "POST",
                 "header": [
@@ -2355,14 +2409,14 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
+                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.user@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
                 },
                 "url": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/users"
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client Admin\",\n    \"code\": \"CLIENT_ADMIN\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.user@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client User\",\n    \"code\": \"CLIENT_USER\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             }
           ]
         },
@@ -2457,7 +2511,7 @@
               "body": "{\n  \"id\": 12,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"pu.agent@example.com\",\n  \"phoneNumber\": \"08031234567\",\n  \"role\": {\n    \"id\": 6,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\"\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\"\n  },\n  \"assignedPu\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\"\n  },\n  \"deviceImei\": \"358923058291024\",\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             },
             {
-              "name": "Scenario 4: Client Admin (Team Route)",
+              "name": "Scenario 4: Client User (Team Route)",
               "originalRequest": {
                 "method": "POST",
                 "header": [
@@ -2468,14 +2522,14 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
+                  "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.user@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role_id\": 3\n}"
                 },
                 "url": "{{election-eye-base-url}}/aspirants/me/users"
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.admin@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client Admin\",\n    \"code\": \"CLIENT_ADMIN\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 13,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"client.user@example.com\",\n  \"phoneNumber\": \"08020001122\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Client User\",\n    \"code\": \"CLIENT_USER\"\n  },\n  \"status\": \"pending\",\n  \"isVerified\": false,\n  \"createdAt\": \"2026-09-29T10:00:00.000Z\"\n}"
             }
           ]
         },
@@ -2817,6 +2871,205 @@
                 }
               ]
             }
+          }
+        },
+        {
+          "name": "Get Aspirant Stats",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/aspirants/stats"
+          }
+        },
+        {
+          "name": "Get Aspirant Team Members (Admin Route)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/team-members?page=1&limit=20&role=&search=",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "aspirants",
+                "{{aspirant-id}}",
+                "team-members"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "role",
+                  "value": "",
+                  "description": "Filter by role ID or code"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Aspirant Team Members (Logged In Aspirant / Team)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/aspirants/me/team-members?page=1&limit=20&role=&search=",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "aspirants",
+                "me",
+                "team-members"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "role",
+                  "value": "",
+                  "description": "Filter by role ID or code"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update My Campaign Team User (Logged In Aspirant / Team)",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"08031112233\",\n  \"assignedLgaId\": {{lga-id}}\n}"
+            },
+            "url": "{{election-eye-base-url}}/aspirants/me/users/{{user-id}}"
+          }
+        },
+        {
+          "name": "Delete My Campaign Team User (Logged In Aspirant / Team)",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/aspirants/me/users/{{user-id}}"
+          }
+        },
+        {
+          "name": "Update Aspirant Campaign Team User (Admin Route)",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"08039998877\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/users/{{user-id}}"
+          }
+        },
+        {
+          "name": "Delete Aspirant Campaign Team User (Admin Route)",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/aspirants/{{aspirant-id}}/users/{{user-id}}"
           }
         }
       ]
@@ -3685,6 +3938,224 @@
               ]
             },
             "url": "{{election-eye-base-url}}/reports/summary"
+          }
+        },
+        {
+          "name": "Get Activity Feed (Submissions & Incidents)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/reports/activity?electoralOfficeId={{office-id}}&status=&startDate=2026-01-01&endDate=2026-12-31&page=1&limit=20",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "reports",
+                "activity"
+              ],
+              "query": [
+                {
+                  "key": "electoralOfficeId",
+                  "value": "{{office-id}}",
+                  "description": "Optional filter by electoral office"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Optional filter by status"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01",
+                  "description": "Optional ISO start date filter"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-12-31",
+                  "description": "Optional ISO end date filter"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All-Time Overview Stats (Submissions & Incidents)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/reports/overview-stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "item": [
+        {
+          "name": "Get Audit Logs (Paginated & Filterable)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/audit-logs?actorId=&actorType=&action=&entityName=&entityId=&status=&startDate=2026-01-01&endDate=2026-12-31&search=&page=1&limit=20",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "audit-logs"
+              ],
+              "query": [
+                {
+                  "key": "actorId",
+                  "value": "",
+                  "description": "Filter by actor ID"
+                },
+                {
+                  "key": "actorType",
+                  "value": "",
+                  "description": "ADMIN | USER | SYSTEM | ANONYMOUS"
+                },
+                {
+                  "key": "action",
+                  "value": "",
+                  "description": "Filter by action name e.g. AUTH.ADMIN_LOGIN"
+                },
+                {
+                  "key": "entityName",
+                  "value": "",
+                  "description": "Filter by entity e.g. Admin, Result, User"
+                },
+                {
+                  "key": "entityId",
+                  "value": "",
+                  "description": "Filter by specific entity ID"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "SUCCESS | FAILURE"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01",
+                  "description": "ISO start date filter"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-12-31",
+                  "description": "ISO end date filter"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Free text search across email, action, entity, IP"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export Audit Logs (CSV Download)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/audit-logs/export?startDate=2026-01-01&endDate=2026-12-31&status=",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "audit-logs",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01",
+                  "description": "ISO start date filter"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-12-31",
+                  "description": "ISO end date filter"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Optional filter: SUCCESS or FAILURE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Log by ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/audit-logs/1"
           }
         }
       ]

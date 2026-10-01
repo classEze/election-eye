@@ -38,10 +38,7 @@ export class ResultRepository {
     });
   }
 
-  async findById(
-    id: number,
-    manager?: EntityManager,
-  ): Promise<Result | null> {
+  async findById(id: number, manager?: EntityManager): Promise<Result | null> {
     const repo = manager ? manager.getRepository(Result) : this.repository;
     return repo.findOne({
       where: { id },
@@ -137,9 +134,7 @@ export class ResultRepository {
     const limit = filters.limit || 20;
     const skip = (page - 1) * limit;
 
-    qb.orderBy('r.serverReceivedAt', 'DESC')
-      .skip(skip)
-      .take(limit);
+    qb.orderBy('r.serverReceivedAt', 'DESC').skip(skip).take(limit);
 
     const [data, total] = await qb.getManyAndCount();
 
@@ -158,7 +153,11 @@ export class ResultRepository {
       {
         auditStatus,
         isVerified,
-        rejectionReason: auditStatus === ResultAuditStatus.REJECTED || auditStatus === ResultAuditStatus.FLAGGED ? rejectionReason : null,
+        rejectionReason:
+          auditStatus === ResultAuditStatus.REJECTED ||
+          auditStatus === ResultAuditStatus.FLAGGED
+            ? rejectionReason
+            : null,
         verifiedByUser: verifier,
       },
     );
@@ -208,9 +207,18 @@ export class ResultRepository {
       .createQueryBuilder('r')
       .innerJoin('r.pollingUnit', 'pu')
       .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
-      .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
-      .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
-      .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
+      .addSelect(
+        'COALESCE(SUM(r.rejected_votes), 0)::int',
+        'totalRejectedVotes',
+      )
+      .addSelect(
+        'COALESCE(SUM(r.total_accredited_voters), 0)::int',
+        'totalAccreditedVoters',
+      )
+      .addSelect(
+        'COALESCE(SUM(r.total_registered_voters), 0)::int',
+        'totalRegisteredVoters',
+      )
       .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('pu.ward_id = :wardId', { wardId })
@@ -249,9 +257,18 @@ export class ResultRepository {
       .innerJoin('r.pollingUnit', 'pu')
       .innerJoin('pu.ward', 'ward')
       .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
-      .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
-      .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
-      .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
+      .addSelect(
+        'COALESCE(SUM(r.rejected_votes), 0)::int',
+        'totalRejectedVotes',
+      )
+      .addSelect(
+        'COALESCE(SUM(r.total_accredited_voters), 0)::int',
+        'totalAccreditedVoters',
+      )
+      .addSelect(
+        'COALESCE(SUM(r.total_registered_voters), 0)::int',
+        'totalRegisteredVoters',
+      )
       .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('ward.lga_id = :lgaId', { lgaId })
@@ -292,9 +309,18 @@ export class ResultRepository {
       .innerJoin('pu.ward', 'ward')
       .innerJoin('ward.lga', 'lga')
       .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
-      .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
-      .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
-      .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
+      .addSelect(
+        'COALESCE(SUM(r.rejected_votes), 0)::int',
+        'totalRejectedVotes',
+      )
+      .addSelect(
+        'COALESCE(SUM(r.total_accredited_voters), 0)::int',
+        'totalAccreditedVoters',
+      )
+      .addSelect(
+        'COALESCE(SUM(r.total_registered_voters), 0)::int',
+        'totalRegisteredVoters',
+      )
       .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('lga.state_id = :stateId', { stateId })
@@ -309,7 +335,16 @@ export class ResultRepository {
   }
 
   // Upload progress stats for an electoral office
-  async getOfficeUploadProgress(officeId: number): Promise<any> {
+  async getOfficeUploadProgress(officeId: number): Promise<{
+    officeId: number;
+    totalPollingUnits: number;
+    uploadedPollingUnits: number;
+    completionPercentage: number;
+    totalValidVotes: number;
+    totalRejectedVotes: number;
+    totalAccreditedVoters: number;
+    totalRegisteredVoters: number;
+  }> {
     const stats = await this.repository.manager.query(
       `
       SELECT 
@@ -334,7 +369,8 @@ export class ResultRepository {
     const row = stats[0] || {};
     const totalPus = row.total_polling_units || 0;
     const uploadedPus = row.uploaded_polling_units || 0;
-    const percentage = totalPus > 0 ? Number(((uploadedPus / totalPus) * 100).toFixed(2)) : 0;
+    const percentage =
+      totalPus > 0 ? Number(((uploadedPus / totalPus) * 100).toFixed(2)) : 0;
 
     return {
       officeId,
@@ -353,7 +389,12 @@ export class ResultRepository {
     officeId: number,
     page = 1,
     limit = 20,
-  ): Promise<{ data: any[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    data: Record<string, unknown>[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const qb = this.repository
       .createQueryBuilder('r')
       .innerJoin('r.pollingUnit', 'pu')
@@ -385,5 +426,96 @@ export class ResultRepository {
       .getRawMany();
 
     return { data, total, page, limit };
+  }
+
+  async findSubmissionsForActivity(params: {
+    electoralOfficeId?: number;
+    status?: string;
+    startDate?: string;
+    endDate?: string;
+    page: number;
+    limit: number;
+  }): Promise<{ data: Result[]; total: number; page: number; limit: number }> {
+    const qb = this.repository
+      .createQueryBuilder('r')
+      .leftJoinAndSelect('r.electoralOffice', 'office')
+      .leftJoinAndSelect('r.pollingUnit', 'pu')
+      .leftJoinAndSelect('pu.ward', 'ward')
+      .leftJoinAndSelect('ward.lga', 'lga')
+      .leftJoinAndSelect('r.uploadedByUser', 'uploader')
+      .leftJoinAndSelect('r.verifiedByUser', 'verifier')
+      .leftJoinAndSelect('r.partyBreakdown', 'breakdown')
+      .leftJoinAndSelect('breakdown.politicalParty', 'party');
+
+    if (params.electoralOfficeId) {
+      qb.andWhere('r.electoral_office_id = :officeId', {
+        officeId: params.electoralOfficeId,
+      });
+    }
+
+    if (params.status) {
+      qb.andWhere('r.audit_status = :status', {
+        status: params.status.toUpperCase(),
+      });
+    }
+
+    if (params.startDate) {
+      qb.andWhere('r.server_received_at >= :startDate', {
+        startDate: new Date(params.startDate),
+      });
+    }
+
+    if (params.endDate) {
+      qb.andWhere('r.server_received_at <= :endDate', {
+        endDate: new Date(params.endDate),
+      });
+    }
+
+    const page = params.page || 1;
+    const limit = params.limit || 20;
+    const skip = (page - 1) * limit;
+
+    qb.orderBy('r.server_received_at', 'DESC').skip(skip).take(limit);
+
+    const [data, total] = await qb.getManyAndCount();
+    return { data, total, page, limit };
+  }
+
+  async getSubmissionStatsOverview(): Promise<{
+    total: number;
+    peakDay: string | null;
+    peakCount: number;
+    averagePerDay: number;
+  }> {
+    const rawCounts = await this.repository
+      .createQueryBuilder('r')
+      .select('COUNT(*)::int', 'total')
+      .addSelect(
+        'COUNT(DISTINCT DATE(r.server_received_at))::int',
+        'active_days',
+      )
+      .getRawOne<{ total: number; active_days: number }>();
+
+    const peakRaw = await this.repository
+      .createQueryBuilder('r')
+      .select("TO_CHAR(r.server_received_at, 'YYYY-MM-DD')", 'day')
+      .addSelect('COUNT(*)::int', 'count')
+      .groupBy("TO_CHAR(r.server_received_at, 'YYYY-MM-DD')")
+      .orderBy('count', 'DESC')
+      .addOrderBy('day', 'DESC')
+      .limit(1)
+      .getRawOne<{ day: string; count: number }>();
+
+    const total = Number(rawCounts?.total || 0);
+    const activeDays = Number(rawCounts?.active_days || 0);
+    const averagePerDay =
+      activeDays > 0 ? Number((total / activeDays).toFixed(2)) : 0;
+
+    return {
+      total,
+      peakDay: peakRaw?.day || null,
+      peakCount: Number(peakRaw?.count || 0),
+      averagePerDay,
+    };
   }
 }

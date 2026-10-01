@@ -204,9 +204,8 @@ export class ResultService {
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
-    const progress = await this.resultRepository.getOfficeUploadProgress(
-      officeId,
-    );
+    const progress =
+      await this.resultRepository.getOfficeUploadProgress(officeId);
     await this.cacheManager.set(cacheKey, progress, 1000 * 30);
     return progress;
   }

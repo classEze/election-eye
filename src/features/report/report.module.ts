@@ -10,6 +10,8 @@ import { UserModule } from '../user/user.module';
 import { PoliticalPartyModule } from '../political-party/political-party.module';
 import { ElectoralOfficeModule } from '../electoral-office/electoral-office.module';
 import { AdminModule } from '../admin/admin.module';
+import { ResultModule } from '../result/result.module';
+import { IncidentModule } from '../incident/incident.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { AdminModule } from '../admin/admin.module';
     PoliticalPartyModule,
     ElectoralOfficeModule,
     AdminModule,
+    ResultModule,
+    IncidentModule,
   ],
   controllers: [ReportController],
   providers: [ReportService],

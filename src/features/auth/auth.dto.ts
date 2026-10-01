@@ -41,3 +41,19 @@ export class ResendVerificationDto {
   @IsEmail()
   email!: string;
 }
+
+export class ChangePasswordDto {
+  @IsNotEmpty()
+  @IsString()
+  currentPassword!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8)
+  newPassword!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8)
+  confirmPassword!: string;
+}
