@@ -5,6 +5,14 @@ import { Aspirant } from './aspirant.entity';
 import { AspirantQueryDto } from './aspirant.dto';
 import { UserStatus } from 'src/shared/enums/status.enum';
 
+export interface AspirantStatsRaw {
+  total: number;
+  active: number;
+  pending: number;
+  inactive: number;
+  deleted: number;
+}
+
 @Injectable()
 export class AspirantRepository {
   constructor(
@@ -44,7 +52,7 @@ export class AspirantRepository {
     }
 
     if (queryDto?.status !== undefined) {
-      qb.andWhere('aspirant.status = :status', {
+      qb.andWhere('accountUser.status = :status', {
         status: queryDto.status,
       });
     }
@@ -79,21 +87,70 @@ export class AspirantRepository {
     });
   }
 
+  async getStats(): Promise<AspirantStatsRaw> {
+    const raw = await this.repository
+      .createQueryBuilder('aspirant')
+      .leftJoin('aspirant.accountUser', 'accountUser')
+      .select('COUNT(aspirant.id)::int', 'total')
+      .addSelect(
+        'COUNT(aspirant.id) FILTER (WHERE accountUser.status = :active AND accountUser.deleted_at IS NULL)::int',
+        'active',
+      )
+      .addSelect(
+        'COUNT(aspirant.id) FILTER (WHERE accountUser.status = :pending AND accountUser.deleted_at IS NULL)::int',
+        'pending',
+      )
+      .addSelect(
+        'COUNT(aspirant.id) FILTER (WHERE accountUser.status = :inactive AND accountUser.deleted_at IS NULL)::int',
+        'inactive',
+      )
+      .addSelect(
+        'COUNT(aspirant.id) FILTER (WHERE accountUser.deleted_at IS NOT NULL)::int',
+        'deleted',
+      )
+      .setParameters({
+        active: UserStatus.ACTIVE,
+        pending: UserStatus.PENDING,
+        inactive: UserStatus.INACTIVE,
+      })
+      .getRawOne<AspirantStatsRaw>();
+
+    return {
+      total: Number(raw?.total || 0),
+      active: Number(raw?.active || 0),
+      pending: Number(raw?.pending || 0),
+      inactive: Number(raw?.inactive || 0),
+      deleted: Number(raw?.deleted || 0),
+    };
+  }
+
   async countAspirants(): Promise<{
     total: number;
     active: number;
     inactive: number;
   }> {
-    const [total, active, inactive] = await Promise.all([
-      this.repository.count(),
-      this.repository.count({ where: { status: UserStatus.ACTIVE } }),
-      this.repository.count({ where: { status: UserStatus.INACTIVE } }),
-    ]);
+    const raw = await this.repository
+      .createQueryBuilder('aspirant')
+      .leftJoin('aspirant.accountUser', 'accountUser')
+      .select('COUNT(aspirant.id)::int', 'total')
+      .addSelect(
+        'COUNT(aspirant.id) FILTER (WHERE accountUser.status = :active AND accountUser.deleted_at IS NULL)::int',
+        'active',
+      )
+      .addSelect(
+        'COUNT(aspirant.id) FILTER (WHERE accountUser.status = :inactive AND accountUser.deleted_at IS NULL)::int',
+        'inactive',
+      )
+      .setParameters({
+        active: UserStatus.ACTIVE,
+        inactive: UserStatus.INACTIVE,
+      })
+      .getRawOne<{ total: number; active: number; inactive: number }>();
 
     return {
-      total,
-      active,
-      inactive,
+      total: Number(raw?.total || 0),
+      active: Number(raw?.active || 0),
+      inactive: Number(raw?.inactive || 0),
     };
   }
 }

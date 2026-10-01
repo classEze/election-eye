@@ -1,6 +1,7 @@
 export const APP_QUEUES = {
   mail: 'MAIL_QUEUE',
   file: 'FILE_QUEUE',
+  audit: 'AUDIT_QUEUE',
 } as const;
 
 export const QueueDictionary = {
@@ -12,4 +13,5 @@ export const QueueDictionary = {
   PROCESS_POLLING_UNIT_UPLOAD_WITH_WARD_ID:
     'PROCESS_POLLING_UNIT_UPLOAD_WITH_WARD_ID',
   PROCESS_POLLING_UNIT_UPLOAD_GENERIC: 'PROCESS_POLLING_UNIT_UPLOAD_GENERIC',
+  RECORD_AUDIT_LOG: 'RECORD_AUDIT_LOG',
 } as const;

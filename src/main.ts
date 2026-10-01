@@ -1,15 +1,19 @@
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AllExceptionsFilter } from './exceptions-filter';
 
 async function bootstrap(port: string) {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new ConsoleLogger({
       json: true,
       timestamp: true,
     }),
   });
+
+  // Trust first reverse proxy hop (Render, AWS ALB, Nginx, Cloudflare)
+  app.set('trust proxy', 1);
 
   const { httpAdapter } = app.get<HttpAdapterHost>(HttpAdapterHost);
 

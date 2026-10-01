@@ -12,7 +12,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../user/user.entity';
-import { UserStatus } from 'src/shared/enums/status.enum';
 
 @Entity('aspirants')
 export class Aspirant {
@@ -38,13 +37,6 @@ export class Aspirant {
 
   @Column({ name: 'created_by_admin_id' })
   createdByAdminId!: number;
-
-  @Column({
-    type: 'enum',
-    enum: UserStatus,
-    default: UserStatus.PENDING,
-  })
-  status!: UserStatus;
 
   @ManyToOne(() => ElectoralOffice, (office) => office.aspirants, {
     onDelete: 'RESTRICT',

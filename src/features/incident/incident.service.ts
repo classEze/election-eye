@@ -83,7 +83,10 @@ export class IncidentService {
     // 3. Process Pictures (Max 5 pictures with size check)
     const uploadedPictureUrls = [...(dto.mediaPictureUrls || [])];
     if (files?.pictures && files.pictures.length > 0) {
-      if (files.pictures.length + uploadedPictureUrls.length > MAX_PICTURE_COUNT) {
+      if (
+        files.pictures.length + uploadedPictureUrls.length >
+        MAX_PICTURE_COUNT
+      ) {
         throw new BadRequestException(
           `Exceeded picture limit: Maximum allowed is ${MAX_PICTURE_COUNT} pictures.`,
         );
@@ -124,14 +127,12 @@ export class IncidentService {
   }
 
   async findByElectoralOffice(officeId: number, page = 1, limit = 20) {
-    return this.incidentRepository.findByElectoralOffice(
-      officeId,
-      page,
-      limit,
-    );
+    return this.incidentRepository.findByElectoralOffice(officeId, page, limit);
   }
 
-  async findMapClusters(query: IncidentMapClusterQueryDto): Promise<Incident[]> {
+  async findMapClusters(
+    query: IncidentMapClusterQueryDto,
+  ): Promise<Incident[]> {
     return this.incidentRepository.findMapClusters(query);
   }
 
@@ -139,10 +140,7 @@ export class IncidentService {
     id: number,
     dto: UpdateIncidentStatusDto,
   ): Promise<Incident> {
-    const updated = await this.incidentRepository.updateStatus(
-      id,
-      dto.status,
-    );
+    const updated = await this.incidentRepository.updateStatus(id, dto.status);
     if (!updated) {
       throw new NotFoundException(`Incident with ID #${id} not found.`);
     }

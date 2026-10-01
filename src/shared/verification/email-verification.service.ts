@@ -50,10 +50,7 @@ export class EmailVerificationService {
     );
   }
 
-  async issueForAdmin(
-    admin: Admin,
-    temporaryPassword?: string,
-  ): Promise<void> {
+  async issueForAdmin(admin: Admin, temporaryPassword?: string): Promise<void> {
     await this.adminTokens.update(
       { admin, usedAt: IsNull() },
       { usedAt: new Date() },

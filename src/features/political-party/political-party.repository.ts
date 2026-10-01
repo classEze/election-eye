@@ -24,10 +24,9 @@ export class PoliticalPartyRepository {
     }
 
     if (queryDto?.search) {
-      qb.andWhere(
-        '(party.name ILIKE :search OR party.code ILIKE :search)',
-        { search: `%${queryDto.search}%` },
-      );
+      qb.andWhere('(party.name ILIKE :search OR party.code ILIKE :search)', {
+        search: `%${queryDto.search}%`,
+      });
     }
 
     qb.orderBy('party.name', 'ASC');
@@ -78,7 +77,8 @@ export class PoliticalPartyRepository {
 
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.code !== undefined) updateData.code = dto.code.toUpperCase();
-    if (dto.partyColorHex !== undefined) updateData.partyColorHex = dto.partyColorHex;
+    if (dto.partyColorHex !== undefined)
+      updateData.partyColorHex = dto.partyColorHex;
     if (dto.logoUrl !== undefined) updateData.logoUrl = dto.logoUrl;
     if (dto.status !== undefined) updateData.status = dto.status;
 
@@ -86,7 +86,10 @@ export class PoliticalPartyRepository {
     return this.findById(id);
   }
 
-  async updateLogo(id: number, logoUrl: string): Promise<PoliticalParty | null> {
+  async updateLogo(
+    id: number,
+    logoUrl: string,
+  ): Promise<PoliticalParty | null> {
     await this.repository.update({ id }, { logoUrl });
     return this.findById(id);
   }

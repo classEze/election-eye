@@ -16,6 +16,8 @@ import { CreateUserDto, UpdateUserDto, UserQueryDto } from './user.dto';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
 import { GetUser } from 'src/shared/decorators/get-user.decorator';
 import { RoleCode } from '../role/role.enum';
+import { Admin } from '../admin/admin.entity';
+import { User } from './user.entity';
 
 @Controller(['user', 'users'])
 export class UserController {
@@ -27,27 +29,28 @@ export class UserController {
   createForAdmin(
     @Param('aspirantId') aspirantId: string,
     @Body() createUserDto: CreateUserDto,
-    @GetUser() admin: any,
+    @GetUser() admin: Admin,
   ) {
     return this.userService.createForAdmin(+aspirantId, createUserDto, admin);
   }
 
   @Allowed([
     RoleCode.ASPIRANT,
-    RoleCode.CLIENT_ADMIN,
+    RoleCode.CLIENT_USER,
     RoleCode.LGA_COORDINATOR,
     RoleCode.WARD_COORDINATOR,
   ])
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createForTeam(@Body() createUserDto: CreateUserDto, @GetUser() user: any) {
+  createForTeam(@Body() createUserDto: CreateUserDto, @GetUser() user: User) {
     return this.userService.createForTeam(createUserDto, user);
   }
 
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
     RoleCode.LGA_COORDINATOR,
     RoleCode.WARD_COORDINATOR,
   ])
@@ -64,30 +67,47 @@ export class UserController {
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
     RoleCode.LGA_COORDINATOR,
     RoleCode.WARD_COORDINATOR,
   ])
   @Put(':id')
-  updatePut(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  updatePut(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @GetUser() actor: any,
+  ) {
+    return this.userService.update(+id, updateUserDto, actor);
   }
 
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
     RoleCode.LGA_COORDINATOR,
     RoleCode.WARD_COORDINATOR,
   ])
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @GetUser() actor: any,
+  ) {
+    return this.userService.update(+id, updateUserDto, actor);
   }
 
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN, RoleCode.CLIENT_ADMIN])
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  remove(@Param('id') id: string, @GetUser() actor: any) {
+    return this.userService.remove(+id, actor);
   }
 }

@@ -35,7 +35,7 @@ export class ResultController {
     RoleCode.PU_AGENT,
     RoleCode.WARD_COORDINATOR,
     RoleCode.LGA_COORDINATOR,
-    RoleCode.CLIENT_ADMIN,
+    RoleCode.CLIENT_USER,
     RoleCode.SYSTEM_ADMIN,
     RoleCode.SUPER_ADMIN,
   ])
@@ -125,7 +125,7 @@ export class ResultController {
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_ADMIN,
+    RoleCode.CLIENT_USER,
     RoleCode.LGA_COORDINATOR,
     RoleCode.WARD_COORDINATOR,
     RoleCode.ASPIRANT,

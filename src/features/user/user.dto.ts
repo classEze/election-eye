@@ -64,6 +64,11 @@ export class CreateUserDto {
   onboardedByUserId?: number;
 
   @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  createdByAdminId?: number;
+
+  @IsOptional()
   @IsString()
   deviceImei?: string;
 

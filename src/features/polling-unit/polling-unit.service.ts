@@ -116,7 +116,9 @@ export class PollingUnitService {
     }
   }
 
-  async create(createPollingUnitDto: CreatePollingUnitDto): Promise<PollingUnit> {
+  async create(
+    createPollingUnitDto: CreatePollingUnitDto,
+  ): Promise<PollingUnit> {
     await this.wardService.findOne(createPollingUnitDto.wardId);
 
     const existingName = await this.pollingUnitRepository.findByNameAndWard(

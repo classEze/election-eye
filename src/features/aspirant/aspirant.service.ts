@@ -16,6 +16,7 @@ import PasswordHelper from 'src/shared/helpers/password.helper';
 import { PoliticalParty } from '../political-party/political-party.entity';
 import { ElectoralOffice } from '../electoral-office/electoral-office.entity';
 import { UserStatus } from 'src/shared/enums/status.enum';
+import { Admin } from '../admin/admin.entity';
 
 @Injectable()
 export class AspirantService {
@@ -49,10 +50,14 @@ export class AspirantService {
     ]);
 
     if (!party) {
-      throw new NotFoundException('Political party not found');
+      throw new NotFoundException(
+        'Aspirant Political party not found or inactive',
+      );
     }
     if (!office) {
-      throw new NotFoundException('Electoral office not found');
+      throw new NotFoundException(
+        'Assigned Electoral office not found or inactive',
+      );
     }
 
     const temporaryPassword = this.passwordHelper.generatePassword(18);
@@ -78,6 +83,8 @@ export class AspirantService {
         role,
         status: UserStatus.PENDING,
         isVerified: false,
+        createdByAdmin: { id: createdByAdminId } as Admin,
+        aspirant: savedAspirant,
       });
       const savedAccount = await manager.save(account);
 
@@ -96,7 +103,7 @@ export class AspirantService {
       politicalParty: result.aspirant.politicalParty,
       electoralOffice: result.aspirant.electoralOffice,
       accountUserId: result.account.id,
-      status: result.aspirant.status,
+      status: result.account.status,
       createdAt: result.aspirant.createdAt,
       updatedAt: result.aspirant.updatedAt,
     };
@@ -107,6 +114,10 @@ export class AspirantService {
     meta: { total: number; page: number; limit: number; totalPages: number };
   }> {
     return this.aspirantRepo.findAll(queryDto);
+  }
+
+  async getStats() {
+    return this.aspirantRepo.getStats();
   }
 
   async findOne(id: number): Promise<Aspirant> {

@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { User } from 'src/features/user/user.entity';
+import { Role } from '../role/role.entity';
+import { Lga } from '../lga/lga.entity';
+import { Ward } from '../ward/ward.entity';
+import { PollingUnit } from '../polling-unit/polling-unit.entity';
+import { Aspirant } from '../aspirant/aspirant.entity';
+import { Admin } from '../admin/admin.entity';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -10,6 +17,12 @@ import {
 } from './user.dto';
 import { RoleCode } from '../role/role.enum';
 import { UserStatus } from 'src/shared/enums/status.enum';
+
+interface CoordinatorAgentCountSummaryRaw {
+  lgaCoordinators: number;
+  wardCoordinators: number;
+  puAgents: number;
+}
 
 @Injectable()
 export class UserRepository {
@@ -26,21 +39,22 @@ export class UserRepository {
         emailAddress: user.emailAddress,
         phoneNumber: user.phoneNumber,
         password: hashedPassword || user.password,
-        role: { id: user.role_id } as any,
+        role: { id: user.role_id } as Role,
         assignedLga: user.assignedLgaId
-          ? ({ id: user.assignedLgaId } as any)
+          ? { id: user.assignedLgaId }
           : undefined,
         assignedWard: user.assignedWardId
-          ? ({ id: user.assignedWardId } as any)
+          ? { id: user.assignedWardId }
           : undefined,
-        assignedPu: user.assignedPuId
-          ? ({ id: user.assignedPuId } as any)
-          : undefined,
+        assignedPu: user.assignedPuId ? { id: user.assignedPuId } : undefined,
         aspirant: user.aspirantId
-          ? ({ id: user.aspirantId } as any)
+          ? ({ id: user.aspirantId } as Aspirant)
           : undefined,
         onboardedByUser: user.onboardedByUserId
-          ? ({ id: user.onboardedByUserId } as any)
+          ? ({ id: user.onboardedByUserId } as User)
+          : undefined,
+        createdByAdmin: user.createdByAdminId
+          ? ({ id: user.createdByAdminId } as Admin)
           : undefined,
         status: UserStatus.PENDING,
         deviceImei: user.deviceImei,
@@ -110,6 +124,19 @@ export class UserRepository {
       .getOne();
   }
 
+  async findByIdWithPassword(id: number): Promise<User | null> {
+    try {
+      return await this.repo
+        .createQueryBuilder('user')
+        .where('user.id = :id', { id })
+        .addSelect('user.password')
+        .getOne();
+    } catch (error) {
+      console.error('Error finding user by id with password:', error);
+      return null;
+    }
+  }
+
   async findOneByEmail(email: string): Promise<User | null> {
     try {
       return await this.repo
@@ -168,7 +195,8 @@ export class UserRepository {
       .leftJoinAndSelect('user.assignedPu', 'assignedPu')
       .leftJoinAndSelect('user.aspirant', 'aspirant')
       .leftJoinAndSelect('user.aspirantAccount', 'aspirantAccount')
-      .leftJoinAndSelect('user.onboardedByUser', 'onboardedByUser');
+      .leftJoinAndSelect('user.onboardedByUser', 'onboardedByUser')
+      .leftJoinAndSelect('user.createdByAdmin', 'createdByAdmin');
 
     if (queryDto?.search) {
       qb.andWhere(
@@ -233,6 +261,8 @@ export class UserRepository {
       .leftJoinAndSelect('user.assignedLga', 'assignedLga')
       .leftJoinAndSelect('user.assignedWard', 'assignedWard')
       .leftJoinAndSelect('user.assignedPu', 'assignedPu')
+      .leftJoinAndSelect('user.onboardedByUser', 'onboardedByUser')
+      .leftJoinAndSelect('user.createdByAdmin', 'createdByAdmin')
       .where('aspirant.id = :aspirantId', { aspirantId });
 
     const effectiveRole = roleIdOrCode ?? queryDto?.roleId ?? queryDto?.role;
@@ -242,6 +272,10 @@ export class UserRepository {
       } else {
         qb.andWhere('role.code = :roleCode', { roleCode: effectiveRole });
       }
+    } else {
+      qb.andWhere('role.code != :aspirantRoleCode', {
+        aspirantRoleCode: RoleCode.ASPIRANT,
+      });
     }
 
     if (queryDto?.search) {
@@ -328,6 +362,7 @@ export class UserRepository {
         .leftJoinAndSelect('user.assignedWard', 'assignedWard')
         .leftJoinAndSelect('user.assignedPu', 'assignedPu')
         .leftJoinAndSelect('user.onboardedByUser', 'onboardedByUser')
+        .leftJoinAndSelect('user.createdByAdmin', 'createdByAdmin')
         .where('user.id = :id', { id });
 
       if (includeDeleted) {
@@ -346,7 +381,7 @@ export class UserRepository {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User | null> {
-    const updateData: Partial<User> = {};
+    const updateData: QueryDeepPartialEntity<User> = {};
 
     if (updateUserDto.firstName !== undefined)
       updateData.firstName = updateUserDto.firstName;
@@ -356,6 +391,8 @@ export class UserRepository {
       updateData.emailAddress = updateUserDto.emailAddress;
     if (updateUserDto.phoneNumber !== undefined)
       updateData.phoneNumber = updateUserDto.phoneNumber;
+    if (updateUserDto.password !== undefined)
+      updateData.password = updateUserDto.password;
     if (updateUserDto.status !== undefined)
       updateData.status = updateUserDto.status;
     if (updateUserDto.deviceImei !== undefined)
@@ -363,26 +400,26 @@ export class UserRepository {
     if (updateUserDto.fcmToken !== undefined)
       updateData.fcmToken = updateUserDto.fcmToken;
     if (updateUserDto.role_id !== undefined)
-      updateData.role = { id: updateUserDto.role_id } as any;
+      updateData.role = { id: updateUserDto.role_id };
     if (updateUserDto.assignedLgaId !== undefined) {
       updateData.assignedLga = updateUserDto.assignedLgaId
-        ? ({ id: updateUserDto.assignedLgaId } as any)
-        : (null as any);
+        ? { id: updateUserDto.assignedLgaId }
+        : ({ id: null } as unknown as QueryDeepPartialEntity<Lga>);
     }
     if (updateUserDto.assignedWardId !== undefined) {
       updateData.assignedWard = updateUserDto.assignedWardId
-        ? ({ id: updateUserDto.assignedWardId } as any)
-        : (null as any);
+        ? { id: updateUserDto.assignedWardId }
+        : ({ id: null } as unknown as QueryDeepPartialEntity<Ward>);
     }
     if (updateUserDto.assignedPuId !== undefined) {
       updateData.assignedPu = updateUserDto.assignedPuId
-        ? ({ id: updateUserDto.assignedPuId } as any)
-        : (null as any);
+        ? { id: updateUserDto.assignedPuId }
+        : ({ id: null } as unknown as QueryDeepPartialEntity<PollingUnit>);
     }
     if (updateUserDto.aspirantId !== undefined) {
       updateData.aspirant = updateUserDto.aspirantId
-        ? ({ id: updateUserDto.aspirantId } as any)
-        : (null as any);
+        ? { id: updateUserDto.aspirantId }
+        : ({ id: null } as unknown as QueryDeepPartialEntity<Aspirant>);
     }
 
     await this.repo.update({ id }, updateData);
@@ -418,27 +455,29 @@ export class UserRepository {
     const raw = await this.repo
       .createQueryBuilder('user')
       .innerJoin('user.role', 'role')
-      .select('role.code', 'roleCode')
-      .addSelect('COUNT(user.id)::int', 'count')
-      .where('role.code IN (:...codes)', {
-        codes: [
-          RoleCode.LGA_COORDINATOR,
-          RoleCode.WARD_COORDINATOR,
-          RoleCode.PU_AGENT,
-        ],
+      .select(
+        'COUNT(user.id) FILTER (WHERE role.code = :lgaCoord)::int',
+        'lgaCoordinators',
+      )
+      .addSelect(
+        'COUNT(user.id) FILTER (WHERE role.code = :wardCoord)::int',
+        'wardCoordinators',
+      )
+      .addSelect(
+        'COUNT(user.id) FILTER (WHERE role.code = :puAgent)::int',
+        'puAgents',
+      )
+      .setParameters({
+        lgaCoord: RoleCode.LGA_COORDINATOR,
+        wardCoord: RoleCode.WARD_COORDINATOR,
+        puAgent: RoleCode.PU_AGENT,
       })
-      .groupBy('role.code')
-      .getRawMany();
-
-    const map: Record<string, number> = {};
-    for (const r of raw) {
-      map[r.roleCode] = Number(r.count || 0);
-    }
+      .getRawOne<CoordinatorAgentCountSummaryRaw>();
 
     return {
-      lgaCoordinators: map[RoleCode.LGA_COORDINATOR] || 0,
-      wardCoordinators: map[RoleCode.WARD_COORDINATOR] || 0,
-      puAgents: map[RoleCode.PU_AGENT] || 0,
+      lgaCoordinators: Number(raw?.lgaCoordinators || 0),
+      wardCoordinators: Number(raw?.wardCoordinators || 0),
+      puAgents: Number(raw?.puAgents || 0),
     };
   }
 }

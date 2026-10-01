@@ -16,6 +16,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { getAdminInfoCacheKey } from 'src/shared/constants/cache.constant';
+import { UserStatus } from 'src/shared/enums/status.enum';
 
 @Injectable()
 export class AdminService {
@@ -36,15 +37,9 @@ export class AdminService {
       throw new NotFoundException('Active role not found');
     }
 
-    if (
-      ![
-        RoleCode.SUPER_ADMIN,
-        RoleCode.SYSTEM_ADMIN,
-        RoleCode.CLIENT_ADMIN,
-      ].includes(role.code as RoleCode)
-    ) {
+    if (![RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN].includes(role.code)) {
       throw new BadRequestException(
-        'Invalid role for admin creation. Only SUPER_ADMIN, SYSTEM_ADMIN, and CLIENT_ADMIN roles are permitted.',
+        'Invalid role for admin creation. Only SUPER_ADMIN and SYSTEM_ADMIN roles are permitted.',
       );
     }
 
@@ -57,7 +52,6 @@ export class AdminService {
       role,
     );
 
-    // Single unified email containing verification link + temporary password login instructions
     await this.verification.issueForAdmin(result, temporaryPassword);
 
     return {
@@ -86,30 +80,34 @@ export class AdminService {
     return admin;
   }
 
-  async update(id: number, updateAdminDto: UpdateAdminDto) {
-    await this.findOne(id);
-
+  async update(
+    id: number,
+    updateAdminDto: UpdateAdminDto,
+    currentAdmin?: { id?: number; sub?: number },
+  ) {
     if (updateAdminDto.role_id) {
       const role = await this.roleService.getRoleById(updateAdminDto.role_id);
       if (!role || !role.status) {
         throw new NotFoundException('Active role not found');
       }
       if (
-        ![
-          RoleCode.SUPER_ADMIN,
-          RoleCode.SYSTEM_ADMIN,
-          RoleCode.CLIENT_ADMIN,
-        ].includes(role.code as RoleCode)
+        role.code !== RoleCode.SUPER_ADMIN &&
+        role.code !== RoleCode.SYSTEM_ADMIN
       ) {
         throw new BadRequestException(
-          'Invalid role for admin update. Only SUPER_ADMIN, SYSTEM_ADMIN, and CLIENT_ADMIN roles are permitted.',
+          'Invalid role for admin update. Only SUPER_ADMIN and SYSTEM_ADMIN roles are permitted.',
         );
       }
     }
 
+    const currentAdminId = Number(currentAdmin?.id || currentAdmin?.sub);
+    // If the super admin updates his own account, status immediately becomes pending
+    if (currentAdminId && currentAdminId === id) {
+      updateAdminDto.status = UserStatus.PENDING;
+    }
+
     const updated = await this.adminRepo.update(id, updateAdminDto);
 
-    // Invalidate cached admin session in Redis
     await this.cacheManager.del(getAdminInfoCacheKey(id));
 
     return updated;
@@ -125,11 +123,10 @@ export class AdminService {
       );
     }
 
-    // Invalidate cached admin session in Redis
     await this.cacheManager.del(getAdminInfoCacheKey(id));
 
     return {
-      message: `Administrator with ID #${id} was successfully soft-deleted.`,
+      message: `Administrator with ID #${id} was successfully deleted.`,
     };
   }
 }

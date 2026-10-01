@@ -20,6 +20,7 @@ import { Lga } from 'src/features/lga/lga.entity';
 import { PollingUnit } from 'src/features/polling-unit/polling-unit.entity';
 import { Result } from 'src/features/result/result.entity';
 import { Incident } from 'src/features/incident/incident.entity';
+import { Admin } from '../admin/admin.entity';
 
 @Entity('users')
 export class User {
@@ -101,6 +102,10 @@ export class User {
   @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'onboarded_by_user_id' })
   onboardedByUser!: User;
+
+  @ManyToOne(() => Admin, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'created_by_admin_id' })
+  createdByAdmin!: Admin;
 
   @ManyToOne(() => Lga, (lga) => lga.coordinators, {
     nullable: true,

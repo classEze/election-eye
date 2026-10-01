@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { CacheKeyPrefix, CacheTTL } from 'src/shared/constants/cache.constant';
+import { RoleCode } from './role.enum';
 
 @Injectable()
 export class RoleService {
@@ -31,7 +32,7 @@ export class RoleService {
     return roles.find((r) => Number(r.id) === Number(id)) || null;
   }
 
-  async getRoleByCode(code: string): Promise<Role | null> {
+  async getRoleByCode(code: RoleCode): Promise<Role | null> {
     const roles = await this.getAllCachedRoles();
     return roles.find((r) => r.code === code) || null;
   }
