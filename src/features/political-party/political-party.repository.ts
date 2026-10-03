@@ -75,12 +75,11 @@ export class PoliticalPartyRepository {
   ): Promise<PoliticalParty | null> {
     const updateData: Partial<PoliticalParty> = {};
 
-    if (dto.name !== undefined) updateData.name = dto.name;
-    if (dto.code !== undefined) updateData.code = dto.code.toUpperCase();
-    if (dto.partyColorHex !== undefined)
-      updateData.partyColorHex = dto.partyColorHex;
-    if (dto.logoUrl !== undefined) updateData.logoUrl = dto.logoUrl;
-    if (dto.status !== undefined) updateData.status = dto.status;
+    if (dto.name) updateData.name = dto.name;
+    if (dto.code) updateData.code = dto.code.toUpperCase();
+    if (dto.partyColorHex) updateData.partyColorHex = dto.partyColorHex;
+    if (dto.logoUrl) updateData.logoUrl = dto.logoUrl;
+    if (dto.status) updateData.status = dto.status;
 
     await this.repository.update({ id }, updateData);
     return this.findById(id);

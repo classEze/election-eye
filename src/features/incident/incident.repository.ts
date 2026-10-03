@@ -21,12 +21,17 @@ export class IncidentRepository {
     user: User,
     mediaVideoUrls: string[] = [],
     mediaPictureUrls: string[] = [],
+    politicalPartyId?: number,
+    aspirantId?: number,
+    pollingUnitId?: number,
   ): Promise<Incident> {
     const incident = this.repository.create({
       category: { id: dto.categoryId },
       description: dto.description,
       severityLevel: dto.severityLevel,
-      pollingUnit: dto.pollingUnitId ? { id: dto.pollingUnitId } : null,
+      pollingUnit: pollingUnitId ? { id: pollingUnitId } : null,
+      politicalParty: politicalPartyId ? { id: politicalPartyId } : null,
+      aspirant: aspirantId ? { id: aspirantId } : null,
       geolocationLat: dto.geolocationLat ?? null,
       geolocationLng: dto.geolocationLng ?? null,
       mediaVideoUrls,
@@ -250,6 +255,22 @@ export class IncidentRepository {
 
     const [data, total] = await qb.getManyAndCount();
     return { data, total, page, limit };
+  }
+
+  async findMyIncidents(userId: number, filters: any): Promise<Incident[]> {
+    const qb = this.repository
+      .createQueryBuilder('incident')
+      .leftJoinAndSelect('incident.category', 'cat')
+      .leftJoinAndSelect('incident.pollingUnit', 'pu')
+      .where('incident.reported_by_user_id = :userId', { userId });
+      
+    // Incidents are tied to polling units which are tied to electoral offices via wards/lgas, but for simplicity of my submissions, we can optionally skip the complex electoral office filter for incidents unless joined
+    
+    if (filters.status) qb.andWhere('incident.status = :status', { status: filters.status });
+    if (filters.startDate) qb.andWhere('incident.created_at >= :startDate', { startDate: filters.startDate });
+    if (filters.endDate) qb.andWhere('incident.created_at <= :endDate', { endDate: filters.endDate });
+    
+    return qb.orderBy('incident.created_at', 'DESC').getMany();
   }
 
   async getIncidentStatsOverview(): Promise<{

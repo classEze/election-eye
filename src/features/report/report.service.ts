@@ -17,7 +17,10 @@ import {
   SubmissionsAndIncidentsFilterDto,
   SubmissionsAndIncidentsResponseDto,
   SystemActorsSummaryDto,
+  ActivityType,
+  MySubmissionsFilterDto,
 } from './report.dto';
+import * as Papa from 'papaparse';
 
 const REPORT_CACHE_KEY = 'report:system:actors_summary';
 const REPORT_STATS_CACHE_KEY = 'report:system:incident_submission_stats';
@@ -158,5 +161,69 @@ export class ReportService {
     );
 
     return stats;
+  }
+
+  /**
+   * Fetches the unified submission history for a specific user (e.g. PU Agent).
+   */
+  async getMySubmissions(userId: number, filterDto: MySubmissionsFilterDto) {
+    const { activityType, electoralOfficeId, status, startDate, endDate, page, limit } = filterDto;
+    
+    let results: any[] = [];
+    let incidents: any[] = [];
+    
+    if (activityType === ActivityType.ALL || activityType === ActivityType.RESULT) {
+      const rawResults = await this.resultRepository.findMySubmissions(userId, filterDto);
+      results = rawResults.map((r: any) => ({ ...r, activityType: 'RESULT', date: r.clientSubmittedAt }));
+    }
+    
+    if (activityType === ActivityType.ALL || activityType === ActivityType.INCIDENT) {
+      const rawIncidents = await this.incidentRepository.findMyIncidents(userId, filterDto);
+      incidents = rawIncidents.map((i: any) => ({ ...i, activityType: 'INCIDENT', date: i.createdAt || i.reportedAt }));
+    }
+    
+    // Combine and sort
+    const combined = [...results, ...incidents].sort((a, b) => b.date.getTime() - a.date.getTime());
+    
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const paginatedData = combined.slice(startIndex, startIndex + limit);
+    
+    return {
+      data: paginatedData,
+      total: combined.length,
+      page,
+      limit
+    };
+  }
+
+  /**
+   * Generates a CSV export of the unified submission history for a specific user.
+   */
+  async exportMySubmissions(userId: number, filterDto: MySubmissionsFilterDto): Promise<string> {
+    // Fetch all records without pagination limits
+    const fetchDto = { ...filterDto, page: 1, limit: 1000000 };
+    const { data } = await this.getMySubmissions(userId, fetchDto);
+
+    const flattened = data.map((item: any) => {
+      const isResult = item.activityType === 'RESULT';
+      return {
+        ActivityType: item.activityType,
+        Date: (isResult ? item.clientSubmittedAt : item.reportedAt)?.toISOString(),
+        Status: isResult ? item.auditStatus : item.resolutionStatus,
+        PollingUnit: item.pollingUnit?.name || 'N/A',
+        ElectoralOffice: item.electoralOffice?.name || 'N/A',
+        // Result specific
+        TotalValidVotes: isResult ? item.totalValidVotes : 'N/A',
+        RejectedVotes: isResult ? item.rejectedVotes : 'N/A',
+        MaterialsArrived: isResult ? item.materialsArrived : 'N/A',
+        // Incident specific
+        IncidentCategory: !isResult ? item.incidentCategory : 'N/A',
+        UrgencyLevel: !isResult ? item.urgencyLevel : 'N/A',
+        Description: !isResult ? item.description : 'N/A',
+      };
+    });
+
+    return Papa.unparse(flattened);
   }
 }

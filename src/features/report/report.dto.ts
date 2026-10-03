@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsString,
   Min,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Result } from '../result/result.entity';
@@ -52,6 +53,47 @@ export class SubmissionsAndIncidentsFilterDto {
   @IsOptional()
   @IsDateString()
   endDate?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  page: number = 1;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  limit: number = 20;
+}
+
+export enum ActivityType {
+  ALL = 'ALL',
+  RESULT = 'RESULT',
+  INCIDENT = 'INCIDENT',
+}
+
+export class MySubmissionsFilterDto {
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  electoralOfficeId?: number;
+
+  @IsOptional()
+  @IsString()
+  status?: string; // Maps to auditStatus or resolutionStatus
+
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
+
+  @IsOptional()
+  @IsEnum(ActivityType)
+  activityType?: ActivityType = ActivityType.ALL;
 
   @IsOptional()
   @IsInt()

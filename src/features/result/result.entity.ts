@@ -14,6 +14,13 @@ import { User } from '../user/user.entity';
 import { ResultDetail } from '../result-detail/result-detail.entity';
 import { ElectoralOffice } from '../electoral-office/electoral-office.entity';
 import { Aspirant } from '../aspirant/aspirant.entity';
+import { PoliticalParty } from '../political-party/political-party.entity';
+
+export enum MaterialsArrivedStatus {
+  NONE = 0,
+  PARTIAL = 1,
+  FULL = 2,
+}
 
 export enum ResultAuditStatus {
   PENDING = 'PENDING',
@@ -39,6 +46,10 @@ export class Result {
   @JoinColumn({ name: 'aspirant_id' })
   aspirant!: Aspirant | null;
 
+  @ManyToOne(() => PoliticalParty, { onDelete: 'RESTRICT', eager: true })
+  @JoinColumn({ name: 'political_party_id' })
+  politicalParty!: PoliticalParty;
+
   @Column({
     name: 'total_registered_voters',
     type: 'int',
@@ -62,7 +73,18 @@ export class Result {
   rejectedVotes!: number;
 
   @Column({ name: 'ec8a_photo_url', type: 'text' })
-  ec8aPhotoUrl!: string; // Media upload proof
+  ec8aPhotoUrl!: string; // Media upload proof key
+
+  @Column({ name: 'video_url', type: 'text', nullable: true })
+  videoUrl!: string | null; // Optional video evidence key
+
+  @Column({
+    type: 'enum',
+    enum: MaterialsArrivedStatus,
+    name: 'materials_arrived',
+    default: MaterialsArrivedStatus.FULL,
+  })
+  materialsArrived!: MaterialsArrivedStatus;
 
   @Column({ name: 'is_verified', type: 'boolean', default: false })
   isVerified!: boolean;

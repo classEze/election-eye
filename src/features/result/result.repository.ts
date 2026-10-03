@@ -53,14 +53,16 @@ export class ResultRepository {
     });
   }
 
-  async findByPollingUnitAndOffice(
+  async findByPollingUnitOfficeAndParty(
     pollingUnitId: number,
     electoralOfficeId: number,
+    politicalPartyId: number,
   ): Promise<Result | null> {
     return this.repository.findOne({
       where: {
         pollingUnit: { id: pollingUnitId },
         electoralOffice: { id: electoralOfficeId },
+        politicalParty: { id: politicalPartyId },
       },
       relations: {
         partyBreakdown: { politicalParty: true },
@@ -165,8 +167,8 @@ export class ResultRepository {
   }
 
   // Aggregate party totals across an entire electoral office
-  async getOfficePartySummary(officeId: number): Promise<any[]> {
-    return this.resultDetailRepository
+  async getOfficePartySummary(officeId: number, partyId?: number): Promise<any[]> {
+    const qb = this.resultDetailRepository
       .createQueryBuilder('rd')
       .innerJoin('rd.result', 'r')
       .innerJoin('rd.politicalParty', 'party')
@@ -175,8 +177,13 @@ export class ResultRepository {
       .addSelect('party.party_acronym', 'partyAcronym')
       .addSelect('party.logo_url', 'logoUrl')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
-      .where('r.electoral_office_id = :officeId', { officeId })
-      .groupBy('party.id')
+      .where('r.electoral_office_id = :officeId', { officeId });
+
+    if (partyId) {
+      qb.andWhere('r.political_party_id = :partyId', { partyId });
+    }
+
+    return qb.groupBy('party.id')
       .addGroupBy('party.name')
       .addGroupBy('party.party_acronym')
       .addGroupBy('party.logo_url')
@@ -184,9 +191,9 @@ export class ResultRepository {
       .getRawMany();
   }
 
-  // Report: Electoral office result aggregated for a specific Ward
-  async getOfficeWardReport(officeId: number, wardId: number): Promise<any> {
-    const partyBreakdown = await this.resultDetailRepository
+  // Report: Electoral office result aggregated for a specific Polling Unit
+  async getOfficePollingUnitReport(officeId: number, puId: number, partyId?: number): Promise<any> {
+    const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
       .innerJoin('rd.result', 'r')
       .innerJoin('r.pollingUnit', 'pu')
@@ -196,33 +203,77 @@ export class ResultRepository {
       .addSelect('party.party_acronym', 'partyAcronym')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('pu.ward_id = :wardId', { wardId })
+      .andWhere('pu.id = :puId', { puId });
+      
+    if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    const partyBreakdown = await rdQb
       .groupBy('party.id')
       .addGroupBy('party.name')
       .addGroupBy('party.party_acronym')
       .orderBy('SUM(rd.votes)', 'DESC')
       .getRawMany();
 
-    const totals = await this.repository
+    const totalsQb = this.repository
       .createQueryBuilder('r')
       .innerJoin('r.pollingUnit', 'pu')
       .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
-      .addSelect(
-        'COALESCE(SUM(r.rejected_votes), 0)::int',
-        'totalRejectedVotes',
-      )
-      .addSelect(
-        'COALESCE(SUM(r.total_accredited_voters), 0)::int',
-        'totalAccreditedVoters',
-      )
-      .addSelect(
-        'COALESCE(SUM(r.total_registered_voters), 0)::int',
-        'totalRegisteredVoters',
-      )
+      .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
+      .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
+      .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
       .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('pu.ward_id = :wardId', { wardId })
-      .getRawOne();
+      .andWhere('pu.id = :puId', { puId });
+      
+    if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    const totals = await totalsQb.getRawOne();
+
+    return {
+      officeId,
+      puId,
+      totals,
+      partyBreakdown,
+    };
+  }
+
+  // Report: Electoral office result aggregated for a specific Ward
+  async getOfficeWardReport(officeId: number, wardId: number, partyId?: number): Promise<any> {
+    const rdQb = this.resultDetailRepository
+      .createQueryBuilder('rd')
+      .innerJoin('rd.result', 'r')
+      .innerJoin('r.pollingUnit', 'pu')
+      .innerJoin('rd.politicalParty', 'party')
+      .select('party.id', 'partyId')
+      .addSelect('party.name', 'partyName')
+      .addSelect('party.party_acronym', 'partyAcronym')
+      .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
+      .where('r.electoral_office_id = :officeId', { officeId })
+      .andWhere('pu.ward_id = :wardId', { wardId });
+      
+    if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    const partyBreakdown = await rdQb
+      .groupBy('party.id')
+      .addGroupBy('party.name')
+      .addGroupBy('party.party_acronym')
+      .orderBy('SUM(rd.votes)', 'DESC')
+      .getRawMany();
+
+    const totalsQb = this.repository
+      .createQueryBuilder('r')
+      .innerJoin('r.pollingUnit', 'pu')
+      .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
+      .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
+      .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
+      .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
+      .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
+      .where('r.electoral_office_id = :officeId', { officeId })
+      .andWhere('pu.ward_id = :wardId', { wardId });
+      
+    if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    const totals = await totalsQb.getRawOne();
 
     return {
       officeId,
@@ -233,8 +284,8 @@ export class ResultRepository {
   }
 
   // Report: Electoral office result aggregated for a specific LGA
-  async getOfficeLgaReport(officeId: number, lgaId: number): Promise<any> {
-    const partyBreakdown = await this.resultDetailRepository
+  async getOfficeLgaReport(officeId: number, lgaId: number, partyId?: number): Promise<any> {
+    const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
       .innerJoin('rd.result', 'r')
       .innerJoin('r.pollingUnit', 'pu')
@@ -245,34 +296,32 @@ export class ResultRepository {
       .addSelect('party.party_acronym', 'partyAcronym')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('ward.lga_id = :lgaId', { lgaId })
+      .andWhere('ward.lga_id = :lgaId', { lgaId });
+      
+    if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    const partyBreakdown = await rdQb
       .groupBy('party.id')
       .addGroupBy('party.name')
       .addGroupBy('party.party_acronym')
       .orderBy('SUM(rd.votes)', 'DESC')
       .getRawMany();
 
-    const totals = await this.repository
+    const totalsQb = this.repository
       .createQueryBuilder('r')
       .innerJoin('r.pollingUnit', 'pu')
       .innerJoin('pu.ward', 'ward')
       .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
-      .addSelect(
-        'COALESCE(SUM(r.rejected_votes), 0)::int',
-        'totalRejectedVotes',
-      )
-      .addSelect(
-        'COALESCE(SUM(r.total_accredited_voters), 0)::int',
-        'totalAccreditedVoters',
-      )
-      .addSelect(
-        'COALESCE(SUM(r.total_registered_voters), 0)::int',
-        'totalRegisteredVoters',
-      )
+      .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
+      .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
+      .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
       .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('ward.lga_id = :lgaId', { lgaId })
-      .getRawOne();
+      .andWhere('ward.lga_id = :lgaId', { lgaId });
+      
+    if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    const totals = await totalsQb.getRawOne();
 
     return {
       officeId,
@@ -283,8 +332,8 @@ export class ResultRepository {
   }
 
   // Report: Electoral office result aggregated for a specific State
-  async getOfficeStateReport(officeId: number, stateId: number): Promise<any> {
-    const partyBreakdown = await this.resultDetailRepository
+  async getOfficeStateReport(officeId: number, stateId: number, partyId?: number): Promise<any> {
+    const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
       .innerJoin('rd.result', 'r')
       .innerJoin('r.pollingUnit', 'pu')
@@ -296,35 +345,33 @@ export class ResultRepository {
       .addSelect('party.party_acronym', 'partyAcronym')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('lga.state_id = :stateId', { stateId })
+      .andWhere('lga.state_id = :stateId', { stateId });
+      
+    if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    const partyBreakdown = await rdQb
       .groupBy('party.id')
       .addGroupBy('party.name')
       .addGroupBy('party.party_acronym')
       .orderBy('SUM(rd.votes)', 'DESC')
       .getRawMany();
 
-    const totals = await this.repository
+    const totalsQb = this.repository
       .createQueryBuilder('r')
       .innerJoin('r.pollingUnit', 'pu')
       .innerJoin('pu.ward', 'ward')
       .innerJoin('ward.lga', 'lga')
       .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
-      .addSelect(
-        'COALESCE(SUM(r.rejected_votes), 0)::int',
-        'totalRejectedVotes',
-      )
-      .addSelect(
-        'COALESCE(SUM(r.total_accredited_voters), 0)::int',
-        'totalAccreditedVoters',
-      )
-      .addSelect(
-        'COALESCE(SUM(r.total_registered_voters), 0)::int',
-        'totalRegisteredVoters',
-      )
+      .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
+      .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
+      .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
       .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('lga.state_id = :stateId', { stateId })
-      .getRawOne();
+      .andWhere('lga.state_id = :stateId', { stateId });
+      
+    if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    const totals = await totalsQb.getRawOne();
 
     return {
       officeId,
@@ -479,6 +526,21 @@ export class ResultRepository {
 
     const [data, total] = await qb.getManyAndCount();
     return { data, total, page, limit };
+  }
+
+  async findMySubmissions(userId: number, filters: any): Promise<Result[]> {
+    const qb = this.repository
+      .createQueryBuilder('result')
+      .leftJoinAndSelect('result.electoralOffice', 'office')
+      .leftJoinAndSelect('result.pollingUnit', 'pu')
+      .where('result.uploaded_by_user_id = :userId', { userId });
+      
+    if (filters.electoralOfficeId) qb.andWhere('result.electoral_office_id = :electoralOfficeId', { electoralOfficeId: filters.electoralOfficeId });
+    if (filters.status) qb.andWhere('result.audit_status = :status', { status: filters.status });
+    if (filters.startDate) qb.andWhere('result.client_submitted_at >= :startDate', { startDate: filters.startDate });
+    if (filters.endDate) qb.andWhere('result.client_submitted_at <= :endDate', { endDate: filters.endDate });
+    
+    return qb.orderBy('result.client_submitted_at', 'DESC').getMany();
   }
 
   async getSubmissionStatsOverview(): Promise<{

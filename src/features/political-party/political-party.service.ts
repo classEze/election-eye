@@ -15,7 +15,10 @@ import {
   UpdatePoliticalPartyDto,
 } from './political-party.dto';
 import { PoliticalParty } from './political-party.entity';
-import { StorageService } from '../../shared/storage/storage.service';
+import {
+  StorageService,
+  FileContext,
+} from '../../shared/storage/storage.service';
 
 const PARTY_CACHE_PREFIX = 'political_parties:';
 
@@ -47,10 +50,7 @@ export class PoliticalPartyService {
     return party;
   }
 
-  async create(
-    dto: CreatePoliticalPartyDto,
-    file?: Express.Multer.File,
-  ): Promise<PoliticalParty> {
+  async create(dto: CreatePoliticalPartyDto): Promise<PoliticalParty> {
     // 1. Verify Code Uniqueness
     const existing = await this.repository.findByCode(dto.code);
     if (existing) {
@@ -59,14 +59,7 @@ export class PoliticalPartyService {
       );
     }
 
-    // 2. Handle Logo Upload via S3 Storage Service
-    let logoUrl = dto.logoUrl;
-    if (file) {
-      logoUrl = await this.storageService.uploadFile(
-        file,
-        'political-parties/logos',
-      );
-    }
+    const logoUrl = dto.logoUrl;
 
     // 3. Persist Entity
     const party = await this.repository.create(dto, logoUrl);
@@ -100,28 +93,29 @@ export class PoliticalPartyService {
 
   async updateLogo(
     id: number,
-    dto?: UpdatePartyLogoDto,
-    file?: Express.Multer.File,
+    dto: UpdatePartyLogoDto,
   ): Promise<PoliticalParty> {
     await this.findOne(id);
 
-    let logoUrl = dto?.logoUrl;
-    if (file) {
-      logoUrl = await this.storageService.uploadFile(
-        file,
-        'political-parties/logos',
-      );
-    }
-
-    if (!logoUrl) {
+    if (!dto.logoUrl) {
       throw new BadRequestException(
-        'Please provide a logo image file to upload or a valid logoUrl in the request body.',
+        'Please provide a valid logoUrl in the request body.',
       );
     }
 
-    const updated = await this.repository.updateLogo(id, logoUrl);
+    const updated = await this.repository.updateLogo(id, dto.logoUrl);
     await this.invalidatePartyCache();
     return updated!;
+  }
+
+  async getLogoUploadUrl(contentType: string, originalFilename?: string) {
+    const maxSizeBytes = 5 * 1024 * 1024; // 5MB cap based on standard logo requirements
+    return this.storageService.getPresignedUploadUrl(
+      FileContext.POLITICAL_PARTY_LOGO,
+      contentType,
+      maxSizeBytes,
+      originalFilename,
+    );
   }
 
   async softDelete(id: number): Promise<{ message: string }> {

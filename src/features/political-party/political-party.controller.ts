@@ -8,13 +8,10 @@ import {
   Body,
   Param,
   Query,
-  UseInterceptors,
-  UploadedFile,
-  ParseFilePipeBuilder,
-  HttpStatus,
+  BadRequestException,
   HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { PoliticalPartyService } from './political-party.service';
 import {
   CreatePoliticalPartyDto,
@@ -45,22 +42,10 @@ export class PoliticalPartyController {
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor('logo'))
   async create(
     @Body() createDto: CreatePoliticalPartyDto,
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addMaxSizeValidator({
-          maxSize: 5 * 1024 * 1024, // 5MB logo max size
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-          fileIsRequired: false,
-        }),
-    )
-    file?: Express.Multer.File,
   ): Promise<PoliticalParty> {
-    return this.politicalPartyService.create(createDto, file);
+    return this.politicalPartyService.create(createDto);
   }
 
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
@@ -83,28 +68,33 @@ export class PoliticalPartyController {
 
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Patch(':id/logo')
-  @UseInterceptors(FileInterceptor('logo'))
   async updateLogo(
     @Param('id') id: string,
-    @Body() updateLogoDto?: UpdatePartyLogoDto,
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addMaxSizeValidator({
-          maxSize: 5 * 1024 * 1024, // 5MB logo max size
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-          fileIsRequired: false,
-        }),
-    )
-    file?: Express.Multer.File,
+    @Body() updateLogoDto: UpdatePartyLogoDto,
   ): Promise<PoliticalParty> {
-    return this.politicalPartyService.updateLogo(+id, updateLogoDto, file);
+    return this.politicalPartyService.updateLogo(+id, updateLogoDto);
   }
 
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':id')
   async softDelete(@Param('id') id: string): Promise<{ message: string }> {
     return this.politicalPartyService.softDelete(+id);
+  }
+
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
+  @Post('logo-upload-url')
+  async getLogoUploadUrl(
+    @Body('contentType') contentType: string,
+    @Body('originalFilename') originalFilename?: string,
+  ) {
+    if (!contentType || !contentType.startsWith('image/')) {
+      throw new BadRequestException(
+        'Content type must be an image type (e.g. image/png)',
+      );
+    }
+    return this.politicalPartyService.getLogoUploadUrl(
+      contentType,
+      originalFilename,
+    );
   }
 }
