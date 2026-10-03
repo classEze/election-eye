@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3Client, DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import { v4 as uuidv4 } from 'uuid';
 
 export enum FileContext {
@@ -33,29 +32,25 @@ export class StorageService {
   }
 
   /**
-   * Generates a presigned POST URL for direct-to-bucket client uploads.
-   * Uses conditions to enforce file size limits and content types.
+   * Generates a presigned PUT URL for direct-to-bucket client uploads (Cloudflare R2 compatible).
    */
   async getPresignedUploadUrl(
-    context: FileContext,
+    context: FileContext | string,
     contentType: string,
-    maxSizeBytes: number,
+    maxSizeBytes?: number,
     originalFilename?: string,
   ) {
     const extension = originalFilename?.split('.').pop() || contentType.split('/')[1] || 'bin';
     const key = `${context}/${uuidv4()}.${extension}`;
 
-    const { url, fields } = await createPresignedPost(this.s3Client, {
+    const command = new PutObjectCommand({
       Bucket: this.bucketName,
       Key: key,
-      Conditions: [
-        ['content-length-range', 0, maxSizeBytes],
-        ['starts-with', '$Content-Type', contentType],
-      ],
-      Fields: {
-        'Content-Type': contentType,
-      },
-      Expires: 900, // 15 minutes
+      ContentType: contentType,
+    });
+
+    const uploadUrl = await getSignedUrl(this.s3Client, command, {
+      expiresIn: 900, // 15 minutes
     });
 
     // Cloudflare R2 specific public URL (if custom domain is mapped to bucket name)
@@ -65,10 +60,10 @@ export class StorageService {
         : null;
 
     return {
-      uploadUrl: url,
-      uploadFields: fields,
+      uploadUrl,
       fileKey: key,
       publicUrl,
+      expiresIn: 900,
     };
   }
 
