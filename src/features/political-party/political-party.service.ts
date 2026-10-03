@@ -15,7 +15,10 @@ import {
   UpdatePoliticalPartyDto,
 } from './political-party.dto';
 import { PoliticalParty } from './political-party.entity';
-import { StorageService, FileContext } from '../../shared/storage/storage.service';
+import {
+  StorageService,
+  FileContext,
+} from '../../shared/storage/storage.service';
 
 const PARTY_CACHE_PREFIX = 'political_parties:';
 
@@ -47,9 +50,7 @@ export class PoliticalPartyService {
     return party;
   }
 
-  async create(
-    dto: CreatePoliticalPartyDto,
-  ): Promise<PoliticalParty> {
+  async create(dto: CreatePoliticalPartyDto): Promise<PoliticalParty> {
     // 1. Verify Code Uniqueness
     const existing = await this.repository.findByCode(dto.code);
     if (existing) {
@@ -97,7 +98,9 @@ export class PoliticalPartyService {
     await this.findOne(id);
 
     if (!dto.logoUrl) {
-      throw new BadRequestException('Please provide a valid logoUrl in the request body.');
+      throw new BadRequestException(
+        'Please provide a valid logoUrl in the request body.',
+      );
     }
 
     const updated = await this.repository.updateLogo(id, dto.logoUrl);

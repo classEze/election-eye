@@ -12,7 +12,7 @@ import {
   IsDateString,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
-import { ResultAuditStatus } from './result.entity';
+import { ResultAuditStatus, MaterialsArrivedStatus } from './result.entity';
 
 export class PartyVoteDetailDto {
   @IsNotEmpty()
@@ -32,6 +32,11 @@ export class CreateResultDto {
   @IsInt()
   @Type(() => Number)
   electoralOfficeId!: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  @Type(() => Number)
+  politicalPartyId!: number;
 
   @IsNotEmpty()
   @IsInt()
@@ -69,7 +74,15 @@ export class CreateResultDto {
 
   @IsOptional()
   @IsString()
-  ec8aPhotoUrl?: string;
+  ec8aPhotoKey?: string;
+
+  @IsOptional()
+  @IsString()
+  videoKey?: string;
+
+  @IsNotEmpty()
+  @IsEnum(MaterialsArrivedStatus)
+  materialsArrived!: MaterialsArrivedStatus;
 
   @IsOptional()
   @IsDateString()

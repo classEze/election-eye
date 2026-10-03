@@ -13,7 +13,6 @@ import {
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { IncidentService } from './incident.service';
 import {
   CreateIncidentDto,
@@ -40,22 +39,28 @@ export class IncidentController {
   @UseGuards(SubmissionWindowGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'videos', maxCount: 2 },
-      { name: 'pictures', maxCount: 5 },
-    ]),
-  )
   async reportIncident(
     @Body() dto: CreateIncidentDto,
     @GetUser() user: User,
-    @UploadedFiles()
-    files?: {
-      videos?: Express.Multer.File[];
-      pictures?: Express.Multer.File[];
-    },
   ): Promise<Incident> {
-    return this.incidentService.createIncident(dto, user, files);
+    return this.incidentService.createIncident(dto, user);
+  }
+
+  @UseGuards(SubmissionWindowGuard)
+  @Post('media-upload-urls')
+  @HttpCode(HttpStatus.OK)
+  async getMediaUploadUrls(
+    @Query('requestPhotoCount') requestPhotoCount = '0',
+    @Query('requestVideoCount') requestVideoCount = '0',
+    @Query('photoContentType') photoContentType?: string,
+    @Query('videoContentType') videoContentType?: string,
+  ) {
+    return this.incidentService.getMediaUploadUrls(
+      parseInt(requestPhotoCount, 10),
+      parseInt(requestVideoCount, 10),
+      photoContentType,
+      videoContentType,
+    );
   }
 
   @Get('map-clusters')

@@ -2281,7 +2281,8 @@
               "mode": "raw",
               "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"ifeanyi.nwosu@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"politicalPartyId\": 1,\n  \"electoralOfficeId\": {{office-id}}\n}"
             },
-            "url": "{{election-eye-base-url}}/aspirants"
+            "url": "{{election-eye-base-url}}/aspirants",
+            "description": "Creates a new Aspirant. Validates that an aspirant does not already exist for the same Political Party and Electoral Office."
           },
           "response": [
             {
@@ -2304,6 +2305,28 @@
               "code": 201,
               "_postman_previewlanguage": "json",
               "body": "{\n  \"id\": 12,\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"politicalParty\": {\n    \"id\": 1,\n    \"name\": \"All Progressives Congress\",\n    \"code\": \"APC\"\n  },\n  \"electoralOffice\": {\n    \"id\": 2,\n    \"title\": \"Lagos State Governorship Election\",\n    \"category\": \"GUBERNATORIAL\"\n  },\n  \"accountUserId\": 25,\n  \"status\": \"pending\",\n  \"createdAt\": \"2026-09-28T10:00:00.000Z\",\n  \"updatedAt\": \"2026-09-28T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Create Aspirant (409 Conflict)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{election-eye-base-url}}/aspirants",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Ifeanyi\",\n  \"lastName\": \"Nwosu\",\n  \"emailAddress\": \"ifeanyi.nwosu@example.com\",\n  \"phoneNumber\": \"08041234567\",\n  \"politicalPartyId\": 1,\n  \"electoralOfficeId\": {{office-id}}\n}"
+                }
+              },
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 409,\n  \"message\": \"An aspirant for this political party and electoral office already exists.\",\n  \"error\": \"Conflict\"\n}"
             }
           ]
         },
@@ -3099,9 +3122,15 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"electoralOfficeId\": {{office-id}},\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"aspirantId\": {{aspirant-id}},\n  \"totalRegisteredVoters\": 1200,\n  \"totalAccreditedVoters\": 750,\n  \"totalValidVotes\": 700,\n  \"rejectedVotes\": 30,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/sample-ec8a.jpg\",\n  \"partyBreakdown\": [\n    { \"politicalPartyId\": 1, \"votes\": 400 },\n    { \"politicalPartyId\": 2, \"votes\": 250 },\n    { \"politicalPartyId\": 3, \"votes\": 50 }\n  ]\n}"
+              "raw": "{\n  \"pollingUnitId\": 1,\n  \"electoralOfficeId\": 1,\n  \"politicalPartyId\": 1,\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 800,\n  \"totalValidVotes\": 750,\n  \"rejectedVotes\": 50,\n  \"materialsArrived\": 2,\n  \"ec8aPhotoKey\": \"results/ec8a/test.jpg\",\n  \"videoKey\": \"results/videos/test.mp4\",\n  \"partyBreakdown\": [\n    {\n      \"politicalPartyId\": 1,\n      \"votesReceived\": 500\n    },\n    {\n      \"politicalPartyId\": 2,\n      \"votesReceived\": 250\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": "{{election-eye-base-url}}/results"
+            "url": "{{election-eye-base-url}}/results",
+            "description": "Submits a result for a polling unit. Media fields (ec8aPhotoKey and videoKey) are optional."
           },
           "response": [
             {
@@ -3145,6 +3174,33 @@
               "code": 201,
               "_postman_previewlanguage": "json",
               "body": "{\n  \"id\": 102,\n  \"electoralOffice\": { \"id\": 2, \"title\": \"Lagos State Governorship Election\" },\n  \"pollingUnit\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"aspirant\": { \"id\": 12, \"firstName\": \"Ifeanyi\", \"lastName\": \"Nwosu\" },\n  \"totalRegisteredVoters\": 1200,\n  \"totalAccreditedVoters\": 750,\n  \"totalValidVotes\": 700,\n  \"rejectedVotes\": 30,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/pu5001-ec8a.jpg\",\n  \"isVerified\": false,\n  \"auditStatus\": \"PENDING\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Submit Result (Without Media)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{election-eye-base-url}}/results",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"pollingUnitId\": 1,\n  \"electoralOfficeId\": 1,\n  \"politicalPartyId\": 1,\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 800,\n  \"totalValidVotes\": 750,\n  \"rejectedVotes\": 50,\n  \"materialsArrived\": 2,\n  \"partyBreakdown\": [\n    {\n      \"politicalPartyId\": 1,\n      \"votesReceived\": 500\n    },\n    {\n      \"politicalPartyId\": 2,\n      \"votesReceived\": 250\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": ""
             }
           ]
         },
@@ -3442,7 +3498,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"categoryId\": 1,\n  \"description\": \"Ballot box snatching by armed thugs at polling unit.\",\n  \"severityLevel\": \"CRITICAL\",\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"geolocationLat\": 6.5244,\n  \"geolocationLng\": 3.3792,\n  \"mediaVideoUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/videos/clip1.mp4\"],\n  \"mediaPictureUrls\": [\"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo1.jpg\", \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/incidents/pictures/photo2.jpg\"]\n}"
+              "raw": "{\n  \"categoryId\": 1,\n  \"description\": \"Ballot box snatching observed.\",\n  \"severityLevel\": \"HIGH\",\n  \"pollingUnitId\": 1,\n  \"geolocationLat\": 6.5244,\n  \"geolocationLng\": 3.3792,\n  \"mediaVideoKeys\": [\n    \"incidents/videos/test.mp4\"\n  ],\n  \"mediaPictureKeys\": [\n    \"incidents/pictures/test.jpg\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": "{{election-eye-base-url}}/incidents"
           },

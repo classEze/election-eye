@@ -36,6 +36,7 @@ export default async function seedData(dataSource: DataSource): Promise<void> {
       ('Late Arrival of Officials', 'LATE_START', 'INEC officials or voting materials arrived past the stipulated official start time.', 'active', NOW(), NOW()),
       ('Violence / Thuggery', 'VIOLENCE', 'Physical altercations, intimidation, armed presence, or disruptive riots.', 'active', NOW(), NOW()),
       ('Peaceful Protest / Delays', 'PROTEST', 'Voter agitations or structured demonstrations disrupting regular polling workflows.', 'active', NOW(), NOW()),
+      ('Incomplete Election materials', 'INCOMPLETE_MATERIALS', 'Missing or insufficient ballot papers, result sheets, ink, or other vital election materials.', 'active', NOW(), NOW()),
       ('Other Disruption', 'OTHER', 'Unclassified structural errors, geographical issues, or environmental emergencies.', 'active', NOW(), NOW())
       ON CONFLICT (code) DO NOTHING;
     `);

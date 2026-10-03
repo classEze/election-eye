@@ -15,7 +15,7 @@ import {
 } from './result.dto';
 import { Result } from './result.entity';
 import { User } from '../user/user.entity';
-import { StorageService } from '../../shared/storage/storage.service';
+import { StorageService, FileContext } from '../../shared/storage/storage.service';
 
 @Injectable()
 export class ResultService {
@@ -28,7 +28,6 @@ export class ResultService {
   async submitResult(
     dto: CreateResultDto,
     user: User,
-    file?: Express.Multer.File,
   ): Promise<Result> {
     // 1. Validate Sum of Party Votes vs Total Valid Votes
     const partyVotesSum = dto.partyBreakdown.reduce(
@@ -56,39 +55,36 @@ export class ResultService {
       }
     }
 
+    // Resolve Context from User Object fallback to DTO
+    const puId = user.assignedPu?.id || dto.pollingUnitId;
+    const partyId = user.aspirant?.politicalParty?.id || dto.politicalPartyId;
+    const aspirantId = user.aspirant?.id || dto.aspirantId;
+
     // 3. Check for Duplicate Submissions
-    const existing = await this.resultRepository.findByPollingUnitAndOffice(
-      dto.pollingUnitId,
+    const existing = await this.resultRepository.findByPollingUnitOfficeAndParty(
+      puId,
       dto.electoralOfficeId,
+      partyId,
     );
     if (existing) {
       throw new ConflictException(
-        `A result has already been submitted for Polling Unit #${dto.pollingUnitId} and Electoral Office #${dto.electoralOfficeId}. Duplicate submissions are blocked.`,
+        `A result has already been submitted for Polling Unit #${puId} and Electoral Office #${dto.electoralOfficeId} for Party #${partyId}. Duplicate submissions are blocked.`,
       );
     }
 
-    // 4. Handle EC8A Media Upload (Simulated AWS S3 Upload)
-    let ec8aPhotoUrl = dto.ec8aPhotoUrl;
-    if (file) {
-      ec8aPhotoUrl = await this.storageService.uploadFile(file, 'ec8a-forms');
-    }
 
-    if (!ec8aPhotoUrl) {
-      throw new BadRequestException(
-        'EC8A form image proof is required. Please upload the photo or provide a valid ec8aPhotoUrl.',
-      );
-    }
-
-    // 5. Transactional Persistence
     const resultData: Partial<Result> = {
       electoralOffice: { id: dto.electoralOfficeId } as any,
-      pollingUnit: { id: dto.pollingUnitId } as any,
-      aspirant: dto.aspirantId ? ({ id: dto.aspirantId } as any) : null,
+      pollingUnit: { id: puId } as any,
+      politicalParty: { id: partyId } as any,
+      aspirant: aspirantId ? ({ id: aspirantId } as any) : null,
       totalRegisteredVoters: dto.totalRegisteredVoters ?? null,
       totalAccreditedVoters: dto.totalAccreditedVoters ?? null,
       totalValidVotes: Number(dto.totalValidVotes),
       rejectedVotes: Number(dto.rejectedVotes || 0),
-      ec8aPhotoUrl,
+      ec8aPhotoUrl: dto.ec8aPhotoKey,
+      videoUrl: dto.videoKey || null,
+      materialsArrived: dto.materialsArrived,
       uploadedByUser: user,
       clientSubmittedAt: dto.clientSubmittedAt
         ? new Date(dto.clientSubmittedAt)
@@ -111,7 +107,18 @@ export class ResultService {
     if (!result) {
       throw new NotFoundException(`Result with ID #${id} not found.`);
     }
-    return result;
+    
+    // Generate secure short-lived URLs for media
+    const ec8aPhotoUrl = await this.storageService.getPresignedDownloadUrl(result.ec8aPhotoUrl);
+    const videoUrl = result.videoUrl 
+      ? await this.storageService.getPresignedDownloadUrl(result.videoUrl)
+      : null;
+
+    return {
+      ...result,
+      ec8aPhotoUrl,
+      videoUrl
+    } as Result;
   }
 
   async findByPollingUnit(pollingUnitId: number): Promise<Result[]> {
@@ -150,50 +157,67 @@ export class ResultService {
 
   // --- Electoral Office Aggregations & Reports ---
 
-  async getOfficePartySummary(officeId: number): Promise<any> {
-    const cacheKey = `office:summary:${officeId}`;
+  async getOfficePartySummary(officeId: number, partyId?: number): Promise<any> {
+    const cacheKey = `office:summary:${officeId}:party:${partyId || 'all'}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
-    const summary = await this.resultRepository.getOfficePartySummary(officeId);
+    const summary = await this.resultRepository.getOfficePartySummary(officeId, partyId);
     await this.cacheManager.set(cacheKey, summary, 1000 * 30); // 30s TTL
     return summary;
   }
 
-  async getOfficeWardReport(officeId: number, wardId: number): Promise<any> {
-    const cacheKey = `office:report:${officeId}:ward:${wardId}`;
+  async getOfficePollingUnitReport(officeId: number, puId: number, partyId?: number): Promise<any> {
+    const cacheKey = `office:report:${officeId}:pu:${puId}:party:${partyId || 'all'}`;
+    const cached = await this.cacheManager.get(cacheKey);
+    if (cached) return cached;
+
+    const report = await this.resultRepository.getOfficePollingUnitReport(
+      officeId,
+      puId,
+      partyId
+    );
+    await this.cacheManager.set(cacheKey, report, 1000 * 30);
+    return report;
+  }
+
+  async getOfficeWardReport(officeId: number, wardId: number, partyId?: number): Promise<any> {
+    const cacheKey = `office:report:${officeId}:ward:${wardId}:party:${partyId || 'all'}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const report = await this.resultRepository.getOfficeWardReport(
       officeId,
       wardId,
+      partyId
     );
     await this.cacheManager.set(cacheKey, report, 1000 * 30);
     return report;
   }
 
-  async getOfficeLgaReport(officeId: number, lgaId: number): Promise<any> {
-    const cacheKey = `office:report:${officeId}:lga:${lgaId}`;
+  async getOfficeLgaReport(officeId: number, lgaId: number, partyId?: number): Promise<any> {
+    const cacheKey = `office:report:${officeId}:lga:${lgaId}:party:${partyId || 'all'}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const report = await this.resultRepository.getOfficeLgaReport(
       officeId,
       lgaId,
+      partyId
     );
     await this.cacheManager.set(cacheKey, report, 1000 * 30);
     return report;
   }
 
-  async getOfficeStateReport(officeId: number, stateId: number): Promise<any> {
-    const cacheKey = `office:report:${officeId}:state:${stateId}`;
+  async getOfficeStateReport(officeId: number, stateId: number, partyId?: number): Promise<any> {
+    const cacheKey = `office:report:${officeId}:state:${stateId}:party:${partyId || 'all'}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const report = await this.resultRepository.getOfficeStateReport(
       officeId,
       stateId,
+      partyId
     );
     await this.cacheManager.set(cacheKey, report, 1000 * 30);
     return report;
@@ -221,5 +245,42 @@ export class ResultService {
   private async invalidateOfficeCaches(officeId: number): Promise<void> {
     await this.cacheManager.del(`office:summary:${officeId}`);
     await this.cacheManager.del(`office:progress:${officeId}`);
+  }
+
+  async getMediaUploadUrls(
+    requestPhoto: boolean,
+    requestVideo: boolean,
+    photoContentType?: string,
+    videoContentType?: string,
+  ) {
+    const response: any = {};
+    
+    if (requestPhoto && photoContentType) {
+      if (!photoContentType.startsWith('image/')) {
+        throw new BadRequestException('EC8A photo must be an image type.');
+      }
+      response.photo = await this.storageService.getPresignedUploadUrl(
+        FileContext.RESULT_DOCUMENT,
+        photoContentType,
+        10 * 1024 * 1024, // 10MB limit for photos
+      );
+    }
+    
+    if (requestVideo && videoContentType) {
+      if (!videoContentType.startsWith('video/')) {
+        throw new BadRequestException('Video evidence must be a video type.');
+      }
+      response.video = await this.storageService.getPresignedUploadUrl(
+        FileContext.RESULT_DOCUMENT,
+        videoContentType,
+        50 * 1024 * 1024, // 50MB limit for videos
+      );
+    }
+
+    if (Object.keys(response).length === 0) {
+      throw new BadRequestException('You must request at least one media upload URL (photo or video) with a valid content type.');
+    }
+
+    return response;
   }
 }

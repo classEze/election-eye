@@ -88,8 +88,13 @@ export class PoliticalPartyController {
     @Body('originalFilename') originalFilename?: string,
   ) {
     if (!contentType || !contentType.startsWith('image/')) {
-      throw new BadRequestException('Content type must be an image type (e.g. image/png)');
+      throw new BadRequestException(
+        'Content type must be an image type (e.g. image/png)',
+      );
     }
-    return this.politicalPartyService.getLogoUploadUrl(contentType, originalFilename);
+    return this.politicalPartyService.getLogoUploadUrl(
+      contentType,
+      originalFilename,
+    );
   }
 }

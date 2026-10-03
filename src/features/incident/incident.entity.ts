@@ -11,6 +11,8 @@ import {
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
 import { IncidentCategory } from '../../shared/entities/incident-category.entity';
 import { User } from '../user/user.entity';
+import { Aspirant } from '../aspirant/aspirant.entity';
+import { PoliticalParty } from '../political-party/political-party.entity';
 
 export enum SeverityLevel {
   LOW = 'LOW',
@@ -108,6 +110,18 @@ export class Incident {
   })
   @JoinColumn({ name: 'polling_unit_id' })
   pollingUnit!: PollingUnit | null;
+
+  @ManyToOne(() => Aspirant, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'aspirant_id' })
+  aspirant!: Aspirant | null;
+
+  @ManyToOne(() => PoliticalParty, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+    eager: true,
+  })
+  @JoinColumn({ name: 'political_party_id' })
+  politicalParty!: PoliticalParty | null;
 
   @CreateDateColumn({ type: 'timestamp with time zone', name: 'created_at' })
   createdAt!: Date;

@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -57,6 +58,19 @@ export class AspirantService {
     if (!office) {
       throw new NotFoundException(
         'Assigned Electoral office not found or inactive',
+      );
+    }
+
+    const existingAspirant = await this.dataSource.getRepository(Aspirant).findOne({
+      where: {
+        politicalParty: { id: dto.politicalPartyId },
+        electoralOffice: { id: dto.electoralOfficeId }
+      }
+    });
+
+    if (existingAspirant) {
+      throw new ConflictException(
+        'An aspirant for this political party and electoral office already exists.',
       );
     }
 

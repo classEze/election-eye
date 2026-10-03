@@ -47,6 +47,16 @@ export class CreateIncidentDto {
   geolocationLng?: number;
 
   @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  politicalPartyId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  aspirantId?: number;
+
+  @IsOptional()
   @IsArray()
   @ArrayMaxSize(2, { message: 'Maximum of 2 video evidences allowed.' })
   @IsString({ each: true })
@@ -60,11 +70,11 @@ export class CreateIncidentDto {
     }
     return value;
   })
-  mediaVideoUrls?: string[];
+  mediaVideoKeys?: string[];
 
   @IsOptional()
   @IsArray()
-  @ArrayMaxSize(5, { message: 'Maximum of 5 picture evidences allowed.' })
+  @ArrayMaxSize(2, { message: 'Maximum of 2 picture evidences allowed.' })
   @IsString({ each: true })
   @Transform(({ value }) => {
     if (typeof value === 'string') {
@@ -76,7 +86,7 @@ export class CreateIncidentDto {
     }
     return value;
   })
-  mediaPictureUrls?: string[];
+  mediaPictureKeys?: string[];
 }
 
 export class UpdateIncidentStatusDto {
