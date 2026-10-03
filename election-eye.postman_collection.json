@@ -447,6 +447,12 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/roles?type=CLIENT&status=true",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "roles"
+              ],
               "query": [
                 {
                   "key": "type",
@@ -2000,6 +2006,14 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/category/GUBERNATORIAL?isActive=true",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "electoral-offices",
+                "category",
+                "GUBERNATORIAL"
+              ],
               "query": [
                 {
                   "key": "isActive",
@@ -2076,6 +2090,14 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/lgas?page=1&limit=20",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "electoral-offices",
+                "{{office-id}}",
+                "lgas"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -2105,6 +2127,14 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/wards?page=1&limit=20",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "electoral-offices",
+                "{{office-id}}",
+                "wards"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -2134,6 +2164,14 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/polling-units?page=1&limit=20",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "electoral-offices",
+                "{{office-id}}",
+                "polling-units"
+              ],
               "query": [
                 {
                   "key": "page",

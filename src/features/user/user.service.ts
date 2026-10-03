@@ -165,10 +165,13 @@ export class UserService {
       }
     }
 
-    // 4. Retrieve Aspirant Office Boundaries
-    const boundaries = await this.electoralOfficeService.getOfficeBoundaries(
-      aspirant.electoralOffice.id,
-    );
+    // 4. Retrieve Aspirant Office Boundaries (only required for territorial roles)
+    let boundaries: any = null;
+    if (role.code !== RoleCode.CLIENT_USER) {
+      boundaries = await this.electoralOfficeService.getOfficeBoundaries(
+        aspirant.electoralOffice.id,
+      );
+    }
 
     // 5. Role-Specific Boundary Validations and Upward Hierarchy Population
     switch (role.code) {
@@ -336,31 +339,11 @@ export class UserService {
       }
 
       case RoleCode.CLIENT_USER: {
-        // Client user is campaign-wide; optionally validate boundaries if provided
-        if (
-          userDto.assignedLgaId &&
-          !boundaries.lgaIds.includes(userDto.assignedLgaId)
-        ) {
-          throw new BadRequestException(
-            `Assigned LGA ID #${userDto.assignedLgaId} is not within the aspirant's electoral boundaries.`,
-          );
-        }
-        if (
-          userDto.assignedWardId &&
-          !boundaries.wardIds.includes(userDto.assignedWardId)
-        ) {
-          throw new BadRequestException(
-            `Assigned Ward ID #${userDto.assignedWardId} is not within the aspirant's electoral boundaries.`,
-          );
-        }
-        if (
-          userDto.assignedPuId &&
-          !boundaries.pollingUnitIds.includes(userDto.assignedPuId)
-        ) {
-          throw new BadRequestException(
-            `Assigned Polling Unit ID #${userDto.assignedPuId} is not within the aspirant's electoral boundaries.`,
-          );
-        }
+        // Client user is campaign-wide; inherits aspirant's entire electoral office scope.
+        // Sanitizing territorial assignments so client users operate campaign-wide.
+        userDto.assignedLgaId = undefined;
+        userDto.assignedWardId = undefined;
+        userDto.assignedPuId = undefined;
         break;
       }
     }
@@ -718,30 +701,10 @@ export class UserService {
           }
 
           case RoleCode.CLIENT_USER: {
-            if (
-              updateUserDto.assignedLgaId &&
-              !boundaries.lgaIds.includes(updateUserDto.assignedLgaId)
-            ) {
-              throw new BadRequestException(
-                `Assigned LGA ID #${updateUserDto.assignedLgaId} is not within the aspirant's electoral boundaries.`,
-              );
-            }
-            if (
-              updateUserDto.assignedWardId &&
-              !boundaries.wardIds.includes(updateUserDto.assignedWardId)
-            ) {
-              throw new BadRequestException(
-                `Assigned Ward ID #${updateUserDto.assignedWardId} is not within the aspirant's electoral boundaries.`,
-              );
-            }
-            if (
-              updateUserDto.assignedPuId &&
-              !boundaries.pollingUnitIds.includes(updateUserDto.assignedPuId)
-            ) {
-              throw new BadRequestException(
-                `Assigned Polling Unit ID #${updateUserDto.assignedPuId} is not within the aspirant's electoral boundaries.`,
-              );
-            }
+            // Client user is campaign-wide; inherits aspirant's entire electoral office scope.
+            updateUserDto.assignedLgaId = null as any;
+            updateUserDto.assignedWardId = null as any;
+            updateUserDto.assignedPuId = null as any;
             break;
           }
         }
