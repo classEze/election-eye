@@ -3101,6 +3101,63 @@
       "name": "Results",
       "item": [
         {
+          "name": "Get Media Upload URLs",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"requestPhoto\": true,\n    \"requestVideo\": true,\n    \"photoContentType\": \"image/jpeg\",\n    \"videoContentType\": \"video/mp4\"\n}"
+            },
+            "url": "{{election-eye-base-url}}/results/media-upload-urls",
+            "description": "Generates presigned single-shot PUT upload URLs for result media (EC8A photo form and/or optional video evidence). The frontend uploads raw file binaries directly to S3/R2 using HTTP PUT with the matching `Content-Type`, then submits the returned `fileKey`s in `Submit Result` (`ec8aPhotoKey`, `videoKey`)."
+          },
+          "response": [
+            {
+              "name": "Successful Presigned URLs Generation (Photo + Video)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"requestPhoto\": true,\n    \"requestVideo\": true,\n    \"photoContentType\": \"image/jpeg\",\n    \"videoContentType\": \"video/mp4\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/results/media-upload-urls"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n    \"photo\": {\n        \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/results/documents/ec8a_uuid_photo.jpg?X-Amz-Algorithm=...\",\n        \"fileKey\": \"results/documents/ec8a_uuid_photo.jpg\",\n        \"expiresIn\": 900\n    },\n    \"video\": {\n        \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/results/documents/video_uuid_evidence.mp4?X-Amz-Algorithm=...\",\n        \"fileKey\": \"results/documents/video_uuid_evidence.mp4\",\n        \"expiresIn\": 900\n    }\n}"
+            }
+          ]
+        },
+        {
           "name": "Submit Result",
           "request": {
             "method": "POST",
@@ -3476,6 +3533,75 @@
     {
       "name": "Incidents",
       "item": [
+        {
+          "name": "Get Media Upload URLs",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": {
+              "raw": "{{election-eye-base-url}}/incidents/media-upload-urls?requestPhotoCount=2&requestVideoCount=1&photoContentType=image/jpeg&videoContentType=video/mp4",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "incidents",
+                "media-upload-urls"
+              ],
+              "query": [
+                {
+                  "key": "requestPhotoCount",
+                  "value": "2",
+                  "description": "Number of photo upload URLs requested (Max 2)"
+                },
+                {
+                  "key": "requestVideoCount",
+                  "value": "1",
+                  "description": "Number of video upload URLs requested (Max 2)"
+                },
+                {
+                  "key": "photoContentType",
+                  "value": "image/jpeg",
+                  "description": "MIME type for photos (e.g. image/jpeg, image/png)"
+                },
+                {
+                  "key": "videoContentType",
+                  "value": "video/mp4",
+                  "description": "MIME type for videos (e.g. video/mp4)"
+                }
+              ]
+            },
+            "description": "Generates presigned direct-to-S3/R2 PUT upload URLs for incident evidence (up to 2 photos and up to 2 videos). Upload raw binaries via HTTP PUT with matching `Content-Type` headers, then pass the returned `fileKey`s in `Report Incident` (`mediaPictureKeys` and `mediaVideoKeys` arrays)."
+          },
+          "response": [
+            {
+              "name": "Successful Presigned URLs Generation (2 Photos + 1 Video)",
+              "originalRequest": {
+                "method": "POST",
+                "url": "{{election-eye-base-url}}/incidents/media-upload-urls?requestPhotoCount=2&requestVideoCount=1&photoContentType=image/jpeg&videoContentType=video/mp4"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n    \"photos\": [\n        {\n            \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/incidents/pictures/incident_uuid_1.jpg?X-Amz-Algorithm=...\",\n            \"fileKey\": \"incidents/pictures/incident_uuid_1.jpg\",\n            \"expiresIn\": 900\n        },\n        {\n            \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/incidents/pictures/incident_uuid_2.jpg?X-Amz-Algorithm=...\",\n            \"fileKey\": \"incidents/pictures/incident_uuid_2.jpg\",\n            \"expiresIn\": 900\n        }\n    ],\n    \"videos\": [\n        {\n            \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/incidents/videos/incident_uuid_v1.mp4?X-Amz-Algorithm=...\",\n            \"fileKey\": \"incidents/videos/incident_uuid_v1.mp4\",\n            \"expiresIn\": 900\n        }\n    ]\n}"
+            }
+          ]
+        },
         {
           "name": "Report Incident",
           "request": {
@@ -3906,8 +4032,37 @@
               "raw": "{\n    \"contentType\": \"image/png\",\n    \"originalFilename\": \"pdp-logo.png\"\n}"
             },
             "url": "{{election-eye-base-url}}/political-parties/logo-upload-url",
-            "description": "Generates a direct-to-bucket presigned POST URL for uploading a political party logo. The client should make a multipart/form-data request to the returned `uploadUrl` using the `uploadFields` and attaching the file."
-          }
+            "description": "Generates a direct-to-bucket presigned PUT URL for uploading a political party logo (Cloudflare R2 compatible). The frontend should perform an HTTP PUT request with the raw binary file and the exact matching `Content-Type` header (e.g. `image/png`)."
+          },
+          "response": [
+            {
+              "name": "Successful Logo Upload URL Generation",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"contentType\": \"image/png\",\n    \"originalFilename\": \"pdp-logo.png\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/political-parties/logo-upload-url"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n    \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/political-party-logos/logo_uuid.png?X-Amz-Algorithm=...\",\n    \"fileKey\": \"political-party-logos/logo_uuid.png\",\n    \"publicUrl\": \"https://minio.electioneye.ng/election-eye/political-party-logos/logo_uuid.png\",\n    \"expiresIn\": 900\n}"
+            }
+          ]
         },
         {
           "name": "Update Political Party (PUT)",
