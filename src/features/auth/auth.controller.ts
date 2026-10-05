@@ -1,12 +1,23 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { Public } from 'src/shared/decorators/public.decorator';
 import { GetUser } from 'src/shared/decorators/get-user.decorator';
 import { Audit } from 'src/shared/decorators/audit.decorator';
 import {
   ChangePasswordDto,
+  ClientType,
   EmailAddressDto,
   LoginDto,
+  RefreshTokenDto,
   ResendVerificationDto,
   ResetPasswordDto,
   VerifyEmailDto,
@@ -23,16 +34,112 @@ export class AuthController {
   @Public()
   @HttpCode(200)
   @Post('login')
-  async signIn(@Body() dto: LoginDto) {
-    return this.authService.signIn(dto);
+  async signIn(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const clientType = dto.clientType || ClientType.WEB;
+    const result: any = await this.authService.signIn({ ...dto, clientType });
+
+    if (result && result.refreshToken) {
+      if (clientType === ClientType.WEB) {
+        res.cookie('refreshToken', result.refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/auth/refresh-token',
+          maxAge: 12 * 60 * 60 * 1000, // 12 hours
+        });
+        const { refreshToken, ...responseBody } = result;
+        return responseBody;
+      }
+    }
+
+    return result;
   }
 
   @Audit({ action: 'AUTH.ADMIN_LOGIN', entityName: 'Admin', logFailures: true })
   @Public()
   @HttpCode(200)
   @Post('admin-login')
-  adminSignIn(@Body() dto: LoginDto) {
-    return this.authService.adminSignIn(dto);
+  async adminSignIn(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const clientType = dto.clientType || ClientType.WEB;
+    const result: any = await this.authService.adminSignIn({
+      ...dto,
+      clientType,
+    });
+
+    if (result && result.refreshToken) {
+      if (clientType === ClientType.WEB) {
+        res.cookie('refreshToken', result.refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/auth/refresh-token',
+          maxAge: 12 * 60 * 60 * 1000, // 12 hours
+        });
+        const { refreshToken, ...responseBody } = result;
+        return responseBody;
+      }
+    }
+
+    return result;
+  }
+
+  @Audit({
+    action: 'AUTH.REFRESH_TOKEN',
+    entityName: 'User',
+    logFailures: true,
+  })
+  @Public()
+  @HttpCode(200)
+  @Post('refresh-token')
+  async refreshToken(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Body() dto?: RefreshTokenDto,
+  ) {
+    // 1. Extract token from Cookie, Authorization Header, x-refresh-token header, or Body
+    const cookieToken = req.cookies?.refreshToken;
+    const authHeader = req.headers['authorization'];
+    const bearerToken =
+      authHeader && authHeader.startsWith('Bearer ')
+        ? authHeader.slice(7).trim()
+        : undefined;
+    const customHeaderToken = req.headers['x-refresh-token'] as string;
+    const bodyToken = dto?.refreshToken;
+
+    const token = cookieToken || bearerToken || customHeaderToken || bodyToken;
+
+    if (!token) {
+      throw new UnauthorizedException(
+        'Refresh token not provided in cookies, header, or body',
+      );
+    }
+
+    const rotated = await this.authService.refreshTokens(token);
+
+    // If request originated with a cookie, set rotated cookie
+    if (cookieToken) {
+      res.cookie('refreshToken', rotated.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/auth/refresh-token',
+        maxAge: 12 * 60 * 60 * 1000,
+      });
+      return {
+        accessToken: rotated.accessToken,
+      };
+    }
+
+    return {
+      accessToken: rotated.accessToken,
+      refreshToken: rotated.refreshToken,
+    };
   }
 
   @Public()

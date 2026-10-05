@@ -5,6 +5,8 @@ import { ResultDetail } from '../result-detail/result-detail.entity';
 import { ResultController } from './result.controller';
 import { ResultService } from './result.service';
 import { ResultRepository } from './result.repository';
+import { ResultExportService } from './result-export.service';
+import { ResultAnomalyDetector } from './result-anomaly.detector';
 import { StorageModule } from '../../shared/storage/storage.module';
 import { SystemConfigurationModule } from '../system-configuration/system-configuration.module';
 
@@ -15,7 +17,17 @@ import { SystemConfigurationModule } from '../system-configuration/system-config
     SystemConfigurationModule,
   ],
   controllers: [ResultController],
-  providers: [ResultService, ResultRepository],
-  exports: [ResultService, ResultRepository],
+  providers: [
+    ResultService,
+    ResultRepository,
+    ResultExportService,
+    ResultAnomalyDetector,
+  ],
+  exports: [
+    ResultService,
+    ResultRepository,
+    ResultExportService,
+    ResultAnomalyDetector,
+  ],
 })
 export class ResultModule {}

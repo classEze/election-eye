@@ -124,7 +124,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"emailAddress\": \"agent.lagos@example.com\",\n  \"password\": \"LagosAgent@2026\"\n}"
+              "raw": "{\n  \"emailAddress\": \"puagent@electioneye.ng\",\n  \"password\": \"Password@123\",\n  \"clientType\": \"web\"\n}"
             },
             "url": "{{election-eye-base-url}}/auth/login"
           }
@@ -425,6 +425,34 @@
             },
             "url": "{{election-eye-base-url}}/auth/admin-change-password"
           }
+        },
+        {
+          "name": "Refresh Token (Rotate)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/auth/refresh-token",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ]
+            },
+            "description": "Rotates and issues a new access token + refresh token. Can read refresh token from httpOnly cookie, Authorization Bearer header, x-refresh-token header, or request body. If client is Web, sets rotated 12h cookie; otherwise returns tokens in body."
+          },
+          "response": []
         }
       ]
     },
@@ -447,6 +475,12 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/roles?type=CLIENT&status=true",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "roles"
+              ],
               "query": [
                 {
                   "key": "type",
@@ -2000,6 +2034,14 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/category/GUBERNATORIAL?isActive=true",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "electoral-offices",
+                "category",
+                "GUBERNATORIAL"
+              ],
               "query": [
                 {
                   "key": "isActive",
@@ -2007,7 +2049,20 @@
                 }
               ]
             }
-          }
+          },
+          "response": [
+            {
+              "name": "Gubernatorial Offices Example",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{election-eye-base-url}}/electoral-offices/category/GUBERNATORIAL?isActive=true"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "[\n    {\n        \"id\": 1,\n        \"name\": \"Lagos State Gubernatorial 2027\",\n        \"category\": \"GUBERNATORIAL\",\n        \"scope\": \"STATE_WIDE\",\n        \"stateId\": 1,\n        \"isActive\": true,\n        \"createdAt\": \"2026-01-10T00:00:00.000Z\"\n    }\n]"
+            }
+          ]
         },
         {
           "name": "Get Aspirant Boundaries",
@@ -2076,6 +2131,14 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/lgas?page=1&limit=20",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "electoral-offices",
+                "{{office-id}}",
+                "lgas"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -2087,7 +2150,20 @@
                 }
               ]
             }
-          }
+          },
+          "response": [
+            {
+              "name": "Paginated LGAs within Office",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/lgas?page=1&limit=20"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n    \"data\": [\n        {\n            \"id\": 101,\n            \"name\": \"Ikeja\",\n            \"lgaCode\": \"LAG-IKE\",\n            \"stateId\": 1\n        },\n        {\n            \"id\": 102,\n            \"name\": \"Eti-Osa\",\n            \"lgaCode\": \"LAG-ETO\",\n            \"stateId\": 1\n        }\n    ],\n    \"meta\": {\n        \"total\": 20,\n        \"page\": 1,\n        \"limit\": 20,\n        \"totalPages\": 1\n    }\n}"
+            }
+          ]
         },
         {
           "name": "Get Wards For Electoral Office",
@@ -2105,6 +2181,14 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/wards?page=1&limit=20",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "electoral-offices",
+                "{{office-id}}",
+                "wards"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -2116,7 +2200,20 @@
                 }
               ]
             }
-          }
+          },
+          "response": [
+            {
+              "name": "Paginated Wards within Office",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/wards?page=1&limit=20"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n    \"data\": [\n        {\n            \"id\": 1001,\n            \"name\": \"Alausa\",\n            \"wardCode\": \"LAG-IKE-W01\",\n            \"lgaId\": 101\n        },\n        {\n            \"id\": 1002,\n            \"name\": \"Oregun\",\n            \"wardCode\": \"LAG-IKE-W02\",\n            \"lgaId\": 101\n        }\n    ],\n    \"meta\": {\n        \"total\": 245,\n        \"page\": 1,\n        \"limit\": 20,\n        \"totalPages\": 13\n    }\n}"
+            }
+          ]
         },
         {
           "name": "Get Polling Units For Electoral Office",
@@ -2134,6 +2231,14 @@
             },
             "url": {
               "raw": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/polling-units?page=1&limit=20",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "electoral-offices",
+                "{{office-id}}",
+                "polling-units"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -2145,7 +2250,20 @@
                 }
               ]
             }
-          }
+          },
+          "response": [
+            {
+              "name": "Paginated Polling Units within Office",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{election-eye-base-url}}/electoral-offices/{{office-id}}/polling-units?page=1&limit=20"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n    \"data\": [\n        {\n            \"id\": 5001,\n            \"name\": \"PU 001 Alausa Secretariat\",\n            \"puCode\": \"24-08-01-001\",\n            \"wardId\": 1001\n        },\n        {\n            \"id\": 5002,\n            \"name\": \"PU 002 Ikeja High School\",\n            \"puCode\": \"24-08-01-002\",\n            \"wardId\": 1001\n        }\n    ],\n    \"meta\": {\n        \"total\": 13325,\n        \"page\": 1,\n        \"limit\": 20,\n        \"totalPages\": 667\n    }\n}"
+            }
+          ]
         },
         {
           "name": "Get Electoral Office By ID",
@@ -3400,7 +3518,20 @@
               ]
             },
             "url": "{{election-eye-base-url}}/results/reports/electoral-office/{{office-id}}/ward/{{ward-id}}"
-          }
+          },
+          "response": [
+            {
+              "name": "Aggregated Ward Result Report (Party Isolated)",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{election-eye-base-url}}/results/reports/ward?officeId=1&wardId=1001"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n    \"officeId\": 1,\n    \"wardId\": 1001,\n    \"totals\": {\n        \"totalValidVotes\": 5400,\n        \"totalRejectedVotes\": 120,\n        \"totalAccreditedVoters\": 5600,\n        \"totalRegisteredVoters\": 8200,\n        \"totalResultsUploaded\": 12\n    },\n    \"partyBreakdown\": [\n        {\n            \"partyId\": 1,\n            \"partyName\": \"All Progressives Congress\",\n            \"partyAcronym\": \"APC\",\n            \"totalVotes\": 3100\n        },\n        {\n            \"partyId\": 2,\n            \"partyName\": \"Peoples Democratic Party\",\n            \"partyAcronym\": \"PDP\",\n            \"totalVotes\": 2300\n        }\n    ]\n}"
+            }
+          ]
         },
         {
           "name": "Get Electoral Office Report for LGA",
@@ -3417,7 +3548,20 @@
               ]
             },
             "url": "{{election-eye-base-url}}/results/reports/electoral-office/{{office-id}}/lga/{{lga-id}}"
-          }
+          },
+          "response": [
+            {
+              "name": "Aggregated LGA Result Report (Party Isolated)",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{election-eye-base-url}}/results/reports/lga?officeId=1&lgaId=101"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n    \"officeId\": 1,\n    \"lgaId\": 101,\n    \"totals\": {\n        \"totalValidVotes\": 58200,\n        \"totalRejectedVotes\": 1450,\n        \"totalAccreditedVoters\": 60100,\n        \"totalRegisteredVoters\": 95000,\n        \"totalResultsUploaded\": 140\n    },\n    \"partyBreakdown\": [\n        {\n            \"partyId\": 1,\n            \"partyName\": \"All Progressives Congress\",\n            \"partyAcronym\": \"APC\",\n            \"totalVotes\": 32400\n        },\n        {\n            \"partyId\": 2,\n            \"partyName\": \"Peoples Democratic Party\",\n            \"partyAcronym\": \"PDP\",\n            \"totalVotes\": 25800\n        }\n    ]\n}"
+            }
+          ]
         },
         {
           "name": "Get Electoral Office Report for State",
@@ -3434,7 +3578,20 @@
               ]
             },
             "url": "{{election-eye-base-url}}/results/reports/electoral-office/{{office-id}}/state/{{state-id}}"
-          }
+          },
+          "response": [
+            {
+              "name": "Aggregated State Result Report (Gubernatorial Scope)",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{election-eye-base-url}}/results/reports/state?officeId=1&stateId=1"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n    \"officeId\": 1,\n    \"stateId\": 1,\n    \"totals\": {\n        \"totalValidVotes\": 1245000,\n        \"totalRejectedVotes\": 32000,\n        \"totalAccreditedVoters\": 1285000,\n        \"totalRegisteredVoters\": 2100000,\n        \"totalResultsUploaded\": 3200\n    },\n    \"partyBreakdown\": [\n        {\n            \"partyId\": 1,\n            \"partyName\": \"All Progressives Congress\",\n            \"partyAcronym\": \"APC\",\n            \"totalVotes\": 710000\n        },\n        {\n            \"partyId\": 2,\n            \"partyName\": \"Peoples Democratic Party\",\n            \"partyAcronym\": \"PDP\",\n            \"totalVotes\": 535000\n        }\n    ]\n}"
+            }
+          ]
         },
         {
           "name": "Verify Result Audit Status",
@@ -4182,7 +4339,20 @@
               ]
             },
             "url": "{{election-eye-base-url}}/reports/summary"
-          }
+          },
+          "response": [
+            {
+              "name": "Actors Summary Response",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{election-eye-base-url}}/reports/summary"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n    \"totalAspirants\": 45,\n    \"totalCoordinators\": 320,\n    \"totalPuAgents\": 2450,\n    \"totalAdmins\": 5\n}"
+            }
+          ]
         },
         {
           "name": "Get Activity Feed (Submissions & Incidents)",
@@ -4255,7 +4425,212 @@
               ]
             },
             "url": "{{election-eye-base-url}}/reports/overview-stats"
-          }
+          },
+          "response": [
+            {
+              "name": "All-Time Overview Stats Response",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{election-eye-base-url}}/reports/overview-stats"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n    \"totalSubmissions\": 3420,\n    \"totalIncidents\": 128,\n    \"pendingAudits\": 45,\n    \"verifiedResults\": 3375\n}"
+            }
+          ]
+        },
+        {
+          "name": "Export Polling Unit Report (PDF / CSV)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{election-eye-base-url}}/results/reports/polling-unit/export?officeId=1&pollingUnitId=1&format=pdf",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "results",
+                "reports",
+                "polling-unit",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "officeId",
+                  "value": "1",
+                  "description": "Electoral Office ID"
+                },
+                {
+                  "key": "pollingUnitId",
+                  "value": "1",
+                  "description": "Polling Unit ID"
+                },
+                {
+                  "key": "format",
+                  "value": "pdf",
+                  "description": "Export format: pdf | csv"
+                }
+              ]
+            },
+            "description": "Exports branded Polling Unit result report as PDF (Green/White/Black palette with official app logo & contact details) or CSV (RFC 4180 UTF-8 BOM)."
+          },
+          "response": []
+        },
+        {
+          "name": "Export Ward Report (PDF / CSV)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{election-eye-base-url}}/results/reports/ward/export?officeId=1&wardId=1&format=pdf",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "results",
+                "reports",
+                "ward",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "officeId",
+                  "value": "1",
+                  "description": "Electoral Office ID"
+                },
+                {
+                  "key": "wardId",
+                  "value": "1",
+                  "description": "Ward ID"
+                },
+                {
+                  "key": "format",
+                  "value": "pdf",
+                  "description": "Export format: pdf | csv"
+                }
+              ]
+            },
+            "description": "Exports aggregated Ward election results as branded PDF or RFC-4180 CSV."
+          },
+          "response": []
+        },
+        {
+          "name": "Export LGA Report (PDF / CSV)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{election-eye-base-url}}/results/reports/lga/export?officeId=1&lgaId=1&format=pdf",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "results",
+                "reports",
+                "lga",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "officeId",
+                  "value": "1",
+                  "description": "Electoral Office ID"
+                },
+                {
+                  "key": "lgaId",
+                  "value": "1",
+                  "description": "LGA ID"
+                },
+                {
+                  "key": "format",
+                  "value": "pdf",
+                  "description": "Export format: pdf | csv"
+                }
+              ]
+            },
+            "description": "Exports aggregated Local Government Area election results as branded PDF or RFC-4180 CSV."
+          },
+          "response": []
+        },
+        {
+          "name": "Export State Report (PDF / CSV)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{election-eye-base-url}}/results/reports/state/export?officeId=1&stateId=1&format=pdf",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "results",
+                "reports",
+                "state",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "officeId",
+                  "value": "1",
+                  "description": "Electoral Office ID"
+                },
+                {
+                  "key": "stateId",
+                  "value": "1",
+                  "description": "State ID"
+                },
+                {
+                  "key": "format",
+                  "value": "pdf",
+                  "description": "Export format: pdf | csv"
+                }
+              ]
+            },
+            "description": "Exports statewide aggregated election results as branded PDF or RFC-4180 CSV."
+          },
+          "response": []
         }
       ]
     },
@@ -4396,6 +4771,40 @@
             },
             "url": "{{election-eye-base-url}}/audit-logs/1"
           }
+        }
+      ]
+    },
+    {
+      "name": "Storage",
+      "item": [
+        {
+          "name": "Validate Storage Media Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileKey\": \"result-documents/ec8a-sample-key.jpg\",\n  \"expectedType\": \"image\"\n}"
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/storage/webhook/validate",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "storage",
+                "webhook",
+                "validate"
+              ]
+            },
+            "description": "Validates uploaded media file in Cloudflare R2 / S3. Enforces 10MB limit for images, 50MB for videos, and binary magic byte integrity. Automatically deletes non-compliant files."
+          },
+          "response": []
         }
       ]
     }

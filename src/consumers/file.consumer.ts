@@ -23,6 +23,7 @@ import {
   APP_QUEUES,
   QueueDictionary,
 } from '@/shared/constants/queue.constants';
+import { EmailTemplateHelper } from '../shared/templates/email-template.helper';
 
 @Processor(APP_QUEUES.file)
 export class FileConsumer extends WorkerHost {
@@ -838,21 +839,46 @@ export class FileConsumer extends WorkerHost {
     failedCount: number,
   ) {
     let summaryMessage = `Your ${entityName} upload initiated at ${uploadTime.toLocaleString()} has been processed. `;
-    let summaryHtml = `<p>Your ${entityName} upload initiated at ${uploadTime.toLocaleString()} has been processed.</p>`;
+    let paragraphs: string[] = [];
 
     if (failedCount === -1) {
       summaryMessage += `The upload failed entirely due to invalid data format or missing requirements.`;
-      summaryHtml += `<p>The upload failed entirely due to invalid data format or missing requirements.</p>`;
+      paragraphs = [
+        `Your ${entityName} batch upload initiated on ${uploadTime.toLocaleString()} could not be processed.`,
+        `The file failed validation entirely due to invalid CSV headers, incorrect formatting, or missing foreign key references.`,
+      ];
     } else {
       summaryMessage += `Successfully uploaded: ${successCount} records. Failed: ${failedCount} records.`;
-      summaryHtml += `<ul><li><strong>Successfully uploaded:</strong> ${successCount} records</li><li><strong>Failed:</strong> ${failedCount} records</li></ul>`;
+      paragraphs = [
+        `Your ${entityName} batch upload initiated on ${uploadTime.toLocaleString()} has completed processing.`,
+      ];
     }
+
+    const html = EmailTemplateHelper.render({
+      title: `${entityName} Upload Processing Summary`,
+      paragraphs,
+      highlightBox:
+        failedCount === -1
+          ? {
+              label: 'Status',
+              value: 'UPLOAD REJECTED',
+              subtext: 'Please review your CSV file columns and try again.',
+            }
+          : {
+              label: 'Processing Results',
+              value: `${successCount} Succeeded / ${failedCount} Failed`,
+              subtext: `Total records processed from upload batch.`,
+            },
+      notes: [
+        'All successfully imported records are immediately available in the system.',
+      ],
+    });
 
     await this.mailQueue.add(QueueDictionary.SEND_MAIL, {
       to: userEmail,
       subject: `${entityName} Upload Processing Summary`,
       message: summaryMessage,
-      html: summaryHtml,
+      html,
     });
   }
 }
