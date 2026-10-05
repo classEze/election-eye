@@ -15,6 +15,7 @@ import { UserRepository } from 'src/features/user/user.repository';
 import { IsNull, Repository } from 'typeorm';
 import {
   ChangePasswordDto,
+  ClientType,
   ResendVerificationDto,
   ResetPasswordDto,
 } from './auth.dto';
@@ -38,6 +39,7 @@ import {
 } from 'src/shared/constants/queue.constants';
 import { Queue } from 'bullmq';
 import { UserStatus } from 'src/shared/enums/status.enum';
+import { EmailTemplateHelper } from 'src/shared/templates/email-template.helper';
 
 @Injectable()
 export class AuthService {
@@ -60,6 +62,7 @@ export class AuthService {
   async signIn(LoginUserObj: {
     emailAddress: string;
     password: string;
+    clientType?: ClientType;
   }): Promise<CreateUserDto | object> {
     const validUser = await this.userRepo.findOneByEmail_(
       LoginUserObj.emailAddress,
@@ -94,6 +97,7 @@ export class AuthService {
       };
     }
 
+    const clientType = LoginUserObj.clientType || ClientType.WEB;
     const payload = {
       sub: validUser.id,
       role: validUser.role.id,
@@ -103,6 +107,11 @@ export class AuthService {
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
+    const refreshToken = await this.jwtService.signAsync(
+      { ...payload, tokenType: 'refresh' },
+      { expiresIn: '12h' },
+    );
+
     await this.userRepo.updateLoginFields(validUser.id);
 
     const userWithRelations =
@@ -111,12 +120,13 @@ export class AuthService {
     const cacheKey = getUserInfoCacheKey(validUser.id);
     await this.cacheManager.set(cacheKey, userWithRelations, CacheTTL.ONE_DAY);
 
-    return { ...userWithRelations, accessToken };
+    return { ...userWithRelations, accessToken, refreshToken, clientType };
   }
 
   async adminSignIn(loginAdminObj: {
     emailAddress: string;
     password: string;
+    clientType?: ClientType;
   }): Promise<object> {
     const admin = await this.adminRepo.findOneByEmail(
       loginAdminObj.emailAddress,
@@ -151,6 +161,7 @@ export class AuthService {
       };
     }
 
+    const clientType = loginAdminObj.clientType || ClientType.WEB;
     const payload = {
       sub: admin.id,
       role: admin.role.id,
@@ -160,6 +171,11 @@ export class AuthService {
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
+    const refreshToken = await this.jwtService.signAsync(
+      { ...payload, tokenType: 'refresh' },
+      { expiresIn: '12h' },
+    );
+
     await this.adminRepo.updateLoginFields(admin.id);
 
     const adminWithRelations =
@@ -179,7 +195,90 @@ export class AuthService {
       lastLogin: admin.lastLogin,
       role: admin.role,
       accessToken,
+      refreshToken,
+      clientType,
     };
+  }
+
+  async refreshTokens(refreshToken: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user?: any;
+    admin?: any;
+  }> {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is required');
+    }
+
+    try {
+      const payload = await this.jwtService.verifyAsync(refreshToken);
+      if (!payload || payload.tokenType !== 'refresh') {
+        throw new UnauthorizedException('Invalid token type for refresh');
+      }
+
+      const adminType = this.configService.get<string>('app.admin') ?? 'admin';
+      const isAdministrator = payload.type === adminType;
+
+      if (isAdministrator) {
+        const admin = await this.adminRepo.findOneById(payload.sub);
+        if (!admin || admin.status !== UserStatus.ACTIVE) {
+          throw new UnauthorizedException(
+            'Administrator account is inactive or not found',
+          );
+        }
+
+        const newPayload = {
+          sub: admin.id,
+          role: admin.role.id,
+          code: admin.role.code,
+          email: admin.emailAddress,
+          type: adminType,
+        };
+
+        const newAccessToken = await this.jwtService.signAsync(newPayload);
+        const newRefreshToken = await this.jwtService.signAsync(
+          { ...newPayload, tokenType: 'refresh' },
+          { expiresIn: '12h' },
+        );
+
+        return {
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken,
+          admin,
+        };
+      } else {
+        const user = await this.userRepo.findOneById(payload.sub);
+        if (!user || user.status !== UserStatus.ACTIVE) {
+          throw new UnauthorizedException(
+            'User account is inactive or not found',
+          );
+        }
+
+        const newPayload = {
+          sub: user.id,
+          role: user.role.id,
+          code: user.role.code,
+          email: user.emailAddress,
+          type: this.configService.get<string>('app.client') ?? 'client',
+        };
+
+        const newAccessToken = await this.jwtService.signAsync(newPayload);
+        const newRefreshToken = await this.jwtService.signAsync(
+          { ...newPayload, tokenType: 'refresh' },
+          { expiresIn: '12h' },
+        );
+
+        return {
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken,
+          user,
+        };
+      }
+    } catch (error: any) {
+      throw new UnauthorizedException(
+        error?.message || 'Invalid or expired refresh token',
+      );
+    }
   }
 
   async verifyUserEmail(token: string): Promise<object> {
@@ -224,24 +323,36 @@ export class AuthService {
     const passwordResetToken =
       await this.createUserPasswordResetToken(validUser);
 
+    const appUrl = process.env.APP_URL || 'http://localhost:3000';
+    const resetUrl = `${appUrl}/reset-password?token=${encodeURIComponent(passwordResetToken)}`;
+
+    const html = EmailTemplateHelper.render({
+      title: 'Password Reset Request',
+      greeting: `Hello ${validUser.firstName} ${validUser.lastName},`,
+      paragraphs: [
+        'We received a request to reset your password for your Election Eye account.',
+        'Please click the button below to set a new password, or use the token directly.',
+      ],
+      actionButton: {
+        text: 'Reset Password',
+        url: resetUrl,
+      },
+      highlightBox: {
+        label: 'Password Reset Token',
+        value: passwordResetToken,
+        subtext: 'Token is valid for 1 hour.',
+      },
+      notes: [
+        'If you did not request a password reset, please safely ignore this email.',
+        'For security reasons, this token will expire in 60 minutes.',
+      ],
+    });
+
     await this.mailQueue.add(QueueDictionary.SEND_MAIL, {
       to: validUser.emailAddress,
       subject: 'Password Reset',
-      message: `Dear ${validUser.firstName} ${validUser.lastName}, 
-      You requested a password reset. Use the token below to reset your password.
-      If you did not request a password reset, please ignore this email.
-      token: ${passwordResetToken}
-      The link expires in 1 hour.
-      `,
-      html: `
-      <p>Password Reset</p>
-      Dear ${validUser.firstName} ${validUser.lastName}, 
-      You requested a password reset. Use the token below to reset your password.
-      If you did not request a password reset, please ignore this email.
-      token: ${passwordResetToken}
-      The link expires in 1 hour.
-      <a href="http://localhost:3000/reset-password?token=${passwordResetToken}">Reset Password</a>
-      `,
+      message: `Dear ${validUser.firstName} ${validUser.lastName},\nYou requested a password reset. Use the token below to reset your password: ${passwordResetToken}\nThe link expires in 1 hour.`,
+      html,
     });
 
     return {
@@ -303,12 +414,36 @@ export class AuthService {
     }
 
     const passwordResetToken = await this.createAdminPasswordResetToken(admin);
+    const appUrl = process.env.APP_URL || 'http://localhost:3000';
+    const resetUrl = `${appUrl}/admin-reset-password?token=${encodeURIComponent(passwordResetToken)}`;
+
+    const html = EmailTemplateHelper.render({
+      title: 'Administrator Password Reset Request',
+      greeting: `Dear ${admin.firstName} ${admin.lastName},`,
+      paragraphs: [
+        'An administrative password reset request has been initiated for your account on Election Eye.',
+        'Please click the button below to set a new password, or use the token directly.',
+      ],
+      actionButton: {
+        text: 'Reset Admin Password',
+        url: resetUrl,
+      },
+      highlightBox: {
+        label: 'Admin Reset Token',
+        value: passwordResetToken,
+        subtext: 'Token is valid for 1 hour.',
+      },
+      notes: [
+        'This administrative token expires in 1 hour.',
+        'If you did not request this change, please alert the security team immediately.',
+      ],
+    });
 
     await this.mailQueue.add(QueueDictionary.SEND_MAIL, {
       to: admin.emailAddress,
       subject: 'Admin Password Reset',
       message: `Dear ${admin.firstName} ${admin.lastName},\nUse this token to reset your password: ${passwordResetToken}\nThe link expires in 1 hour.`,
-      html: `<p>Dear ${admin.firstName} ${admin.lastName},</p><p>Use this token to reset your password: ${passwordResetToken}</p><p>The link expires in 1 hour.</p>`,
+      html,
     });
 
     return {

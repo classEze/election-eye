@@ -97,6 +97,16 @@ export class Result {
   })
   auditStatus!: ResultAuditStatus;
 
+  @Column({ name: 'has_anomalies', type: 'boolean', default: false })
+  hasAnomalies!: boolean;
+
+  @Column({
+    name: 'anomaly_flags',
+    type: 'simple-array',
+    nullable: true,
+  })
+  anomalyFlags!: string[] | null;
+
   @Column({ name: 'rejection_reason', type: 'text', nullable: true })
   rejectionReason!: string | null;
 

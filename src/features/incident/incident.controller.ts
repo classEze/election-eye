@@ -26,6 +26,7 @@ import { GetUser } from '../../shared/decorators/get-user.decorator';
 import { User } from '../user/user.entity';
 import { SubmissionWindowGuard } from '../../shared/guards/submission-window.guard';
 import { Incident } from './incident.entity';
+import { Audit } from '../../shared/decorators/audit.decorator';
 
 @Controller('incidents')
 export class IncidentController {
@@ -36,6 +37,11 @@ export class IncidentController {
     return this.incidentService.getCategories();
   }
 
+  @Audit({
+    action: 'INCIDENT.REPORT',
+    entityName: 'Incident',
+    logFailures: true,
+  })
   @UseGuards(SubmissionWindowGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -46,6 +52,7 @@ export class IncidentController {
     return this.incidentService.createIncident(dto, user);
   }
 
+  @Audit({ skip: true })
   @UseGuards(SubmissionWindowGuard)
   @Post('media-upload-urls')
   @HttpCode(HttpStatus.OK)
@@ -87,6 +94,11 @@ export class IncidentController {
     return this.incidentService.findOne(+id);
   }
 
+  @Audit({
+    action: 'INCIDENT.UPDATE_STATUS',
+    entityName: 'Incident',
+    logFailures: true,
+  })
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,
@@ -103,6 +115,11 @@ export class IncidentController {
     return this.incidentService.updateStatus(+id, dto);
   }
 
+  @Audit({
+    action: 'INCIDENT.DELETE',
+    entityName: 'Incident',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':id')
   async remove(@Param('id') id: string) {

@@ -12,6 +12,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { APP_QUEUES, QueueDictionary } from '../constants/queue.constants';
 import { Queue } from 'bullmq';
 import { UserStatus } from 'src/shared/enums/status.enum';
+import { EmailTemplateHelper } from '../templates/email-template.helper';
 
 @Injectable()
 export class EmailVerificationService {
@@ -126,25 +127,44 @@ export class EmailVerificationService {
 
     let subject = 'Verify your email address';
     let message = `Hello ${firstName},\n\nPlease verify your email address using this link: ${link}. The link expires in 24 hours.`;
-    let html = `
-      <p>Hello ${firstName},</p>
-      <p>Please verify your email address by clicking the link below:</p>
-      <p><a href="${link}">Verify Your Email Address</a></p>
-      <p><em>This link expires in 24 hours.</em></p>
-    `;
+
+    let html = EmailTemplateHelper.render({
+      title: 'Verify Your Email Address',
+      greeting: `Hello ${firstName},`,
+      paragraphs: [
+        'Thank you for joining the Election Eye intelligence platform. Please click the button below to verify your email address and activate your access.',
+      ],
+      actionButton: {
+        text: 'Verify Email Address',
+        url: link,
+      },
+      notes: ['This verification link is valid for 24 hours from the time of issue.'],
+    });
 
     if (temporaryPassword) {
       subject = 'Welcome to Election Eye - Verify Your Account';
       message = `Hello ${firstName},\n\nWelcome to Election Eye. Please verify your email address using the following link: ${link} (expires in 24 hours).\n\nAfter verification, please proceed to login using the following temporary password:\nTemporary Password: ${temporaryPassword}`;
-      html = `
-        <p>Hello ${firstName},</p>
-        <p>Welcome to Election Eye. Please verify your email address by clicking the link below:</p>
-        <p><a href="${link}">Verify Your Email Address</a></p>
-        <p><em>This verification link expires in 24 hours.</em></p>
-        <hr />
-        <p>After verifying your email, please proceed to login with your temporary credentials:</p>
-        <p><strong>Temporary Password:</strong> <code>${temporaryPassword}</code></p>
-      `;
+
+      html = EmailTemplateHelper.render({
+        title: 'Welcome to Election Eye - Account Verification',
+        greeting: `Hello ${firstName},`,
+        paragraphs: [
+          'An account has been created for you on the Election Eye platform. Please verify your email address by clicking the button below, then sign in with your temporary credentials.',
+        ],
+        actionButton: {
+          text: 'Verify & Activate Account',
+          url: link,
+        },
+        highlightBox: {
+          label: 'Your Temporary Password',
+          value: temporaryPassword,
+          subtext: 'You will be prompted to choose a secure new password upon your first sign-in.',
+        },
+        notes: [
+          'This verification link expires in 24 hours.',
+          'For your security, do not share your temporary credentials with anyone.',
+        ],
+      });
     }
 
     await this.mailQueue.add(QueueDictionary.SEND_MAIL, {

@@ -22,6 +22,7 @@ import {
 import { Allowed } from '../../shared/decorators/allowed.decorator';
 import { RoleCode } from '../role/role.enum';
 import { PoliticalParty } from './political-party.entity';
+import { Audit } from '../../shared/decorators/audit.decorator';
 
 @Controller('political-parties')
 export class PoliticalPartyController {
@@ -39,6 +40,11 @@ export class PoliticalPartyController {
     return this.politicalPartyService.findOne(+id);
   }
 
+  @Audit({
+    action: 'POLITICAL_PARTY.CREATE',
+    entityName: 'PoliticalParty',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -48,6 +54,11 @@ export class PoliticalPartyController {
     return this.politicalPartyService.create(createDto);
   }
 
+  @Audit({
+    action: 'POLITICAL_PARTY.UPDATE',
+    entityName: 'PoliticalParty',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Put(':id')
   async update(
@@ -57,6 +68,11 @@ export class PoliticalPartyController {
     return this.politicalPartyService.update(+id, updateDto);
   }
 
+  @Audit({
+    action: 'POLITICAL_PARTY.PATCH',
+    entityName: 'PoliticalParty',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Patch(':id')
   async patch(
@@ -66,6 +82,11 @@ export class PoliticalPartyController {
     return this.politicalPartyService.update(+id, updateDto);
   }
 
+  @Audit({
+    action: 'POLITICAL_PARTY.UPDATE_LOGO',
+    entityName: 'PoliticalParty',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Patch(':id/logo')
   async updateLogo(
@@ -75,12 +96,18 @@ export class PoliticalPartyController {
     return this.politicalPartyService.updateLogo(+id, updateLogoDto);
   }
 
+  @Audit({
+    action: 'POLITICAL_PARTY.DELETE',
+    entityName: 'PoliticalParty',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':id')
   async softDelete(@Param('id') id: string): Promise<{ message: string }> {
     return this.politicalPartyService.softDelete(+id);
   }
 
+  @Audit({ skip: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('logo-upload-url')
   async getLogoUploadUrl(

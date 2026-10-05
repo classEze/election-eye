@@ -67,7 +67,7 @@ export class AuditInterceptor implements NestInterceptor {
           const user = (req as unknown as { user?: Record<string, unknown> })
             .user;
           const { actorId, actorType, actorEmail, roleCode } =
-            this.extractActor(user);
+            this.extractActor(user, responseBody, requestPayload, action);
 
           const statusCode = res.statusCode || 200;
 
@@ -97,7 +97,7 @@ export class AuditInterceptor implements NestInterceptor {
           const user = (req as unknown as { user?: Record<string, unknown> })
             .user;
           const { actorId, actorType, actorEmail, roleCode } =
-            this.extractActor(user);
+            this.extractActor(user, null, requestPayload, action);
 
           const statusCode =
             typeof err === 'object' && err !== null && 'status' in err
@@ -107,7 +107,7 @@ export class AuditInterceptor implements NestInterceptor {
           const errorMessage =
             err instanceof Error ? err.message : 'Unknown Error';
 
-          // Log critical failure
+          // Log failure
           void this.auditService.record({
             actorId,
             actorType,
@@ -129,37 +129,87 @@ export class AuditInterceptor implements NestInterceptor {
     );
   }
 
-  private extractActor(user?: Record<string, unknown>): {
+  private extractActor(
+    user?: Record<string, unknown>,
+    responseBody?: unknown,
+    requestPayload?: Record<string, unknown> | null,
+    action?: string,
+  ): {
     actorId: number | null;
     actorType: AuditActorType;
     actorEmail: string | null;
     roleCode: string | null;
   } {
-    if (!user) {
+    // 1. Authenticated actor from request context
+    if (user) {
+      const actorId = Number(user.id || user.sub) || null;
+      const actorEmail =
+        (user.emailAddress as string) || (user.email as string) || null;
+
+      const roleObj = user.role as { code?: string; name?: string } | undefined;
+      const roleCode =
+        roleObj?.code || (typeof user.role === 'string' ? user.role : null);
+
+      const isSystemAdmin =
+        roleCode === 'SUPER_ADMIN' ||
+        roleCode === 'SYSTEM_ADMIN' ||
+        user.type === 'ADMIN';
+
+      const actorType = isSystemAdmin
+        ? AuditActorType.ADMIN
+        : AuditActorType.USER;
+
       return {
-        actorId: null,
-        actorType: AuditActorType.ANONYMOUS,
-        actorEmail: null,
-        roleCode: null,
+        actorId,
+        actorType,
+        actorEmail,
+        roleCode,
       };
     }
 
-    const actorId = Number(user.id || user.sub) || null;
+    // 2. Unauthenticated actor (e.g. login, verification, password reset)
+    const resp =
+      responseBody && typeof responseBody === 'object'
+        ? (responseBody as Record<string, unknown>)
+        : null;
+
+    const actorId =
+      Number(
+        resp?.id ||
+          (resp?.user as Record<string, unknown>)?.id ||
+          (resp?.admin as Record<string, unknown>)?.id,
+      ) || null;
+
     const actorEmail =
-      (user.emailAddress as string) || (user.email as string) || null;
+      (resp?.emailAddress as string) ||
+      (resp?.email as string) ||
+      ((resp?.user as Record<string, unknown>)?.emailAddress as string) ||
+      ((resp?.admin as Record<string, unknown>)?.emailAddress as string) ||
+      (requestPayload?.emailAddress as string) ||
+      (requestPayload?.email as string) ||
+      null;
 
-    const roleObj = user.role as { code?: string; name?: string } | undefined;
+    const roleObj =
+      (resp?.role as { code?: string; name?: string }) ||
+      ((resp?.user as Record<string, unknown>)?.role as { code?: string }) ||
+      ((resp?.admin as Record<string, unknown>)?.role as { code?: string });
+
     const roleCode =
-      roleObj?.code || (typeof user.role === 'string' ? user.role : null);
+      roleObj?.code ||
+      (typeof resp?.role === 'string' ? (resp.role as string) : null);
 
-    const isSystemAdmin =
+    const isAdminAction =
+      action?.includes('ADMIN') ||
       roleCode === 'SUPER_ADMIN' ||
       roleCode === 'SYSTEM_ADMIN' ||
-      user.type === 'ADMIN';
+      !!resp?.admin;
 
-    const actorType = isSystemAdmin
-      ? AuditActorType.ADMIN
-      : AuditActorType.USER;
+    let actorType = AuditActorType.ANONYMOUS;
+    if (isAdminAction) {
+      actorType = AuditActorType.ADMIN;
+    } else if (actorId || actorEmail) {
+      actorType = AuditActorType.USER;
+    }
 
     return {
       actorId,

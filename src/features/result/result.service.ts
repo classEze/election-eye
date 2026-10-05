@@ -13,15 +13,19 @@ import {
   ResultFilterDto,
   VerifyResultDto,
 } from './result.dto';
-import { Result } from './result.entity';
+import { Result, ResultAuditStatus } from './result.entity';
 import { User } from '../user/user.entity';
 import { StorageService, FileContext } from '../../shared/storage/storage.service';
+import { ResultExportService, ReportExportData } from './result-export.service';
+import { ResultAnomalyDetector } from './result-anomaly.detector';
 
 @Injectable()
 export class ResultService {
   constructor(
     private readonly resultRepository: ResultRepository,
     private readonly storageService: StorageService,
+    private readonly exportService: ResultExportService,
+    private readonly anomalyDetector: ResultAnomalyDetector,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -29,31 +33,16 @@ export class ResultService {
     dto: CreateResultDto,
     user: User,
   ): Promise<Result> {
-    // 1. Validate Sum of Party Votes vs Total Valid Votes
-    const partyVotesSum = dto.partyBreakdown.reduce(
-      (sum, item) => sum + Number(item.votes || 0),
-      0,
-    );
-
-    if (partyVotesSum !== Number(dto.totalValidVotes)) {
-      throw new BadRequestException(
-        `Integrity error: Total valid votes (${dto.totalValidVotes}) must strictly match the sum of individual party votes (${partyVotesSum}).`,
-      );
+    // 1. Storage Media Validation (Images <= 10MB, Videos <= 50MB, Magic Bytes check)
+    if (dto.ec8aPhotoKey) {
+      await this.storageService.validateMediaFile(dto.ec8aPhotoKey, 'image');
+    }
+    if (dto.videoKey) {
+      await this.storageService.validateMediaFile(dto.videoKey, 'video');
     }
 
-    // 2. Validate Over-voting against accredited voters if supplied
-    if (
-      dto.totalAccreditedVoters !== undefined &&
-      dto.totalAccreditedVoters !== null
-    ) {
-      const totalCast =
-        Number(dto.totalValidVotes) + Number(dto.rejectedVotes || 0);
-      if (totalCast > Number(dto.totalAccreditedVoters)) {
-        throw new BadRequestException(
-          `Over-voting detected: Total votes cast (Valid ${dto.totalValidVotes} + Rejected ${dto.rejectedVotes} = ${totalCast}) exceeds accredited voters (${dto.totalAccreditedVoters}).`,
-        );
-      }
-    }
+    // 2. Statistical & Arithmetic Anomaly Detection
+    const anomalyReport = this.anomalyDetector.detect(dto);
 
     // Resolve Context from User Object fallback to DTO
     const puId = user.assignedPu?.id || dto.pollingUnitId;
@@ -72,7 +61,6 @@ export class ResultService {
       );
     }
 
-
     const resultData: Partial<Result> = {
       electoralOffice: { id: dto.electoralOfficeId } as any,
       pollingUnit: { id: puId } as any,
@@ -89,6 +77,14 @@ export class ResultService {
       clientSubmittedAt: dto.clientSubmittedAt
         ? new Date(dto.clientSubmittedAt)
         : new Date(),
+      hasAnomalies: anomalyReport.hasAnomalies,
+      anomalyFlags: anomalyReport.flags,
+      auditStatus: anomalyReport.hasAnomalies
+        ? ResultAuditStatus.FLAGGED
+        : ResultAuditStatus.PENDING,
+      rejectionReason: anomalyReport.hasAnomalies
+        ? anomalyReport.details.join('; ')
+        : null,
     };
 
     const savedResult = await this.resultRepository.createTransactional(
@@ -96,7 +92,7 @@ export class ResultService {
       dto.partyBreakdown,
     );
 
-    // 6. Invalidate Electoral Office Caches
+    // 4. Invalidate Electoral Office Caches
     await this.invalidateOfficeCaches(dto.electoralOfficeId);
 
     return savedResult;
@@ -278,9 +274,241 @@ export class ResultService {
     }
 
     if (Object.keys(response).length === 0) {
-      throw new BadRequestException('You must request at least one media upload URL (photo or video) with a valid content type.');
+      throw new BadRequestException(
+        'You must request at least one media upload URL (photo or video) with a valid content type.',
+      );
     }
 
     return response;
+  }
+
+  // --- Export Methods (PDF & CSV) ---
+
+  async exportOfficePollingUnitReport(
+    officeId: number,
+    puId: number,
+    partyId?: number,
+    format: 'pdf' | 'csv' = 'pdf',
+  ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
+    const rawReport = await this.getOfficePollingUnitReport(
+      officeId,
+      puId,
+      partyId,
+    );
+    const totals = rawReport.totals || {};
+    const totalValid = Number(totals.totalValidVotes || 0);
+    const rejected = Number(totals.totalRejectedVotes || 0);
+
+    const breakdown = (rawReport.partyBreakdown || []).map((item: any) => {
+      const votes = Number(item.totalVotes || 0);
+      const percentage =
+        totalValid > 0 ? ((votes / totalValid) * 100).toFixed(2) : '0.00';
+      return {
+        partyCode: item.partyAcronym || 'N/A',
+        partyName: item.partyName || 'N/A',
+        votes,
+        percentage,
+      };
+    });
+
+    const exportData: ReportExportData = {
+      title: `POLLING UNIT RESULT REPORT (#${puId})`,
+      scope: 'POLLING_UNIT',
+      officeName: `Electoral Office #${officeId}`,
+      electoralScope: `Polling Unit ID #${puId}`,
+      generatedAt: new Date(),
+      summary: {
+        totalValidVotes: totalValid,
+        rejectedVotes: rejected,
+        totalVotesCast: totalValid + rejected,
+        totalAccreditedVoters: totals.totalAccreditedVoters,
+        totalRegisteredVoters: totals.totalRegisteredVoters,
+      },
+      breakdown,
+    };
+
+    if (format === 'csv') {
+      return {
+        buffer: this.exportService.generateCsvReport(exportData),
+        contentType: 'text/csv',
+        filename: `report_pu_${puId}_office_${officeId}.csv`,
+      };
+    }
+
+    return {
+      buffer: await this.exportService.generatePdfReport(exportData),
+      contentType: 'application/pdf',
+      filename: `report_pu_${puId}_office_${officeId}.pdf`,
+    };
+  }
+
+  async exportOfficeWardReport(
+    officeId: number,
+    wardId: number,
+    partyId?: number,
+    format: 'pdf' | 'csv' = 'pdf',
+  ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
+    const rawReport = await this.getOfficeWardReport(
+      officeId,
+      wardId,
+      partyId,
+    );
+    const totals = rawReport.totals || {};
+    const totalValid = Number(totals.totalValidVotes || 0);
+    const rejected = Number(totals.totalRejectedVotes || 0);
+
+    const breakdown = (rawReport.partyBreakdown || []).map((item: any) => {
+      const votes = Number(item.totalVotes || 0);
+      const percentage =
+        totalValid > 0 ? ((votes / totalValid) * 100).toFixed(2) : '0.00';
+      return {
+        partyCode: item.partyAcronym || 'N/A',
+        partyName: item.partyName || 'N/A',
+        votes,
+        percentage,
+      };
+    });
+
+    const exportData: ReportExportData = {
+      title: `WARD AGGREGATED REPORT (#${wardId})`,
+      scope: 'WARD',
+      officeName: `Electoral Office #${officeId}`,
+      electoralScope: `Ward ID #${wardId}`,
+      generatedAt: new Date(),
+      summary: {
+        totalValidVotes: totalValid,
+        rejectedVotes: rejected,
+        totalVotesCast: totalValid + rejected,
+        totalAccreditedVoters: totals.totalAccreditedVoters,
+        totalRegisteredVoters: totals.totalRegisteredVoters,
+      },
+      breakdown,
+    };
+
+    if (format === 'csv') {
+      return {
+        buffer: this.exportService.generateCsvReport(exportData),
+        contentType: 'text/csv',
+        filename: `report_ward_${wardId}_office_${officeId}.csv`,
+      };
+    }
+
+    return {
+      buffer: await this.exportService.generatePdfReport(exportData),
+      contentType: 'application/pdf',
+      filename: `report_ward_${wardId}_office_${officeId}.pdf`,
+    };
+  }
+
+  async exportOfficeLgaReport(
+    officeId: number,
+    lgaId: number,
+    partyId?: number,
+    format: 'pdf' | 'csv' = 'pdf',
+  ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
+    const rawReport = await this.getOfficeLgaReport(officeId, lgaId, partyId);
+    const totals = rawReport.totals || {};
+    const totalValid = Number(totals.totalValidVotes || 0);
+    const rejected = Number(totals.totalRejectedVotes || 0);
+
+    const breakdown = (rawReport.partyBreakdown || []).map((item: any) => {
+      const votes = Number(item.totalVotes || 0);
+      const percentage =
+        totalValid > 0 ? ((votes / totalValid) * 100).toFixed(2) : '0.00';
+      return {
+        partyCode: item.partyAcronym || 'N/A',
+        partyName: item.partyName || 'N/A',
+        votes,
+        percentage,
+      };
+    });
+
+    const exportData: ReportExportData = {
+      title: `LGA AGGREGATED REPORT (#${lgaId})`,
+      scope: 'LGA',
+      officeName: `Electoral Office #${officeId}`,
+      electoralScope: `Local Government Area #${lgaId}`,
+      generatedAt: new Date(),
+      summary: {
+        totalValidVotes: totalValid,
+        rejectedVotes: rejected,
+        totalVotesCast: totalValid + rejected,
+        totalAccreditedVoters: totals.totalAccreditedVoters,
+        totalRegisteredVoters: totals.totalRegisteredVoters,
+      },
+      breakdown,
+    };
+
+    if (format === 'csv') {
+      return {
+        buffer: this.exportService.generateCsvReport(exportData),
+        contentType: 'text/csv',
+        filename: `report_lga_${lgaId}_office_${officeId}.csv`,
+      };
+    }
+
+    return {
+      buffer: await this.exportService.generatePdfReport(exportData),
+      contentType: 'application/pdf',
+      filename: `report_lga_${lgaId}_office_${officeId}.pdf`,
+    };
+  }
+
+  async exportOfficeStateReport(
+    officeId: number,
+    stateId: number,
+    partyId?: number,
+    format: 'pdf' | 'csv' = 'pdf',
+  ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
+    const rawReport = await this.getOfficeStateReport(
+      officeId,
+      stateId,
+      partyId,
+    );
+    const totals = rawReport.totals || {};
+    const totalValid = Number(totals.totalValidVotes || 0);
+    const rejected = Number(totals.totalRejectedVotes || 0);
+
+    const breakdown = (rawReport.partyBreakdown || []).map((item: any) => {
+      const votes = Number(item.totalVotes || 0);
+      const percentage =
+        totalValid > 0 ? ((votes / totalValid) * 100).toFixed(2) : '0.00';
+      return {
+        partyCode: item.partyAcronym || 'N/A',
+        partyName: item.partyName || 'N/A',
+        votes,
+        percentage,
+      };
+    });
+
+    const exportData: ReportExportData = {
+      title: `STATEWIDE AGGREGATED REPORT (#${stateId})`,
+      scope: 'STATE',
+      officeName: `Electoral Office #${officeId}`,
+      electoralScope: `State Jurisdiction #${stateId}`,
+      generatedAt: new Date(),
+      summary: {
+        totalValidVotes: totalValid,
+        rejectedVotes: rejected,
+        totalVotesCast: totalValid + rejected,
+        totalAccreditedVoters: totals.totalAccreditedVoters,
+        totalRegisteredVoters: totals.totalRegisteredVoters,
+      },
+      breakdown,
+    };
+
+    if (format === 'csv') {
+      return {
+        buffer: this.exportService.generateCsvReport(exportData),
+        contentType: 'text/csv',
+        filename: `report_state_${stateId}_office_${officeId}.csv`,
+      };
+    }
+
+    return {
+      buffer: await this.exportService.generatePdfReport(exportData),
+      contentType: 'application/pdf',
+      filename: `report_state_${stateId}_office_${officeId}.pdf`,
+    };
   }
 }
