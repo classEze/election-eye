@@ -17,7 +17,7 @@ export default class PasswordHelper {
       lowercase: 'abcdefghijklmnopqrstuvwxyz',
       uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
       numbers: '0123456789',
-      symbols: '!@#$%^&*()_+~`|}{[]:;?><,./-=',
+      symbols: '!@#$%^&*()_+-=[]{}:;,.?~',
     };
 
     // 1. Ensure at least one character from each pool is selected
