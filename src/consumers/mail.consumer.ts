@@ -15,7 +15,7 @@ export class MailConsumer extends WorkerHost {
   async process(job: Job): Promise<void> {
     switch (job.name) {
       case QueueDictionary.SEND_MAIL:
-        await this.notify.sendMailTrap(job.data as EmailDto);
+        await this.notify.sendMail(job.data as EmailDto);
         break;
 
       default:

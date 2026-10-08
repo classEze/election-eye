@@ -12,11 +12,14 @@ export default () => ({
   },
 
   mail: {
-    host: process.env.MAILTRAP_HOST ?? 'sandbox.smtp.mailtrap.io',
-    port: parseInt(process.env.MAILTRAP_PORT ?? '2525', 10),
-    username: process.env.MAILTRAP_UNAME,
-    password: process.env.MAILTRAP_PASS,
+    host: process.env.MAIL_HOST ?? process.env.MAILTRAP_HOST ?? 'sandbox.smtp.mailtrap.io',
+    port: parseInt(process.env.MAIL_PORT ?? process.env.MAILTRAP_PORT ?? '2525', 10),
+    username: process.env.MAIL_UNAME ?? process.env.MAILTRAP_UNAME,
+    password: process.env.MAIL_PASS ?? process.env.MAILTRAP_PASS,
     from: process.env.MAIL_FROM ?? '"No Reply" <noreply@election-eye.com>',
+  },
+  resend: {
+    apiKey: process.env.RESEND_API_KEY,
   },
   termii: {
     apiKey: process.env.TERMII_API_KEY,
