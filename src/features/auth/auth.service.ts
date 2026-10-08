@@ -323,8 +323,13 @@ export class AuthService {
     const passwordResetToken =
       await this.createUserPasswordResetToken(validUser);
 
-    const appUrl = process.env.APP_URL || 'http://localhost:3000';
-    const resetUrl = `${appUrl}/reset-password?token=${encodeURIComponent(passwordResetToken)}`;
+    const rawUrl =
+      this.configService.get<string>('app.clientAppUrl') ||
+      process.env.CLIENT_APP_URL ||
+      process.env.APP_URL ||
+      'https://election-eye-1pa1-pi.vercel.app';
+    const portalUrl = rawUrl.replace(/\/+$/, '');
+    const resetUrl = `${portalUrl}/reset-password?token=${encodeURIComponent(passwordResetToken)}`;
 
     const html = EmailTemplateHelper.render({
       title: 'Password Reset Request',
@@ -414,8 +419,12 @@ export class AuthService {
     }
 
     const passwordResetToken = await this.createAdminPasswordResetToken(admin);
-    const appUrl = process.env.APP_URL || 'http://localhost:3000';
-    const resetUrl = `${appUrl}/admin-reset-password?token=${encodeURIComponent(passwordResetToken)}`;
+    const rawUrl =
+      this.configService.get<string>('app.adminAppUrl') ||
+      process.env.ADMIN_APP_URL ||
+      'https://elect-system-admin.vercel.app';
+    const portalUrl = rawUrl.replace(/\/+$/, '');
+    const resetUrl = `${portalUrl}/admin-reset-password?token=${encodeURIComponent(passwordResetToken)}`;
 
     const html = EmailTemplateHelper.render({
       title: 'Administrator Password Reset Request',

@@ -4,6 +4,14 @@ export default () => ({
     environment: process.env.NODE_ENV ?? 'development',
     client: 'client',
     admin: 'admin',
+    adminAppUrl:
+      process.env.ADMIN_APP_URL || 'https://elect-system-admin.vercel.app',
+    clientAppUrl:
+      process.env.CLIENT_APP_URL || 'https://election-eye-1pa1-pi.vercel.app',
+    appUrl:
+      process.env.CLIENT_APP_URL ||
+      process.env.APP_URL ||
+      'https://election-eye-1pa1-pi.vercel.app',
   },
 
   jwt: {
