@@ -16,6 +16,16 @@ export interface EmailTemplateOptions {
   footerNote?: string;
 }
 
+function escapeHtml(text: string): string {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 export class EmailTemplateHelper {
   /**
    * Generates a bulletproof, responsive HTML email matching Election Eye branding.
@@ -50,7 +60,7 @@ export class EmailTemplateHelper {
         <tr>
           <td align="center" style="border-radius: 6px; background-color: ${primaryColor};">
             <a href="${options.actionButton.url}" target="_blank" style="font-size: 15px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 6px; padding: 12px 28px; border: 1px solid ${primaryColor}; display: inline-block; font-weight: 600; letter-spacing: 0.3px;">
-              ${options.actionButton.text}
+              ${escapeHtml(options.actionButton.text)}
             </a>
           </td>
         </tr>
@@ -61,11 +71,11 @@ export class EmailTemplateHelper {
     const highlightBoxHtml = options.highlightBox
       ? `
       <div style="background-color: #ECFDF5; border-left: 4px solid ${primaryColor}; padding: 16px 20px; border-radius: 4px; margin: 20px 0;">
-        <p style="margin: 0 0 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: ${darkGreen}; letter-spacing: 0.5px;">${options.highlightBox.label}</p>
-        <p style="margin: 0; font-size: 18px; font-family: 'Courier New', Courier, monospace; font-weight: 700; color: ${charcoal}; word-break: break-all;">${options.highlightBox.value}</p>
+        <p style="margin: 0 0 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: ${darkGreen}; letter-spacing: 0.5px;">${escapeHtml(options.highlightBox.label)}</p>
+        <p style="margin: 0; font-size: 18px; font-family: 'Courier New', Courier, monospace; font-weight: 700; color: ${charcoal}; word-break: break-all;">${escapeHtml(options.highlightBox.value)}</p>
         ${
           options.highlightBox.subtext
-            ? `<p style="margin: 6px 0 0; font-size: 12px; color: #047857;">${options.highlightBox.subtext}</p>`
+            ? `<p style="margin: 6px 0 0; font-size: 12px; color: #047857;">${escapeHtml(options.highlightBox.subtext)}</p>`
             : ''
         }
       </div>
