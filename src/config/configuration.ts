@@ -20,8 +20,14 @@ export default () => ({
   },
 
   mail: {
-    host: process.env.MAIL_HOST ?? process.env.MAILTRAP_HOST ?? 'sandbox.smtp.mailtrap.io',
-    port: parseInt(process.env.MAIL_PORT ?? process.env.MAILTRAP_PORT ?? '2525', 10),
+    host:
+      process.env.MAIL_HOST ??
+      process.env.MAILTRAP_HOST ??
+      'sandbox.smtp.mailtrap.io',
+    port: parseInt(
+      process.env.MAIL_PORT ?? process.env.MAILTRAP_PORT ?? '2525',
+      10,
+    ),
     username: process.env.MAIL_UNAME ?? process.env.MAILTRAP_UNAME,
     password: process.env.MAIL_PASS ?? process.env.MAILTRAP_PASS,
     from: process.env.MAIL_FROM ?? '"No Reply" <noreply@election-eye.com>',

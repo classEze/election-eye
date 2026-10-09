@@ -99,6 +99,20 @@ export class AspirantController {
     RoleCode.LGA_COORDINATOR,
     RoleCode.WARD_COORDINATOR,
   ])
+  @Get('me/polling-unit-agents')
+  findMyPollingUnitAgents(
+    @GetUser() user: User,
+    @Query() query: AspirantUsersQueryDto,
+  ) {
+    return this.userService.findMyPuAgents(user, query);
+  }
+
+  @Allowed([
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+  ])
   @Get('me/team-members')
   findMyTeamMembers(
     @GetUser() user: User,
