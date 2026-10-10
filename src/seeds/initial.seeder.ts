@@ -8,7 +8,7 @@ export default async function seedData(dataSource: DataSource): Promise<void> {
       ('LGA Coordinator', '${RoleCode.LGA_COORDINATOR}', 'CLIENT', 'Manages results and monitors incidents across an entire Local Government Area.', true, NOW(), NOW()),
       ('Ward Coordinator', '${RoleCode.WARD_COORDINATOR}', 'CLIENT', 'Supervises polling unit agents and verifies incoming results within a specific Ward.', true, NOW(), NOW()),
       ('Polling Unit Agent', '${RoleCode.PU_AGENT}', 'CLIENT', 'Submits real-time polling unit results and logs field incidents directly at the booth.', true, NOW(), NOW()),
-      ('Client User', '${RoleCode.CLIENT_USER}', 'CLIENT', 'Aspirant campaign contact person with full administrative privileges over campaign team and operations.', true, NOW(), NOW()),
+      ('Campaign Director', '${RoleCode.CLIENT_USER}', 'CLIENT', 'Aspirant campaign contact person with full administrative privileges over campaign team and operations.', true, NOW(), NOW()),
       ('System Administrator', '${RoleCode.SYSTEM_ADMIN}', 'ADMIN', 'Oversees the entire system and manages user accounts.', true, NOW(), NOW()),
       ('Super Administrator', '${RoleCode.SUPER_ADMIN}', 'ADMIN', 'Has full access to all system functionalities and can manage other administrators.', true, NOW(), NOW()),
       ('Aspirant', '${RoleCode.ASPIRANT}', 'CLIENT', 'Aspirant account', true, NOW(), NOW())

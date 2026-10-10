@@ -37,9 +37,6 @@ export class ResultController {
     RoleCode.PU_AGENT,
     RoleCode.WARD_COORDINATOR,
     RoleCode.LGA_COORDINATOR,
-    RoleCode.CLIENT_USER,
-    RoleCode.SYSTEM_ADMIN,
-    RoleCode.SUPER_ADMIN,
   ])
   @UseGuards(SubmissionWindowGuard)
   @Post()
@@ -56,9 +53,6 @@ export class ResultController {
     RoleCode.PU_AGENT,
     RoleCode.WARD_COORDINATOR,
     RoleCode.LGA_COORDINATOR,
-    RoleCode.CLIENT_USER,
-    RoleCode.SYSTEM_ADMIN,
-    RoleCode.SUPER_ADMIN,
   ])
   @Post('media-upload-urls')
   @HttpCode(HttpStatus.OK)
@@ -511,15 +505,13 @@ export class ResultController {
     return this.resultService.findOne(+id);
   }
 
-  // Result verification is open to Admins, Ward/LGA Coordinators, and Aspirants, but strictly closed to PU Agents
+  // Result verification / approval is strictly restricted to Platform Admins, Aspirants, and Campaign Directors
   @Audit({ action: 'RESULT.VERIFY', entityName: 'Result', logFailures: true })
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,
-    RoleCode.CLIENT_USER,
-    RoleCode.LGA_COORDINATOR,
-    RoleCode.WARD_COORDINATOR,
     RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
   ])
   @Patch(':id/verify')
   async verifyResult(

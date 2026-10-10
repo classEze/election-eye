@@ -9,11 +9,23 @@ import { IncidentRepository } from './incident.repository';
 import { StorageModule } from '../../shared/storage/storage.module';
 import { SystemConfigurationModule } from '../system-configuration/system-configuration.module';
 
+import { PollingUnit } from '../polling-unit/polling-unit.entity';
+import { Ward } from '../ward/ward.entity';
+import { Lga } from '../lga/lga.entity';
+import { ElectoralOfficeModule } from '../electoral-office/electoral-office.module';
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Incident, IncidentCategory]),
+    TypeOrmModule.forFeature([
+      Incident,
+      IncidentCategory,
+      PollingUnit,
+      Ward,
+      Lga,
+    ]),
     StorageModule,
     SystemConfigurationModule,
+    ElectoralOfficeModule,
   ],
   controllers: [IncidentController, IncidentCategoryController],
   providers: [IncidentService, IncidentRepository],

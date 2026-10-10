@@ -3416,6 +3416,12 @@
                 {
                   "key": "electoralOfficeId",
                   "value": "{{office-id}}"
+                },
+                {
+                  "key": "auditStatus",
+                  "value": "PENDING",
+                  "description": "Filter results by audit status (PENDING | VERIFIED | FLAGGED | REJECTED)",
+                  "disabled": true
                 }
               ]
             }
@@ -3784,7 +3790,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"categoryId\": 1,\n  \"description\": \"Ballot box snatching observed.\",\n  \"severityLevel\": \"HIGH\",\n  \"pollingUnitId\": 1,\n  \"geolocationLat\": 6.5244,\n  \"geolocationLng\": 3.3792,\n  \"mediaVideoKeys\": [\n    \"incidents/videos/test.mp4\"\n  ],\n  \"mediaPictureKeys\": [\n    \"incidents/pictures/test.jpg\"\n  ]\n}",
+              "raw": "{\n  \"categoryId\": 1,\n  \"description\": \"Ballot box snatching incident observed during collation.\",\n  \"severityLevel\": \"CRITICAL\",\n  \"pollingUnitId\": \"{{polling-unit-id}}\",\n  \"wardId\": \"{{ward-id}}\",\n  \"lgaId\": \"{{lga-id}}\",\n  \"geolocationLat\": 6.524379,\n  \"geolocationLng\": 3.379206,\n  \"mediaPictureKeys\": [\n    \"incidents/pictures/sample-photo.jpg\"\n  ],\n  \"mediaVideoKeys\": [\n    \"incidents/videos/sample-video.mp4\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
