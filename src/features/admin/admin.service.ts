@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   Inject,
 } from '@nestjs/common';
 import { CreateAdminDto, UpdateAdminDto, AdminQueryDto } from './admin.dto';
@@ -85,6 +86,13 @@ export class AdminService {
     updateAdminDto: UpdateAdminDto,
     currentAdmin?: { id?: number; sub?: number },
   ) {
+    const currentAdminId = Number(currentAdmin?.id || currentAdmin?.sub);
+    if (currentAdminId && currentAdminId === id) {
+      throw new ForbiddenException(
+        'Administrators are not permitted to edit their own data or status. Another administrator must perform this action.',
+      );
+    }
+
     if (updateAdminDto.role_id) {
       const role = await this.roleService.getRoleById(updateAdminDto.role_id);
       if (!role || !role.status) {
@@ -100,12 +108,6 @@ export class AdminService {
       }
     }
 
-    const currentAdminId = Number(currentAdmin?.id || currentAdmin?.sub);
-    // If the super admin updates his own account, status immediately becomes pending
-    if (currentAdminId && currentAdminId === id) {
-      updateAdminDto.status = UserStatus.PENDING;
-    }
-
     const updated = await this.adminRepo.update(id, updateAdminDto);
 
     await this.cacheManager.del(getAdminInfoCacheKey(id));
@@ -113,7 +115,14 @@ export class AdminService {
     return updated;
   }
 
-  async remove(id: number) {
+  async remove(id: number, currentAdmin?: { id?: number; sub?: number }) {
+    const currentAdminId = Number(currentAdmin?.id || currentAdmin?.sub);
+    if (currentAdminId && currentAdminId === id) {
+      throw new ForbiddenException(
+        'Administrators are not permitted to delete their own account.',
+      );
+    }
+
     await this.findOne(id);
 
     const success = await this.adminRepo.softDelete(id);

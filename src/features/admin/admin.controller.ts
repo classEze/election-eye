@@ -63,7 +63,7 @@ export class AdminController {
 
   @Allowed([RoleCode.SUPER_ADMIN])
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
+  remove(@Param('id') id: string, @GetUser() currentAdmin: Admin) {
+    return this.adminService.remove(+id, currentAdmin);
   }
 }
