@@ -54,7 +54,9 @@ export class NotificationService {
         text: mail.message,
         html: mail.html,
       });
-      this.logger.log(`SMTP email notification sent successfully to ${mail.to}`);
+      this.logger.log(
+        `SMTP email notification sent successfully to ${mail.to}`,
+      );
     } catch (error) {
       this.logger.error(`Failed to send email via SMTP to ${mail.to}`, error);
       throw error;

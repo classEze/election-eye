@@ -2,9 +2,12 @@ import {
   Injectable,
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   NotFoundException,
   Inject,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { ResultRepository } from './result.repository';
@@ -15,6 +18,9 @@ import {
 } from './result.dto';
 import { Result, ResultAuditStatus } from './result.entity';
 import { User } from '../user/user.entity';
+import { RoleCode } from '../role/role.enum';
+import { PollingUnit } from '../polling-unit/polling-unit.entity';
+import { ElectoralOfficeService } from '../electoral-office/electoral-office.service';
 import { StorageService, FileContext } from '../../shared/storage/storage.service';
 import { ResultExportService, ReportExportData } from './result-export.service';
 import { ResultAnomalyDetector } from './result-anomaly.detector';
@@ -23,6 +29,9 @@ import { ResultAnomalyDetector } from './result-anomaly.detector';
 export class ResultService {
   constructor(
     private readonly resultRepository: ResultRepository,
+    @InjectRepository(PollingUnit)
+    private readonly puRepository: Repository<PollingUnit>,
+    private readonly electoralOfficeService: ElectoralOfficeService,
     private readonly storageService: StorageService,
     private readonly exportService: ResultExportService,
     private readonly anomalyDetector: ResultAnomalyDetector,
@@ -33,6 +42,19 @@ export class ResultService {
     dto: CreateResultDto,
     user: User,
   ): Promise<Result> {
+    const userRoleCode = user.role?.code;
+    const permittedUploadRoles = [
+      RoleCode.PU_AGENT,
+      RoleCode.WARD_COORDINATOR,
+      RoleCode.LGA_COORDINATOR,
+    ];
+
+    if (!permittedUploadRoles.includes(userRoleCode as any)) {
+      throw new ForbiddenException(
+        'Only Polling Unit Agents, Ward Coordinators, and LGA Coordinators are permitted to submit election results.',
+      );
+    }
+
     // 1. Storage Media Validation (Images <= 10MB, Videos <= 50MB, Magic Bytes check)
     if (dto.ec8aPhotoKey) {
       await this.storageService.validateMediaFile(dto.ec8aPhotoKey, 'image');
@@ -44,21 +66,140 @@ export class ResultService {
     // 2. Statistical & Arithmetic Anomaly Detection
     const anomalyReport = this.anomalyDetector.detect(dto);
 
-    // Resolve Context from User Object fallback to DTO
-    const puId = user.assignedPu?.id || dto.pollingUnitId;
-    const partyId = user.aspirant?.politicalParty?.id || dto.politicalPartyId;
-    const aspirantId = user.aspirant?.id || dto.aspirantId;
+    // 3. Hierarchical Boundary Validations
+    let puId: number;
 
-    // 3. Check for Duplicate Submissions
+    if (userRoleCode === RoleCode.PU_AGENT) {
+      if (!user.assignedPu?.id) {
+        throw new BadRequestException(
+          'Authenticated Polling Unit Agent is not assigned to any Polling Unit.',
+        );
+      }
+      if (dto.pollingUnitId && dto.pollingUnitId !== user.assignedPu.id) {
+        throw new ForbiddenException(
+          'Polling Unit Agents can only submit results for their assigned Polling Unit.',
+        );
+      }
+      puId = user.assignedPu.id;
+    } else if (userRoleCode === RoleCode.WARD_COORDINATOR) {
+      if (!user.assignedWard?.id) {
+        throw new BadRequestException(
+          'Authenticated Ward Coordinator is not assigned to any Ward.',
+        );
+      }
+      if (!dto.pollingUnitId) {
+        throw new BadRequestException(
+          'pollingUnitId is required for Ward Coordinator result submissions.',
+        );
+      }
+      const pu = await this.puRepository.findOne({
+        where: { id: dto.pollingUnitId },
+        relations: { ward: true },
+      });
+      if (!pu) {
+        throw new NotFoundException(
+          `Polling Unit with ID #${dto.pollingUnitId} not found.`,
+        );
+      }
+      if (pu.ward?.id !== user.assignedWard.id) {
+        throw new ForbiddenException(
+          'The selected Polling Unit does not fall within your assigned Ward.',
+        );
+      }
+      puId = dto.pollingUnitId;
+    } else if (userRoleCode === RoleCode.LGA_COORDINATOR) {
+      if (!user.assignedLga?.id) {
+        throw new BadRequestException(
+          'Authenticated LGA Coordinator is not assigned to any LGA.',
+        );
+      }
+      if (!dto.pollingUnitId) {
+        throw new BadRequestException(
+          'pollingUnitId is required for LGA Coordinator result submissions.',
+        );
+      }
+      const pu = await this.puRepository.findOne({
+        where: { id: dto.pollingUnitId },
+        relations: { ward: { lga: true } },
+      });
+      if (!pu) {
+        throw new NotFoundException(
+          `Polling Unit with ID #${dto.pollingUnitId} not found.`,
+        );
+      }
+      if (pu.ward?.lga?.id !== user.assignedLga.id) {
+        throw new ForbiddenException(
+          'The selected Polling Unit does not fall within your assigned LGA.',
+        );
+      }
+      puId = dto.pollingUnitId;
+    } else {
+      throw new ForbiddenException('Unauthorized to submit results.');
+    }
+
+    const aspirantId =
+      user.aspirant?.id || user.aspirantAccount?.id || dto.aspirantId;
+    const partyId =
+      user.aspirant?.politicalParty?.id ||
+      user.aspirantAccount?.politicalParty?.id ||
+      dto.politicalPartyId;
+
+    // Validate PU against Electoral Office boundary
+    const boundaries = await this.electoralOfficeService.getOfficeBoundaries(
+      dto.electoralOfficeId,
+    );
+    if (!boundaries.pollingUnitIds.includes(puId)) {
+      throw new BadRequestException(
+        `Polling Unit #${puId} does not fall within the boundary of Electoral Office #${dto.electoralOfficeId}.`,
+      );
+    }
+
+    // 4. Check for Existing Submissions / Handle Re-submission on REJECTED
     const existing = await this.resultRepository.findByPollingUnitOfficeAndParty(
       puId,
       dto.electoralOfficeId,
       partyId,
     );
+
     if (existing) {
-      throw new ConflictException(
-        `A result has already been submitted for Polling Unit #${puId} and Electoral Office #${dto.electoralOfficeId} for Party #${partyId}. Duplicate submissions are blocked.`,
+      if (existing.auditStatus !== ResultAuditStatus.REJECTED) {
+        throw new ConflictException(
+          `A result has already been submitted for Polling Unit #${puId} and Electoral Office #${dto.electoralOfficeId} for Party #${partyId} with status '${existing.auditStatus}'. Duplicate submissions are blocked.`,
+        );
+      }
+
+      // Re-submission / Correction for previously rejected result
+      const updateData: Partial<Result> = {
+        totalRegisteredVoters: dto.totalRegisteredVoters ?? null,
+        totalAccreditedVoters: dto.totalAccreditedVoters ?? null,
+        totalValidVotes: Number(dto.totalValidVotes),
+        rejectedVotes: Number(dto.rejectedVotes || 0),
+        ec8aPhotoUrl: dto.ec8aPhotoKey || existing.ec8aPhotoUrl,
+        videoUrl: dto.videoKey || null,
+        materialsArrived: dto.materialsArrived,
+        uploadedByUser: user,
+        clientSubmittedAt: dto.clientSubmittedAt
+          ? new Date(dto.clientSubmittedAt)
+          : new Date(),
+        hasAnomalies: anomalyReport.hasAnomalies,
+        anomalyFlags: anomalyReport.flags,
+        auditStatus: anomalyReport.hasAnomalies
+          ? ResultAuditStatus.FLAGGED
+          : ResultAuditStatus.PENDING,
+        isVerified: false,
+        rejectionReason: anomalyReport.hasAnomalies
+          ? anomalyReport.details.join('; ')
+          : null,
+      };
+
+      const updatedResult = await this.resultRepository.updateTransactional(
+        existing.id,
+        updateData,
+        dto.partyBreakdown,
       );
+
+      await this.invalidateOfficeCaches(dto.electoralOfficeId);
+      return updatedResult;
     }
 
     const resultData: Partial<Result> = {
@@ -92,7 +233,7 @@ export class ResultService {
       dto.partyBreakdown,
     );
 
-    // 4. Invalidate Electoral Office Caches
+    // 5. Invalidate Electoral Office Caches
     await this.invalidateOfficeCaches(dto.electoralOfficeId);
 
     return savedResult;
@@ -103,17 +244,19 @@ export class ResultService {
     if (!result) {
       throw new NotFoundException(`Result with ID #${id} not found.`);
     }
-    
+
     // Generate secure short-lived URLs for media
-    const ec8aPhotoUrl = await this.storageService.getPresignedDownloadUrl(result.ec8aPhotoUrl);
-    const videoUrl = result.videoUrl 
+    const ec8aPhotoUrl = await this.storageService.getPresignedDownloadUrl(
+      result.ec8aPhotoUrl,
+    );
+    const videoUrl = result.videoUrl
       ? await this.storageService.getPresignedDownloadUrl(result.videoUrl)
       : null;
 
     return {
       ...result,
       ec8aPhotoUrl,
-      videoUrl
+      videoUrl,
     } as Result;
   }
 
@@ -135,6 +278,23 @@ export class ResultService {
     const existing = await this.resultRepository.findById(id);
     if (!existing) {
       throw new NotFoundException(`Result with ID #${id} not found.`);
+    }
+
+    const verifierAspirantId =
+      verifier.aspirantAccount?.id || verifier.aspirant?.id;
+    const isPlatformAdmin =
+      verifier.role?.code === RoleCode.SUPER_ADMIN ||
+      verifier.role?.code === RoleCode.SYSTEM_ADMIN;
+
+    if (!isPlatformAdmin) {
+      if (
+        !verifierAspirantId ||
+        (existing.aspirant?.id && existing.aspirant.id !== verifierAspirantId)
+      ) {
+        throw new ForbiddenException(
+          'You can only verify results belonging to your own campaign.',
+        );
+      }
     }
 
     const updated = await this.resultRepository.updateAuditStatus(

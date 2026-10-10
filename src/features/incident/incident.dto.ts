@@ -33,6 +33,16 @@ export class CreateIncidentDto {
   pollingUnitId?: number;
 
   @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  wardId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  lgaId?: number;
+
+  @IsOptional()
   @IsNumber()
   @Min(-90)
   @Max(90)

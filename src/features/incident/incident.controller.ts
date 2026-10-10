@@ -42,6 +42,11 @@ export class IncidentController {
     entityName: 'Incident',
     logFailures: true,
   })
+  @Allowed([
+    RoleCode.PU_AGENT,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.LGA_COORDINATOR,
+  ])
   @UseGuards(SubmissionWindowGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -53,6 +58,11 @@ export class IncidentController {
   }
 
   @Audit({ skip: true })
+  @Allowed([
+    RoleCode.PU_AGENT,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.LGA_COORDINATOR,
+  ])
   @UseGuards(SubmissionWindowGuard)
   @Post('media-upload-urls')
   @HttpCode(HttpStatus.OK)
@@ -104,15 +114,14 @@ export class IncidentController {
     RoleCode.SYSTEM_ADMIN,
     RoleCode.ASPIRANT,
     RoleCode.CLIENT_USER,
-    RoleCode.LGA_COORDINATOR,
-    RoleCode.WARD_COORDINATOR,
   ])
   @Patch(':id/status')
   async updateStatus(
     @Param('id') id: string,
     @Body() dto: UpdateIncidentStatusDto,
+    @GetUser() user: User,
   ): Promise<Incident> {
-    return this.incidentService.updateStatus(+id, dto);
+    return this.incidentService.updateStatus(+id, dto, user);
   }
 
   @Audit({
@@ -120,9 +129,14 @@ export class IncidentController {
     entityName: 'Incident',
     logFailures: true,
   })
-  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.ASPIRANT,
+    RoleCode.CLIENT_USER,
+  ])
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.incidentService.remove(+id);
+  async remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.incidentService.remove(+id, user);
   }
 }

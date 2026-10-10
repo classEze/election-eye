@@ -24,12 +24,16 @@ export class IncidentRepository {
     politicalPartyId?: number,
     aspirantId?: number,
     pollingUnitId?: number,
+    wardId?: number,
+    lgaId?: number,
   ): Promise<Incident> {
     const incident = this.repository.create({
       category: { id: dto.categoryId },
       description: dto.description,
       severityLevel: dto.severityLevel,
       pollingUnit: pollingUnitId ? { id: pollingUnitId } : null,
+      ward: wardId ? { id: wardId } : null,
+      lga: lgaId ? { id: lgaId } : null,
       politicalParty: politicalPartyId ? { id: politicalPartyId } : null,
       aspirant: aspirantId ? { id: aspirantId } : null,
       geolocationLat: dto.geolocationLat ?? null,
@@ -50,6 +54,8 @@ export class IncidentRepository {
       relations: {
         category: true,
         pollingUnit: { ward: { lga: { state: true } } },
+        ward: { lga: { state: true } },
+        lga: { state: true },
         reportedByUser: { role: true },
       },
     });
@@ -62,9 +68,11 @@ export class IncidentRepository {
       .createQueryBuilder('i')
       .leftJoinAndSelect('i.category', 'cat')
       .leftJoinAndSelect('i.pollingUnit', 'pu')
-      .leftJoinAndSelect('pu.ward', 'ward')
-      .leftJoinAndSelect('ward.lga', 'lga')
-      .leftJoinAndSelect('lga.state', 'state')
+      .leftJoinAndSelect('pu.ward', 'puWard')
+      .leftJoinAndSelect('puWard.lga', 'puLga')
+      .leftJoinAndSelect('i.ward', 'directWard')
+      .leftJoinAndSelect('directWard.lga', 'directWardLga')
+      .leftJoinAndSelect('i.lga', 'directLga')
       .leftJoinAndSelect('i.reportedByUser', 'user')
       .leftJoinAndSelect('user.role', 'role');
 
@@ -87,15 +95,23 @@ export class IncidentRepository {
     }
 
     if (filters.wardId) {
-      qb.andWhere('pu.ward_id = :wardId', { wardId: filters.wardId });
+      qb.andWhere('(i.ward_id = :wardId OR pu.ward_id = :wardId)', {
+        wardId: filters.wardId,
+      });
     }
 
     if (filters.lgaId) {
-      qb.andWhere('ward.lga_id = :lgaId', { lgaId: filters.lgaId });
+      qb.andWhere(
+        '(i.lga_id = :lgaId OR directWard.lga_id = :lgaId OR puWard.lga_id = :lgaId)',
+        { lgaId: filters.lgaId },
+      );
     }
 
     if (filters.stateId) {
-      qb.andWhere('lga.state_id = :stateId', { stateId: filters.stateId });
+      qb.andWhere(
+        '(directLga.state_id = :stateId OR directWardLga.state_id = :stateId OR puLga.state_id = :stateId)',
+        { stateId: filters.stateId },
+      );
     }
 
     const page = filters.page || 1;

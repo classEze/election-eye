@@ -38,6 +38,31 @@ export class ResultRepository {
     });
   }
 
+  async updateTransactional(
+    id: number,
+    resultData: Partial<Result>,
+    partyBreakdown: { politicalPartyId: number; votes: number }[],
+  ): Promise<Result> {
+    return this.dataSource.transaction(async (manager: EntityManager) => {
+      await manager.update(Result, { id }, resultData);
+
+      // Replace party breakdown details
+      await manager.delete(ResultDetail, { result: { id } });
+
+      const detailEntities = partyBreakdown.map((item) =>
+        manager.create(ResultDetail, {
+          result: { id } as Result,
+          politicalParty: { id: item.politicalPartyId },
+          votes: item.votes,
+        }),
+      );
+
+      await manager.save(ResultDetail, detailEntities);
+
+      return this.findById(id, manager) as Promise<Result>;
+    });
+  }
+
   async findById(id: number, manager?: EntityManager): Promise<Result | null> {
     const repo = manager ? manager.getRepository(Result) : this.repository;
     return repo.findOne({
@@ -166,7 +191,7 @@ export class ResultRepository {
     return this.findById(id);
   }
 
-  // Aggregate party totals across an entire electoral office
+  // Aggregate party totals across an entire electoral office (Approved results only)
   async getOfficePartySummary(officeId: number, partyId?: number): Promise<any[]> {
     const qb = this.resultDetailRepository
       .createQueryBuilder('rd')
@@ -177,7 +202,8 @@ export class ResultRepository {
       .addSelect('party.party_acronym', 'partyAcronym')
       .addSelect('party.logo_url', 'logoUrl')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
-      .where('r.electoral_office_id = :officeId', { officeId });
+      .where('r.electoral_office_id = :officeId', { officeId })
+      .andWhere('r.is_verified = true');
 
     if (partyId) {
       qb.andWhere('r.political_party_id = :partyId', { partyId });
@@ -191,7 +217,7 @@ export class ResultRepository {
       .getRawMany();
   }
 
-  // Report: Electoral office result aggregated for a specific Polling Unit
+  // Report: Electoral office result aggregated for a specific Polling Unit (Approved results only)
   async getOfficePollingUnitReport(officeId: number, puId: number, partyId?: number): Promise<any> {
     const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
@@ -203,7 +229,8 @@ export class ResultRepository {
       .addSelect('party.party_acronym', 'partyAcronym')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('pu.id = :puId', { puId });
+      .andWhere('pu.id = :puId', { puId })
+      .andWhere('r.is_verified = true');
       
     if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
 
@@ -223,7 +250,8 @@ export class ResultRepository {
       .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
       .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('pu.id = :puId', { puId });
+      .andWhere('pu.id = :puId', { puId })
+      .andWhere('r.is_verified = true');
       
     if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
 
@@ -237,7 +265,7 @@ export class ResultRepository {
     };
   }
 
-  // Report: Electoral office result aggregated for a specific Ward
+  // Report: Electoral office result aggregated for a specific Ward (Approved results only)
   async getOfficeWardReport(officeId: number, wardId: number, partyId?: number): Promise<any> {
     const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
@@ -249,7 +277,8 @@ export class ResultRepository {
       .addSelect('party.party_acronym', 'partyAcronym')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('pu.ward_id = :wardId', { wardId });
+      .andWhere('pu.ward_id = :wardId', { wardId })
+      .andWhere('r.is_verified = true');
       
     if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
 
@@ -269,7 +298,8 @@ export class ResultRepository {
       .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
       .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('pu.ward_id = :wardId', { wardId });
+      .andWhere('pu.ward_id = :wardId', { wardId })
+      .andWhere('r.is_verified = true');
       
     if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
 
@@ -283,7 +313,7 @@ export class ResultRepository {
     };
   }
 
-  // Report: Electoral office result aggregated for a specific LGA
+  // Report: Electoral office result aggregated for a specific LGA (Approved results only)
   async getOfficeLgaReport(officeId: number, lgaId: number, partyId?: number): Promise<any> {
     const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
@@ -296,7 +326,8 @@ export class ResultRepository {
       .addSelect('party.party_acronym', 'partyAcronym')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('ward.lga_id = :lgaId', { lgaId });
+      .andWhere('ward.lga_id = :lgaId', { lgaId })
+      .andWhere('r.is_verified = true');
       
     if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
 
@@ -317,7 +348,8 @@ export class ResultRepository {
       .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
       .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('ward.lga_id = :lgaId', { lgaId });
+      .andWhere('ward.lga_id = :lgaId', { lgaId })
+      .andWhere('r.is_verified = true');
       
     if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
 
@@ -331,7 +363,7 @@ export class ResultRepository {
     };
   }
 
-  // Report: Electoral office result aggregated for a specific State
+  // Report: Electoral office result aggregated for a specific State (Approved results only)
   async getOfficeStateReport(officeId: number, stateId: number, partyId?: number): Promise<any> {
     const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
@@ -345,7 +377,8 @@ export class ResultRepository {
       .addSelect('party.party_acronym', 'partyAcronym')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('lga.state_id = :stateId', { stateId });
+      .andWhere('lga.state_id = :stateId', { stateId })
+      .andWhere('r.is_verified = true');
       
     if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
 
@@ -367,7 +400,8 @@ export class ResultRepository {
       .addSelect('COALESCE(SUM(r.total_registered_voters), 0)::int', 'totalRegisteredVoters')
       .addSelect('COUNT(DISTINCT r.id)::int', 'totalResultsUploaded')
       .where('r.electoral_office_id = :officeId', { officeId })
-      .andWhere('lga.state_id = :stateId', { stateId });
+      .andWhere('lga.state_id = :stateId', { stateId })
+      .andWhere('r.is_verified = true');
       
     if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
 
@@ -381,16 +415,29 @@ export class ResultRepository {
     };
   }
 
-  // Upload progress stats for an electoral office
+  // Upload progress stats for an electoral office (Full pipeline: Submissions & Approvals)
   async getOfficeUploadProgress(officeId: number): Promise<{
     officeId: number;
     totalPollingUnits: number;
-    uploadedPollingUnits: number;
-    completionPercentage: number;
-    totalValidVotes: number;
-    totalRejectedVotes: number;
-    totalAccreditedVoters: number;
-    totalRegisteredVoters: number;
+    submittedPollingUnits: number;
+    submissionPercentage: number;
+    approvedPollingUnits: number;
+    approvalPercentage: number;
+    pendingPollingUnits: number;
+    flaggedPollingUnits: number;
+    rejectedPollingUnits: number;
+    approvedTotals: {
+      totalValidVotes: number;
+      totalRejectedVotes: number;
+      totalAccreditedVoters: number;
+      totalRegisteredVoters: number;
+    };
+    submittedTotals: {
+      totalValidVotes: number;
+      totalRejectedVotes: number;
+      totalAccreditedVoters: number;
+      totalRegisteredVoters: number;
+    };
   }> {
     const stats = await this.repository.manager.query(
       `
@@ -402,7 +449,19 @@ export class ResultRepository {
           JOIN office_lgas ol ON ol.lga_id = w.lga_id
           WHERE ol.office_id = $1
         )::int AS total_polling_units,
-        COUNT(DISTINCT r.polling_unit_id)::int AS uploaded_polling_units,
+        COUNT(DISTINCT r.polling_unit_id)::int AS submitted_polling_units,
+        COUNT(DISTINCT CASE WHEN r.is_verified = true THEN r.polling_unit_id END)::int AS approved_polling_units,
+        COUNT(DISTINCT CASE WHEN r.audit_status = 'PENDING' THEN r.polling_unit_id END)::int AS pending_polling_units,
+        COUNT(DISTINCT CASE WHEN r.audit_status = 'FLAGGED' THEN r.polling_unit_id END)::int AS flagged_polling_units,
+        COUNT(DISTINCT CASE WHEN r.audit_status = 'REJECTED' THEN r.polling_unit_id END)::int AS rejected_polling_units,
+        
+        -- Approved Totals
+        COALESCE(SUM(CASE WHEN r.is_verified = true THEN r.total_valid_votes ELSE 0 END), 0)::int AS approved_valid_votes,
+        COALESCE(SUM(CASE WHEN r.is_verified = true THEN r.rejected_votes ELSE 0 END), 0)::int AS approved_rejected_votes,
+        COALESCE(SUM(CASE WHEN r.is_verified = true THEN r.total_accredited_voters ELSE 0 END), 0)::int AS approved_accredited_voters,
+        COALESCE(SUM(CASE WHEN r.is_verified = true THEN r.total_registered_voters ELSE 0 END), 0)::int AS approved_registered_voters,
+        
+        -- Submitted Totals (all results)
         COALESCE(SUM(r.total_valid_votes), 0)::int AS total_valid_votes,
         COALESCE(SUM(r.rejected_votes), 0)::int AS total_rejected_votes,
         COALESCE(SUM(r.total_accredited_voters), 0)::int AS total_accredited_voters,
@@ -415,19 +474,35 @@ export class ResultRepository {
 
     const row = stats[0] || {};
     const totalPus = row.total_polling_units || 0;
-    const uploadedPus = row.uploaded_polling_units || 0;
-    const percentage =
-      totalPus > 0 ? Number(((uploadedPus / totalPus) * 100).toFixed(2)) : 0;
+    const submittedPus = row.submitted_polling_units || 0;
+    const approvedPus = row.approved_polling_units || 0;
+    const submissionPercentage =
+      totalPus > 0 ? Number(((submittedPus / totalPus) * 100).toFixed(2)) : 0;
+    const approvalPercentage =
+      totalPus > 0 ? Number(((approvedPus / totalPus) * 100).toFixed(2)) : 0;
 
     return {
       officeId,
       totalPollingUnits: totalPus,
-      uploadedPollingUnits: uploadedPus,
-      completionPercentage: percentage,
-      totalValidVotes: row.total_valid_votes || 0,
-      totalRejectedVotes: row.total_rejected_votes || 0,
-      totalAccreditedVoters: row.total_accredited_voters || 0,
-      totalRegisteredVoters: row.total_registered_voters || 0,
+      submittedPollingUnits: submittedPus,
+      submissionPercentage,
+      approvedPollingUnits: approvedPus,
+      approvalPercentage,
+      pendingPollingUnits: row.pending_polling_units || 0,
+      flaggedPollingUnits: row.flagged_polling_units || 0,
+      rejectedPollingUnits: row.rejected_polling_units || 0,
+      approvedTotals: {
+        totalValidVotes: row.approved_valid_votes || 0,
+        totalRejectedVotes: row.approved_rejected_votes || 0,
+        totalAccreditedVoters: row.approved_accredited_voters || 0,
+        totalRegisteredVoters: row.approved_registered_voters || 0,
+      },
+      submittedTotals: {
+        totalValidVotes: row.total_valid_votes || 0,
+        totalRejectedVotes: row.total_rejected_votes || 0,
+        totalAccreditedVoters: row.total_accredited_voters || 0,
+        totalRegisteredVoters: row.total_registered_voters || 0,
+      },
     };
   }
 

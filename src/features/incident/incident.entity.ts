@@ -9,6 +9,8 @@ import {
   Index,
 } from 'typeorm';
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
+import { Ward } from '../ward/ward.entity';
+import { Lga } from '../lga/lga.entity';
 import { IncidentCategory } from '../../shared/entities/incident-category.entity';
 import { User } from '../user/user.entity';
 import { Aspirant } from '../aspirant/aspirant.entity';
@@ -110,6 +112,22 @@ export class Incident {
   })
   @JoinColumn({ name: 'polling_unit_id' })
   pollingUnit!: PollingUnit | null;
+
+  @ManyToOne(() => Ward, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    eager: true,
+  })
+  @JoinColumn({ name: 'ward_id' })
+  ward!: Ward | null;
+
+  @ManyToOne(() => Lga, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    eager: true,
+  })
+  @JoinColumn({ name: 'lga_id' })
+  lga!: Lga | null;
 
   @ManyToOne(() => Aspirant, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'aspirant_id' })

@@ -10,11 +10,15 @@ import { ResultAnomalyDetector } from './result-anomaly.detector';
 import { StorageModule } from '../../shared/storage/storage.module';
 import { SystemConfigurationModule } from '../system-configuration/system-configuration.module';
 
+import { PollingUnit } from '../polling-unit/polling-unit.entity';
+import { ElectoralOfficeModule } from '../electoral-office/electoral-office.module';
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Result, ResultDetail]),
+    TypeOrmModule.forFeature([Result, ResultDetail, PollingUnit]),
     StorageModule,
     SystemConfigurationModule,
+    ElectoralOfficeModule,
   ],
   controllers: [ResultController],
   providers: [
