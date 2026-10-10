@@ -127,7 +127,135 @@
               "raw": "{\n  \"emailAddress\": \"puagent@electioneye.ng\",\n  \"password\": \"Password@123\",\n  \"clientType\": \"web\"\n}"
             },
             "url": "{{election-eye-base-url}}/auth/login"
-          }
+          },
+          "response": [
+            {
+              "name": "1. Aspirant Login (Web Client)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"emailAddress\": \"aspirant.lagos@electioneye.ng\",\n  \"password\": \"SecurePassword@2026\",\n  \"clientType\": \"web\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/auth/login"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 2,\n  \"firstName\": \"Babajide\",\n  \"lastName\": \"Sanwo-Olu\",\n  \"emailAddress\": \"aspirant.lagos@electioneye.ng\",\n  \"phoneNumber\": \"08021112233\",\n  \"status\": \"active\",\n  \"isVerified\": true,\n  \"forcePasswordReset\": false,\n  \"loginCount\": 14,\n  \"lastLogin\": \"2026-10-10T18:00:00.000Z\",\n  \"deviceImei\": null,\n  \"fcmToken\": null,\n  \"role\": {\n    \"id\": 7,\n    \"name\": \"Aspirant\",\n    \"code\": \"ASPIRANT\",\n    \"type\": \"CLIENT\",\n    \"description\": \"Aspirant principal candidate account with full command over campaign.\"\n  },\n  \"aspirantAccount\": {\n    \"id\": 1,\n    \"firstName\": \"Babajide\",\n    \"lastName\": \"Sanwo-Olu\",\n    \"status\": \"active\",\n    \"politicalParty\": {\n      \"id\": 1,\n      \"name\": \"All Progressives Congress\",\n      \"code\": \"APC\",\n      \"partyColorHex\": \"#00BFFF\"\n    },\n    \"electoralOffice\": {\n      \"id\": 1,\n      \"title\": \"Lagos State Gubernatorial 2027\",\n      \"category\": \"GUBERNATORIAL\"\n    }\n  },\n  \"aspirant\": null,\n  \"assignedLga\": null,\n  \"assignedWard\": null,\n  \"assignedPu\": null,\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsInJvbGUiOjcsImNvZGUiOiJBU1BJUkFOVCIsImVtYWlsIjoiYXNwaXJhbnQubGFnb3NAZWxlY3Rpb25leWUubmciLCJ0eXBlIjoiY2xpZW50IiwiaWF0IjoxNzYwMTEyNDAwLCJleHAiOjE3NjAxMTYwMDB9...\",\n  \"clientType\": \"web\",\n  \"createdAt\": \"2026-09-20T08:00:00.000Z\",\n  \"updatedAt\": \"2026-10-10T18:00:00.000Z\"\n}"
+            },
+            {
+              "name": "2. Campaign Director / Client User Login (Web Client)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"emailAddress\": \"director@electioneye.ng\",\n  \"password\": \"CampaignPass@2026\",\n  \"clientType\": \"web\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/auth/login"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 5,\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Bakare\",\n  \"emailAddress\": \"director@electioneye.ng\",\n  \"phoneNumber\": \"08032223344\",\n  \"status\": \"active\",\n  \"isVerified\": true,\n  \"forcePasswordReset\": false,\n  \"loginCount\": 28,\n  \"lastLogin\": \"2026-10-10T17:45:00.000Z\",\n  \"deviceImei\": null,\n  \"fcmToken\": null,\n  \"role\": {\n    \"id\": 4,\n    \"name\": \"Campaign Director\",\n    \"code\": \"CLIENT_USER\",\n    \"type\": \"CLIENT\",\n    \"description\": \"Aspirant campaign contact person with full administrative privileges over campaign team and operations.\"\n  },\n  \"aspirant\": {\n    \"id\": 1,\n    \"firstName\": \"Babajide\",\n    \"lastName\": \"Sanwo-Olu\",\n    \"politicalParty\": {\n      \"id\": 1,\n      \"name\": \"All Progressives Congress\",\n      \"code\": \"APC\"\n    },\n    \"electoralOffice\": {\n      \"id\": 1,\n      \"title\": \"Lagos State Gubernatorial 2027\"\n    }\n  },\n  \"aspirantAccount\": null,\n  \"assignedLga\": null,\n  \"assignedWard\": null,\n  \"assignedPu\": null,\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUsInJvbGUiOjQsImNvZGUiOiJDTElFTlRfVVNFUiIsImVtYWlsIjoiZGlyZWN0b3JAZWxlY3Rpb25leWUubmciLCJ0eXBlIjoiY2xpZW50IiwiaWF0IjoxNzYwMTEyNDAwLCJleHAiOjE3NjAxMTYwMDB9...\",\n  \"clientType\": \"web\",\n  \"createdAt\": \"2026-09-22T09:30:00.000Z\",\n  \"updatedAt\": \"2026-10-10T17:45:00.000Z\"\n}"
+            },
+            {
+              "name": "3. LGA Coordinator Login (Web Client)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"emailAddress\": \"lga.ikeja@electioneye.ng\",\n  \"password\": \"CoordPass@2026\",\n  \"clientType\": \"web\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/auth/login"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 10,\n  \"firstName\": \"Emeka\",\n  \"lastName\": \"Adeleke\",\n  \"emailAddress\": \"lga.ikeja@electioneye.ng\",\n  \"phoneNumber\": \"08021234567\",\n  \"status\": \"active\",\n  \"isVerified\": true,\n  \"forcePasswordReset\": false,\n  \"loginCount\": 9,\n  \"lastLogin\": \"2026-10-10T16:20:00.000Z\",\n  \"deviceImei\": null,\n  \"fcmToken\": null,\n  \"role\": {\n    \"id\": 1,\n    \"name\": \"LGA Coordinator\",\n    \"code\": \"LGA_COORDINATOR\",\n    \"type\": \"CLIENT\",\n    \"description\": \"Manages results and monitors incidents across an entire Local Government Area.\"\n  },\n  \"aspirant\": {\n    \"id\": 1,\n    \"firstName\": \"Babajide\",\n    \"lastName\": \"Sanwo-Olu\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\",\n    \"lgaCode\": \"LAG-IKE\",\n    \"stateId\": 1\n  },\n  \"assignedWard\": null,\n  \"assignedPu\": null,\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwLCJyb2xlIjoxLCJjb2RlIjoiTEdBX0NPT1JESU5BVE9SIiwiZW1haWwiOiJsZ2EuaWtlamFAZWxlY3Rpb25leWUubmciLCJ0eXBlIjoiY2xpZW50IiwiaWF0IjoxNzYwMTEyNDAwLCJleHAiOjE3NjAxMTYwMDB9...\",\n  \"clientType\": \"web\",\n  \"createdAt\": \"2026-09-25T11:00:00.000Z\",\n  \"updatedAt\": \"2026-10-10T16:20:00.000Z\"\n}"
+            },
+            {
+              "name": "4. Ward Coordinator Login (Web Client)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"emailAddress\": \"ward.alausa@electioneye.ng\",\n  \"password\": \"WardPass@2026\",\n  \"clientType\": \"web\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/auth/login"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 25,\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"Bello\",\n  \"emailAddress\": \"ward.alausa@electioneye.ng\",\n  \"phoneNumber\": \"08039876543\",\n  \"status\": \"active\",\n  \"isVerified\": true,\n  \"forcePasswordReset\": false,\n  \"loginCount\": 5,\n  \"lastLogin\": \"2026-10-10T15:10:00.000Z\",\n  \"deviceImei\": null,\n  \"fcmToken\": null,\n  \"role\": {\n    \"id\": 2,\n    \"name\": \"Ward Coordinator\",\n    \"code\": \"WARD_COORDINATOR\",\n    \"type\": \"CLIENT\",\n    \"description\": \"Supervises polling unit agents and verifies incoming results within a specific Ward.\"\n  },\n  \"aspirant\": {\n    \"id\": 1,\n    \"firstName\": \"Babajide\",\n    \"lastName\": \"Sanwo-Olu\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\",\n    \"lgaCode\": \"LAG-IKE\",\n    \"stateId\": 1\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\",\n    \"wardCode\": \"LAG-IKE-W01\",\n    \"lgaId\": 101\n  },\n  \"assignedPu\": null,\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI1LCJyb2xlIjoyLCJjb2RlIjoiV0FSRF9DT09SRElOQVRPUiIsImVtYWlsIjoid2FyZC5hbGF1c2FAZWxlY3Rpb25leWUubmciLCJ0eXBlIjoiY2xpZW50IiwiaWF0IjoxNzYwMTEyNDAwLCJleHAiOjE3NjAxMTYwMDB9...\",\n  \"clientType\": \"web\",\n  \"createdAt\": \"2026-09-28T14:15:00.000Z\",\n  \"updatedAt\": \"2026-10-10T15:10:00.000Z\"\n}"
+            },
+            {
+              "name": "5. Polling Unit Agent Login (Mobile App Client)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"emailAddress\": \"puagent@electioneye.ng\",\n  \"password\": \"Password@123\",\n  \"clientType\": \"mobile\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/auth/login"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 50,\n  \"firstName\": \"Chinedu\",\n  \"lastName\": \"Okafor\",\n  \"emailAddress\": \"puagent@electioneye.ng\",\n  \"phoneNumber\": \"08031234567\",\n  \"status\": \"active\",\n  \"isVerified\": true,\n  \"forcePasswordReset\": false,\n  \"loginCount\": 3,\n  \"lastLogin\": \"2026-10-10T18:10:00.000Z\",\n  \"deviceImei\": \"358923058291024\",\n  \"fcmToken\": \"dGVzdF9mY21fdG9rZW5fZXhhbXBsZQ==\",\n  \"role\": {\n    \"id\": 3,\n    \"name\": \"Polling Unit Agent\",\n    \"code\": \"PU_AGENT\",\n    \"type\": \"CLIENT\",\n    \"description\": \"Submits real-time polling unit results and logs field incidents directly at the booth.\"\n  },\n  \"aspirant\": {\n    \"id\": 1,\n    \"firstName\": \"Babajide\",\n    \"lastName\": \"Sanwo-Olu\"\n  },\n  \"assignedLga\": {\n    \"id\": 101,\n    \"name\": \"Ikeja\",\n    \"lgaCode\": \"LAG-IKE\",\n    \"stateId\": 1\n  },\n  \"assignedWard\": {\n    \"id\": 1001,\n    \"name\": \"Alausa\",\n    \"wardCode\": \"LAG-IKE-W01\",\n    \"lgaId\": 101\n  },\n  \"assignedPu\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\",\n    \"puCode\": \"24-08-01-001\",\n    \"wardId\": 1001\n  },\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUwLCJyb2xlIjozLCJjb2RlIjoiUFVfQUdFTlQiLCJlbWFpbCI6InB1YWdlbnRAZWxlY3Rpb25leWUubmciLCJ0eXBlIjoiY2xpZW50IiwiaWF0IjoxNzYwMTEyNDAwLCJleHAiOjE3NjAxMTYwMDB9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUwLCJyb2xlIjozLCJjb2RlIjoiUFVfQUdFTlQiLCJlbWFpbCI6InB1YWdlbnRAZWxlY3Rpb25leWUubmciLCJ0eXBlIjoiY2xpZW50IiwidG9rZW5UeXBlIjoicmVmcmVzaCIsImlhdCI6MTc2MDExMjQwMCwiZXhwIjoxNzYwMTU1NjAwfQ...\",\n  \"clientType\": \"mobile\",\n  \"createdAt\": \"2026-10-01T10:00:00.000Z\",\n  \"updatedAt\": \"2026-10-10T18:10:00.000Z\"\n}"
+            },
+            {
+              "name": "6. First-Time Login (Force Password Reset Required)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"emailAddress\": \"newagent@electioneye.ng\",\n  \"password\": \"TempPassword@123\",\n  \"clientType\": \"web\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/auth/login"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"forcePasswordReset\": true,\n  \"passwordResetToken\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n}"
+            }
+          ]
         },
         {
           "name": "Login Admin",

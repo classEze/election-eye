@@ -448,6 +448,13 @@ export class UserService {
       targetUser.aspirant?.id || targetUser.aspirantAccount?.id;
 
     if (!isActorAdmin) {
+      const actorUserId = Number(actor?.id || actor?.sub);
+      if (actorUserId && actorUserId === id) {
+        throw new ForbiddenException(
+          'Users are not permitted to edit their own data or status. A team coordinator or administrator must perform this action.',
+        );
+      }
+
       if (targetUser.aspirantAccount) {
         throw new ForbiddenException(
           'Team members cannot modify the aspirant root account.',
@@ -736,6 +743,13 @@ export class UserService {
     }
 
     if (!isActorAdmin) {
+      const actorUserId = Number(actor?.id || actor?.sub);
+      if (actorUserId && actorUserId === id) {
+        throw new ForbiddenException(
+          'Users are not permitted to delete their own account.',
+        );
+      }
+
       if (targetUser.aspirantAccount) {
         throw new ForbiddenException(
           'Team members cannot delete the aspirant root account.',
