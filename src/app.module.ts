@@ -26,6 +26,7 @@ import { PollingUnitModule } from './features/polling-unit/polling-unit.module';
 import { ElectoralOfficeModule } from './features/electoral-office/electoral-office.module';
 import { DefaultDatabaseModule } from './shared/default-modules/database.module';
 import { ResultModule } from './features/result/result.module';
+import { PreElectionReportModule } from './features/pre-election-report/pre-election-report.module';
 import { IncidentModule } from './features/incident/incident.module';
 import { SystemConfigurationModule } from './features/system-configuration/system-configuration.module';
 import { StorageModule } from './shared/storage/storage.module';
@@ -65,6 +66,7 @@ import { AuditInterceptor } from './shared/interceptors/audit.interceptor';
     PollingUnitModule,
     ElectoralOfficeModule,
     ResultModule,
+    PreElectionReportModule,
     IncidentModule,
     SystemConfigurationModule,
     PoliticalPartyModule,

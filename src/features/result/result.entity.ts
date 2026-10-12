@@ -8,6 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  AfterLoad,
 } from 'typeorm';
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
 import { User } from '../user/user.entity';
@@ -15,6 +16,7 @@ import { ResultDetail } from '../result-detail/result-detail.entity';
 import { ElectoralOffice } from '../electoral-office/electoral-office.entity';
 import { Aspirant } from '../aspirant/aspirant.entity';
 import { PoliticalParty } from '../political-party/political-party.entity';
+import { PreElectionReport } from '../pre-election-report/pre-election-report.entity';
 
 export enum MaterialsArrivedStatus {
   NONE = 0,
@@ -142,6 +144,22 @@ export class Result {
   // Relation to the dynamic breakdown per party
   @OneToMany(() => ResultDetail, (detail) => detail.result, { cascade: true })
   partyBreakdown!: ResultDetail[];
+
+  @ManyToOne(() => PreElectionReport, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    eager: true,
+  })
+  @JoinColumn({ name: 'pre_election_report_id' })
+  preElectionReport!: PreElectionReport | null;
+
+  // Pre-election data key (returns PreElectionReport or null)
+  preElectionData!: PreElectionReport | null;
+
+  @AfterLoad()
+  populatePreElectionData() {
+    this.preElectionData = this.preElectionReport ?? null;
+  }
 
   @CreateDateColumn({
     type: 'timestamp with time zone',
