@@ -347,67 +347,104 @@ export class ResultService {
 
   // --- Electoral Office Aggregations & Reports ---
 
-  async getOfficePartySummary(officeId: number, partyId?: number): Promise<any> {
-    const cacheKey = `office:summary:${officeId}:party:${partyId || 'all'}`;
+  async getOfficePartySummary(
+    officeId: number,
+    partyId?: number,
+    aspirantId?: number,
+  ): Promise<any> {
+    const scopeKey = `${partyId || 'all'}:${aspirantId || 'all'}`;
+    const cacheKey = `office:summary:${officeId}:${scopeKey}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
-    const summary = await this.resultRepository.getOfficePartySummary(officeId, partyId);
+    const summary = await this.resultRepository.getOfficePartySummary(
+      officeId,
+      partyId,
+      aspirantId,
+    );
     await this.cacheManager.set(cacheKey, summary, 1000 * 30); // 30s TTL
     return summary;
   }
 
-  async getOfficePollingUnitReport(officeId: number, puId: number, partyId?: number): Promise<any> {
-    const cacheKey = `office:report:${officeId}:pu:${puId}:party:${partyId || 'all'}`;
+  async getOfficePollingUnitReport(
+    officeId: number,
+    puId: number,
+    partyId?: number,
+    aspirantId?: number,
+  ): Promise<any> {
+    const scopeKey = `${partyId || 'all'}:${aspirantId || 'all'}`;
+    const cacheKey = `office:report:${officeId}:pu:${puId}:${scopeKey}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const report = await this.resultRepository.getOfficePollingUnitReport(
       officeId,
       puId,
-      partyId
+      partyId,
+      aspirantId,
     );
     await this.cacheManager.set(cacheKey, report, 1000 * 30);
     return report;
   }
 
-  async getOfficeWardReport(officeId: number, wardId: number, partyId?: number): Promise<any> {
-    const cacheKey = `office:report:${officeId}:ward:${wardId}:party:${partyId || 'all'}`;
+  async getOfficeWardReport(
+    officeId: number,
+    wardId: number,
+    partyId?: number,
+    aspirantId?: number,
+  ): Promise<any> {
+    const scopeKey = `${partyId || 'all'}:${aspirantId || 'all'}`;
+    const cacheKey = `office:report:${officeId}:ward:${wardId}:${scopeKey}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const report = await this.resultRepository.getOfficeWardReport(
       officeId,
       wardId,
-      partyId
+      partyId,
+      aspirantId,
     );
     await this.cacheManager.set(cacheKey, report, 1000 * 30);
     return report;
   }
 
-  async getOfficeLgaReport(officeId: number, lgaId: number, partyId?: number): Promise<any> {
-    const cacheKey = `office:report:${officeId}:lga:${lgaId}:party:${partyId || 'all'}`;
+  async getOfficeLgaReport(
+    officeId: number,
+    lgaId: number,
+    partyId?: number,
+    aspirantId?: number,
+  ): Promise<any> {
+    const scopeKey = `${partyId || 'all'}:${aspirantId || 'all'}`;
+    const cacheKey = `office:report:${officeId}:lga:${lgaId}:${scopeKey}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const report = await this.resultRepository.getOfficeLgaReport(
       officeId,
       lgaId,
-      partyId
+      partyId,
+      aspirantId,
     );
     await this.cacheManager.set(cacheKey, report, 1000 * 30);
     return report;
   }
 
-  async getOfficeStateReport(officeId: number, stateId: number, partyId?: number): Promise<any> {
-    const cacheKey = `office:report:${officeId}:state:${stateId}:party:${partyId || 'all'}`;
+  async getOfficeStateReport(
+    officeId: number,
+    stateId: number,
+    partyId?: number,
+    aspirantId?: number,
+  ): Promise<any> {
+    const scopeKey = `${partyId || 'all'}:${aspirantId || 'all'}`;
+    const cacheKey = `office:report:${officeId}:state:${stateId}:${scopeKey}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const report = await this.resultRepository.getOfficeStateReport(
       officeId,
       stateId,
-      partyId
+      partyId,
+      aspirantId,
     );
     await this.cacheManager.set(cacheKey, report, 1000 * 30);
     return report;
@@ -416,15 +453,20 @@ export class ResultService {
   async getOfficeUploadProgress(
     officeId: number,
     filters: SituationRoomFilterDto = {},
+    partyId?: number,
+    aspirantId?: number,
   ): Promise<any> {
     const filterKey = JSON.stringify(filters);
-    const cacheKey = `office:progress:${officeId}:${filterKey}`;
+    const scopeKey = `${partyId || 'all'}:${aspirantId || 'all'}`;
+    const cacheKey = `office:progress:${officeId}:${filterKey}:${scopeKey}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const progress = await this.resultRepository.getOfficeUploadProgress(
       officeId,
       filters,
+      partyId,
+      aspirantId,
     );
     await this.cacheManager.set(cacheKey, progress, 1000 * 30);
     return progress;
@@ -434,9 +476,11 @@ export class ResultService {
     officeId: number,
     filters: SituationRoomFilterDto = {},
     partyId?: number,
+    aspirantId?: number,
   ): Promise<any> {
     const filterKey = JSON.stringify(filters);
-    const cacheKey = `office:standings:${officeId}:${filterKey}:${partyId || 'all'}`;
+    const scopeKey = `${partyId || 'all'}:${aspirantId || 'all'}`;
+    const cacheKey = `office:standings:${officeId}:${filterKey}:${scopeKey}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
@@ -444,6 +488,7 @@ export class ResultService {
       officeId,
       filters,
       partyId,
+      aspirantId,
     );
     await this.cacheManager.set(cacheKey, standings, 1000 * 30);
     return standings;
@@ -453,11 +498,13 @@ export class ResultService {
     officeId: number,
     filters: SituationRoomFilterDto = {},
     partyId?: number,
+    aspirantId?: number,
   ): Promise<any> {
     const standingsData = await this.getSituationRoomStandings(
       officeId,
       filters,
       partyId,
+      aspirantId,
     );
     return {
       totalValidVotes: standingsData.totalValidVotes,
@@ -479,15 +526,20 @@ export class ResultService {
   async getRecentSubmissions(
     officeId: number,
     filters: RecentSubmissionsFilterDto = {},
+    partyId?: number,
+    aspirantId?: number,
   ): Promise<any> {
     const filterKey = JSON.stringify(filters);
-    const cacheKey = `office:recent:${officeId}:${filterKey}`;
+    const scopeKey = `${partyId || 'all'}:${aspirantId || 'all'}`;
+    const cacheKey = `office:recent:${officeId}:${filterKey}:${scopeKey}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const recent = await this.resultRepository.getRecentSubmissions(
       officeId,
       filters,
+      partyId,
+      aspirantId,
     );
     await this.cacheManager.set(cacheKey, recent, 1000 * 15);
     return recent;
@@ -497,9 +549,11 @@ export class ResultService {
     officeId: number,
     filters: SituationRoomFilterDto = {},
     partyId?: number,
+    aspirantId?: number,
   ): Promise<any> {
     const filterKey = JSON.stringify(filters);
-    const cacheKey = `office:situation-room:${officeId}:${filterKey}:${partyId || 'all'}`;
+    const scopeKey = `${partyId || 'all'}:${aspirantId || 'all'}`;
+    const cacheKey = `office:situation-room:${officeId}:${filterKey}:${scopeKey}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
@@ -507,6 +561,7 @@ export class ResultService {
       officeId,
       filters,
       partyId,
+      aspirantId,
     );
     await this.cacheManager.set(cacheKey, data, 1000 * 30);
     return data;
@@ -516,8 +571,16 @@ export class ResultService {
     officeId: number,
     page = 1,
     limit = 20,
+    partyId?: number,
+    aspirantId?: number,
   ): Promise<any> {
-    return this.resultRepository.getOfficeEc8aForms(officeId, page, limit);
+    return this.resultRepository.getOfficeEc8aForms(
+      officeId,
+      page,
+      limit,
+      partyId,
+      aspirantId,
+    );
   }
 
   private async invalidateOfficeCaches(officeId: number): Promise<void> {
@@ -570,12 +633,14 @@ export class ResultService {
     officeId: number,
     puId: number,
     partyId?: number,
+    aspirantId?: number,
     format: 'pdf' | 'csv' = 'pdf',
   ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
     const rawReport = await this.getOfficePollingUnitReport(
       officeId,
       puId,
       partyId,
+      aspirantId,
     );
     const totals = rawReport.totals || {};
     const totalValid = Number(totals.totalValidVotes || 0);
@@ -628,12 +693,14 @@ export class ResultService {
     officeId: number,
     wardId: number,
     partyId?: number,
+    aspirantId?: number,
     format: 'pdf' | 'csv' = 'pdf',
   ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
     const rawReport = await this.getOfficeWardReport(
       officeId,
       wardId,
       partyId,
+      aspirantId,
     );
     const totals = rawReport.totals || {};
     const totalValid = Number(totals.totalValidVotes || 0);
@@ -686,9 +753,15 @@ export class ResultService {
     officeId: number,
     lgaId: number,
     partyId?: number,
+    aspirantId?: number,
     format: 'pdf' | 'csv' = 'pdf',
   ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
-    const rawReport = await this.getOfficeLgaReport(officeId, lgaId, partyId);
+    const rawReport = await this.getOfficeLgaReport(
+      officeId,
+      lgaId,
+      partyId,
+      aspirantId,
+    );
     const totals = rawReport.totals || {};
     const totalValid = Number(totals.totalValidVotes || 0);
     const rejected = Number(totals.totalRejectedVotes || 0);
@@ -740,12 +813,14 @@ export class ResultService {
     officeId: number,
     stateId: number,
     partyId?: number,
+    aspirantId?: number,
     format: 'pdf' | 'csv' = 'pdf',
   ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
     const rawReport = await this.getOfficeStateReport(
       officeId,
       stateId,
       partyId,
+      aspirantId,
     );
     const totals = rawReport.totals || {};
     const totalValid = Number(totals.totalValidVotes || 0);
