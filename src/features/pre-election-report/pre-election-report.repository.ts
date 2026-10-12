@@ -64,6 +64,10 @@ export class PreElectionReportRepository {
             reportData.materialArrivalTime !== undefined
               ? reportData.materialArrivalTime
               : existing.materialArrivalTime,
+          totalRegisteredVoters:
+            reportData.totalRegisteredVoters !== undefined
+              ? reportData.totalRegisteredVoters
+              : existing.totalRegisteredVoters,
           totalAccreditedVoters:
             reportData.totalAccreditedVoters !== undefined
               ? reportData.totalAccreditedVoters

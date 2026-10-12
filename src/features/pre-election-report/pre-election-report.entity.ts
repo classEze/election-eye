@@ -63,6 +63,14 @@ export class PreElectionReport {
   materialArrivalTime!: Date | null;
 
   @Column({
+    name: 'total_registered_voters',
+    type: 'int',
+    nullable: true,
+    default: null,
+  })
+  totalRegisteredVoters!: number | null;
+
+  @Column({
     name: 'total_accredited_voters',
     type: 'int',
     nullable: true,
