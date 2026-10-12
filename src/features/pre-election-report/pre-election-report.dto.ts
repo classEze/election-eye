@@ -8,7 +8,7 @@ import {
   IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { MaterialsArrivedStatus } from '../result/result.entity';
+import { MaterialsArrivedStatus } from './materials-arrived.enum';
 
 export class CreatePreElectionReportDto {
   @IsNotEmpty()
