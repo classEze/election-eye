@@ -74,7 +74,7 @@ export class ResultRepository {
       relations: {
         electoralOffice: { state: true },
         pollingUnit: { ward: { lga: { state: true } } },
-        uploadedByUser: { role: true },
+        uploadedByUser: { role: true, aspirant: true },
         verifiedByUser: { role: true },
         aspirant: true,
         partyBreakdown: { politicalParty: true },
@@ -99,20 +99,55 @@ export class ResultRepository {
     });
   }
 
-  async findByPollingUnit(pollingUnitId: number): Promise<Result[]> {
-    return this.repository.find({
-      where: { pollingUnit: { id: pollingUnitId } },
-      relations: {
-        electoralOffice: true,
-        partyBreakdown: { politicalParty: true },
-        uploadedByUser: true,
-      },
-      order: { serverReceivedAt: 'DESC' },
-    });
+  async findByPollingUnitOfficeAndAspirant(
+    pollingUnitId: number,
+    electoralOfficeId: number,
+    aspirantId?: number,
+  ): Promise<Result | null> {
+    const qb = this.repository
+      .createQueryBuilder('r')
+      .leftJoinAndSelect('r.partyBreakdown', 'partyBreakdown')
+      .leftJoinAndSelect('partyBreakdown.politicalParty', 'party')
+      .leftJoinAndSelect('r.uploadedByUser', 'uploader')
+      .where('r.polling_unit_id = :puId', { puId: pollingUnitId })
+      .andWhere('r.electoral_office_id = :officeId', { officeId: electoralOfficeId });
+
+    if (aspirantId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
+
+    return qb.getOne();
+  }
+
+  async findByPollingUnit(
+    pollingUnitId: number,
+    aspirantId?: number,
+  ): Promise<Result[]> {
+    const qb = this.repository
+      .createQueryBuilder('r')
+      .leftJoinAndSelect('r.electoralOffice', 'electoralOffice')
+      .leftJoinAndSelect('r.partyBreakdown', 'partyBreakdown')
+      .leftJoinAndSelect('partyBreakdown.politicalParty', 'party')
+      .leftJoinAndSelect('r.uploadedByUser', 'uploader')
+      .leftJoinAndSelect('r.aspirant', 'aspirant')
+      .where('r.polling_unit_id = :puId', { puId: pollingUnitId });
+
+    if (aspirantId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
+
+    return qb.orderBy('r.serverReceivedAt', 'DESC').getMany();
   }
 
   async findAll(
     filters: ResultFilterDto,
+    aspirantId?: number,
   ): Promise<{ data: Result[]; total: number; page: number; limit: number }> {
     const qb = this.repository
       .createQueryBuilder('r')
@@ -124,7 +159,16 @@ export class ResultRepository {
       .leftJoinAndSelect('r.verifiedByUser', 'verifier')
       .leftJoinAndSelect('r.partyBreakdown', 'breakdown')
       .leftJoinAndSelect('breakdown.politicalParty', 'party')
-      .leftJoinAndSelect('r.preElectionReport', 'preElectionReport');
+      .leftJoinAndSelect('r.preElectionReport', 'preElectionReport')
+      .leftJoinAndSelect('r.aspirant', 'aspirant');
+
+    const effectiveAspirantId = aspirantId ?? filters.aspirantId;
+    if (effectiveAspirantId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: effectiveAspirantId },
+      );
+    }
 
     if (filters.electoralOfficeId) {
       qb.andWhere('r.electoral_office_id = :officeId', {
@@ -216,18 +260,13 @@ export class ResultRepository {
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('r.is_verified = true');
 
-    if (aspirantId && partyId) {
-      qb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId, partyId },
-      );
-    } else if (partyId) {
-      qb.andWhere('r.political_party_id = :partyId', { partyId });
-    } else if (aspirantId) {
+    if (aspirantId) {
       qb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId },
       );
+    } else if (partyId) {
+      qb.andWhere('r.political_party_id = :partyId', { partyId });
     }
 
     return qb.groupBy('party.id')
@@ -260,18 +299,13 @@ export class ResultRepository {
       .andWhere('pu.id = :puId', { puId })
       .andWhere('r.is_verified = true');
 
-    if (aspirantId && partyId) {
-      rdQb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId, partyId },
-      );
-    } else if (partyId) {
-      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
-    } else if (aspirantId) {
+    if (aspirantId) {
       rdQb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId },
       );
+    } else if (partyId) {
+      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
     }
 
     const partyBreakdown = await rdQb
@@ -294,18 +328,13 @@ export class ResultRepository {
       .andWhere('pu.id = :puId', { puId })
       .andWhere('r.is_verified = true');
 
-    if (aspirantId && partyId) {
-      totalsQb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId, partyId },
-      );
-    } else if (partyId) {
-      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
-    } else if (aspirantId) {
+    if (aspirantId) {
       totalsQb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId },
       );
+    } else if (partyId) {
+      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
     }
 
     const totals = await totalsQb.getRawOne();
@@ -339,18 +368,13 @@ export class ResultRepository {
       .andWhere('pu.ward_id = :wardId', { wardId })
       .andWhere('r.is_verified = true');
 
-    if (aspirantId && partyId) {
-      rdQb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId, partyId },
-      );
-    } else if (partyId) {
-      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
-    } else if (aspirantId) {
+    if (aspirantId) {
       rdQb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId },
       );
+    } else if (partyId) {
+      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
     }
 
     const partyBreakdown = await rdQb
@@ -373,18 +397,13 @@ export class ResultRepository {
       .andWhere('pu.ward_id = :wardId', { wardId })
       .andWhere('r.is_verified = true');
 
-    if (aspirantId && partyId) {
-      totalsQb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId, partyId },
-      );
-    } else if (partyId) {
-      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
-    } else if (aspirantId) {
+    if (aspirantId) {
       totalsQb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId },
       );
+    } else if (partyId) {
+      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
     }
 
     const totals = await totalsQb.getRawOne();
@@ -419,18 +438,13 @@ export class ResultRepository {
       .andWhere('ward.lga_id = :lgaId', { lgaId })
       .andWhere('r.is_verified = true');
 
-    if (aspirantId && partyId) {
-      rdQb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId, partyId },
-      );
-    } else if (partyId) {
-      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
-    } else if (aspirantId) {
+    if (aspirantId) {
       rdQb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId },
       );
+    } else if (partyId) {
+      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
     }
 
     const partyBreakdown = await rdQb
@@ -454,18 +468,13 @@ export class ResultRepository {
       .andWhere('ward.lga_id = :lgaId', { lgaId })
       .andWhere('r.is_verified = true');
 
-    if (aspirantId && partyId) {
-      totalsQb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId, partyId },
-      );
-    } else if (partyId) {
-      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
-    } else if (aspirantId) {
+    if (aspirantId) {
       totalsQb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId },
       );
+    } else if (partyId) {
+      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
     }
 
     const totals = await totalsQb.getRawOne();
@@ -501,18 +510,13 @@ export class ResultRepository {
       .andWhere('lga.state_id = :stateId', { stateId })
       .andWhere('r.is_verified = true');
 
-    if (aspirantId && partyId) {
-      rdQb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId, partyId },
-      );
-    } else if (partyId) {
-      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
-    } else if (aspirantId) {
+    if (aspirantId) {
       rdQb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId },
       );
+    } else if (partyId) {
+      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
     }
 
     const partyBreakdown = await rdQb
@@ -537,18 +541,13 @@ export class ResultRepository {
       .andWhere('lga.state_id = :stateId', { stateId })
       .andWhere('r.is_verified = true');
 
-    if (aspirantId && partyId) {
-      totalsQb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId, partyId },
-      );
-    } else if (partyId) {
-      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
-    } else if (aspirantId) {
+    if (aspirantId) {
       totalsQb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId },
       );
+    } else if (partyId) {
+      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
     }
 
     const totals = await totalsQb.getRawOne();
@@ -670,19 +669,13 @@ export class ResultRepository {
     const targetPartyId = partyId || filters.politicalPartyId;
     const targetAspirantId = aspirantId || filters.aspirantId;
 
-    if (targetAspirantId && targetPartyId) {
-      resQueryParams.push(targetAspirantId);
-      const aspIdx = resQueryParams.length;
-      resQueryParams.push(targetPartyId);
-      const partyIdx = resQueryParams.length;
-      resFilterSql += ` AND (r.aspirant_id = $${aspIdx} OR r.political_party_id = $${partyIdx} OR uploader.aspirant_id = $${aspIdx})`;
-    } else if (targetPartyId) {
-      resQueryParams.push(targetPartyId);
-      resFilterSql += ` AND r.political_party_id = $${resQueryParams.length}`;
-    } else if (targetAspirantId) {
+    if (targetAspirantId) {
       resQueryParams.push(targetAspirantId);
       const aspIdx = resQueryParams.length;
       resFilterSql += ` AND (r.aspirant_id = $${aspIdx} OR uploader.aspirant_id = $${aspIdx})`;
+    } else if (targetPartyId) {
+      resQueryParams.push(targetPartyId);
+      resFilterSql += ` AND r.political_party_id = $${resQueryParams.length}`;
     }
 
     const resStats = await this.repository.manager.query(
@@ -841,18 +834,13 @@ export class ResultRepository {
     const targetPartyId = partyId || filters.politicalPartyId;
     const targetAspirantId = aspirantId || filters.aspirantId;
 
-    if (targetAspirantId && targetPartyId) {
-      qb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId: targetAspirantId, partyId: targetPartyId },
-      );
-    } else if (targetPartyId) {
-      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
-    } else if (targetAspirantId) {
+    if (targetAspirantId) {
       qb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId: targetAspirantId },
       );
+    } else if (targetPartyId) {
+      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
     }
 
     const rawStandings = await qb
@@ -974,18 +962,13 @@ export class ResultRepository {
     const targetPartyId = partyId || filters.politicalPartyId;
     const targetAspirantId = aspirantId || filters.aspirantId;
 
-    if (targetAspirantId && targetPartyId) {
-      qb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId: targetAspirantId, partyId: targetPartyId },
-      );
-    } else if (targetPartyId) {
-      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
-    } else if (targetAspirantId) {
+    if (targetAspirantId) {
       qb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId: targetAspirantId },
       );
+    } else if (targetPartyId) {
+      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
     }
 
     const auditStatusFilter = filters.auditStatus || filters.status;
@@ -1081,19 +1064,13 @@ export class ResultRepository {
     const targetPartyId = partyId || filters.politicalPartyId;
     const targetAspirantId = aspirantId || filters.aspirantId;
 
-    if (targetAspirantId && targetPartyId) {
-      queryParams.push(targetAspirantId);
-      const aspIdx = queryParams.length;
-      queryParams.push(targetPartyId);
-      const partyIdx = queryParams.length;
-      filterSql += ` AND (i.aspirant_id = $${aspIdx} OR i.political_party_id = $${partyIdx} OR reporter.aspirant_id = $${aspIdx})`;
-    } else if (targetPartyId) {
-      queryParams.push(targetPartyId);
-      filterSql += ` AND i.political_party_id = $${queryParams.length}`;
-    } else if (targetAspirantId) {
+    if (targetAspirantId) {
       queryParams.push(targetAspirantId);
       const aspIdx = queryParams.length;
       filterSql += ` AND (i.aspirant_id = $${aspIdx} OR reporter.aspirant_id = $${aspIdx})`;
+    } else if (targetPartyId) {
+      queryParams.push(targetPartyId);
+      filterSql += ` AND i.political_party_id = $${queryParams.length}`;
     }
 
     const result = await this.repository.manager.query(
@@ -1171,18 +1148,13 @@ export class ResultRepository {
     const targetPartyId = partyId || filters.politicalPartyId;
     const targetAspirantId = aspirantId || filters.aspirantId;
 
-    if (targetAspirantId && targetPartyId) {
-      qb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId: targetAspirantId, partyId: targetPartyId },
-      );
-    } else if (targetPartyId) {
-      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
-    } else if (targetAspirantId) {
+    if (targetAspirantId) {
       qb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId: targetAspirantId },
       );
+    } else if (targetPartyId) {
+      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
     }
 
     const raw = await qb
@@ -1335,18 +1307,13 @@ export class ResultRepository {
     const targetPartyId = partyId;
     const targetAspirantId = aspirantId;
 
-    if (targetAspirantId && targetPartyId) {
-      qb.andWhere(
-        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
-        { aspirantId: targetAspirantId, partyId: targetPartyId },
-      );
-    } else if (targetPartyId) {
-      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
-    } else if (targetAspirantId) {
+    if (targetAspirantId) {
       qb.andWhere(
         '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
         { aspirantId: targetAspirantId },
       );
+    } else if (targetPartyId) {
+      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
     }
 
     const total = await qb.getCount();
@@ -1366,6 +1333,7 @@ export class ResultRepository {
     status?: string;
     startDate?: string;
     endDate?: string;
+    aspirantId?: number;
     page: number;
     limit: number;
   }): Promise<{ data: Result[]; total: number; page: number; limit: number }> {
@@ -1380,6 +1348,13 @@ export class ResultRepository {
       .leftJoinAndSelect('r.partyBreakdown', 'breakdown')
       .leftJoinAndSelect('breakdown.politicalParty', 'party')
       .leftJoinAndSelect('r.preElectionReport', 'preElectionReport');
+
+    if (params.aspirantId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: params.aspirantId },
+      );
+    }
 
     if (params.electoralOfficeId) {
       qb.andWhere('r.electoral_office_id = :officeId', {
@@ -1430,30 +1405,44 @@ export class ResultRepository {
     return qb.orderBy('result.client_submitted_at', 'DESC').getMany();
   }
 
-  async getSubmissionStatsOverview(): Promise<{
+  async getSubmissionStatsOverview(aspirantId?: number): Promise<{
     total: number;
     peakDay: string | null;
     peakCount: number;
     averagePerDay: number;
   }> {
-    const rawCounts = await this.repository
+    const rawCountsQb = this.repository
       .createQueryBuilder('r')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('COUNT(*)::int', 'total')
       .addSelect(
         'COUNT(DISTINCT DATE(r.server_received_at))::int',
         'active_days',
-      )
-      .getRawOne<{ total: number; active_days: number }>();
+      );
 
-    const peakRaw = await this.repository
+    const peakQb = this.repository
       .createQueryBuilder('r')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select("TO_CHAR(r.server_received_at, 'YYYY-MM-DD')", 'day')
       .addSelect('COUNT(*)::int', 'count')
       .groupBy("TO_CHAR(r.server_received_at, 'YYYY-MM-DD')")
       .orderBy('count', 'DESC')
       .addOrderBy('day', 'DESC')
-      .limit(1)
-      .getRawOne<{ day: string; count: number }>();
+      .limit(1);
+
+    if (aspirantId) {
+      rawCountsQb.where(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+      peakQb.where(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
+
+    const rawCounts = await rawCountsQb.getRawOne<{ total: number; active_days: number }>();
+    const peakRaw = await peakQb.getRawOne<{ day: string; count: number }>();
 
     const total = Number(rawCounts?.total || 0);
     const activeDays = Number(rawCounts?.active_days || 0);

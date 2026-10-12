@@ -11,6 +11,7 @@ import { GetUser } from '../../shared/decorators/get-user.decorator';
 import { User } from '../user/user.entity';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
 import { RoleCode } from '../role/role.enum';
+import { resolveTenantAspirantId } from '../../shared/utils/tenant-context.util';
 
 @Controller('reports')
 export class ReportController {
@@ -25,8 +26,15 @@ export class ReportController {
     RoleCode.WARD_COORDINATOR,
   ])
   @Get('summary')
-  async getSystemActorsSummary(): Promise<SystemActorsSummaryDto> {
-    return this.reportService.getSystemActorsSummary();
+  async getSystemActorsSummary(
+    @Query('aspirantId') queryAspirantId: string | undefined,
+    @GetUser() user: User,
+  ): Promise<SystemActorsSummaryDto> {
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      queryAspirantId ? +queryAspirantId : undefined,
+    );
+    return this.reportService.getSystemActorsSummary(effectiveAspirantId);
   }
 
   @Allowed([
@@ -40,8 +48,13 @@ export class ReportController {
   @Get('activity')
   async getSubmissionsAndIncidents(
     @Query() query: SubmissionsAndIncidentsFilterDto,
+    @GetUser() user: User,
   ): Promise<SubmissionsAndIncidentsResponseDto> {
-    return this.reportService.getSubmissionsAndIncidents(query);
+    const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
+    return this.reportService.getSubmissionsAndIncidents(
+      query,
+      effectiveAspirantId,
+    );
   }
 
   @Allowed([
@@ -53,8 +66,17 @@ export class ReportController {
     RoleCode.WARD_COORDINATOR,
   ])
   @Get('overview-stats')
-  async getAllTimeIncidentSubmissionStats(): Promise<AllTimeIncidentSubmissionStatsDto> {
-    return this.reportService.getAllTimeIncidentSubmissionStats();
+  async getAllTimeIncidentSubmissionStats(
+    @Query('aspirantId') queryAspirantId: string | undefined,
+    @GetUser() user: User,
+  ): Promise<AllTimeIncidentSubmissionStatsDto> {
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      queryAspirantId ? +queryAspirantId : undefined,
+    );
+    return this.reportService.getAllTimeIncidentSubmissionStats(
+      effectiveAspirantId,
+    );
   }
 
   @Allowed([

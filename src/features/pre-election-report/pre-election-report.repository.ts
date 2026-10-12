@@ -14,12 +14,18 @@ export class PreElectionReportRepository {
   async findByPollingUnitAndOffice(
     pollingUnitId: number,
     electoralOfficeId: number,
+    aspirantId?: number,
   ): Promise<PreElectionReport | null> {
+    const whereCondition: any = {
+      pollingUnit: { id: pollingUnitId },
+      electoralOffice: { id: electoralOfficeId },
+    };
+    if (aspirantId) {
+      whereCondition.aspirant = { id: aspirantId };
+    }
+
     return this.repository.findOne({
-      where: {
-        pollingUnit: { id: pollingUnitId },
-        electoralOffice: { id: electoralOfficeId },
-      },
+      where: whereCondition,
       relations: {
         pollingUnit: { ward: { lga: { state: true } } },
         electoralOffice: true,
@@ -48,13 +54,19 @@ export class PreElectionReportRepository {
   ): Promise<PreElectionReport> {
     const puId = reportData.pollingUnit?.id;
     const officeId = reportData.electoralOffice?.id;
+    const aspirantId = reportData.aspirant?.id;
 
     if (puId && officeId) {
+      const whereCondition: any = {
+        pollingUnit: { id: puId },
+        electoralOffice: { id: officeId },
+      };
+      if (aspirantId) {
+        whereCondition.aspirant = { id: aspirantId };
+      }
+
       const existing = await this.repository.findOne({
-        where: {
-          pollingUnit: { id: puId },
-          electoralOffice: { id: officeId },
-        },
+        where: whereCondition,
       });
 
       if (existing) {
@@ -94,6 +106,7 @@ export class PreElectionReportRepository {
 
   async findAll(
     filters: PreElectionReportFilterDto,
+    aspirantId?: number,
   ): Promise<{ data: PreElectionReport[]; total: number; page: number; limit: number }> {
     const qb = this.repository
       .createQueryBuilder('per')
@@ -105,6 +118,14 @@ export class PreElectionReportRepository {
       .leftJoinAndSelect('per.uploadedByUser', 'uploader')
       .leftJoinAndSelect('per.politicalParty', 'party')
       .leftJoinAndSelect('per.aspirant', 'aspirant');
+
+    const effectiveAspirantId = aspirantId ?? filters.aspirantId;
+    if (effectiveAspirantId) {
+      qb.andWhere(
+        '(per.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: effectiveAspirantId },
+      );
+    }
 
     if (filters.electoralOfficeId) {
       qb.andWhere('per.electoral_office_id = :officeId', {

@@ -33,6 +33,7 @@ export enum IncidentStatus {
 @Entity('incidents')
 @Index('idx_incidents_geolocation', ['geolocationLat', 'geolocationLng']) // Composite B-Tree index for spatial cluster & bounding box queries
 @Index('idx_incidents_severity_status', ['severityLevel', 'status'])
+@Index('idx_incidents_aspirant', ['aspirant'])
 export class Incident {
   @PrimaryGeneratedColumn()
   id!: number;

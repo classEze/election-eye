@@ -28,6 +28,10 @@ const MAX_VIDEO_COUNT = 2;
 const MAX_PICTURE_COUNT = 2;
 
 import { UserStatus } from '../../shared/enums/status.enum';
+import {
+  isPlatformAdmin,
+  getEffectiveAspirantId,
+} from '../../shared/utils/tenant-context.util';
 
 @Injectable()
 export class IncidentService {
@@ -231,10 +235,26 @@ export class IncidentService {
     );
   }
 
-  async findOne(id: number): Promise<Incident> {
+  async findOne(id: number, user?: User): Promise<Incident> {
     const incident = await this.incidentRepository.findById(id);
     if (!incident) {
       throw new NotFoundException(`Incident with ID #${id} not found.`);
+    }
+
+    if (user && !isPlatformAdmin(user)) {
+      const userAspirantId = getEffectiveAspirantId(user);
+      const incidentAspirantId =
+        incident.aspirant?.id ||
+        (incident.reportedByUser as any)?.aspirant?.id;
+      if (
+        incidentAspirantId &&
+        userAspirantId &&
+        incidentAspirantId !== userAspirantId
+      ) {
+        throw new ForbiddenException(
+          'You do not have permission to view incidents from another campaign.',
+        );
+      }
     }
 
     const resolvedPictureUrls = await Promise.all(
@@ -262,18 +282,29 @@ export class IncidentService {
     } as Incident;
   }
 
-  async findAll(filters: IncidentFilterDto) {
-    return this.incidentRepository.findAll(filters);
+  async findAll(filters: IncidentFilterDto, aspirantId?: number) {
+    return this.incidentRepository.findAll(filters, aspirantId);
   }
 
-  async findByElectoralOffice(officeId: number, page = 1, limit = 20) {
-    return this.incidentRepository.findByElectoralOffice(officeId, page, limit);
+  async findByElectoralOffice(
+    officeId: number,
+    page = 1,
+    limit = 20,
+    aspirantId?: number,
+  ) {
+    return this.incidentRepository.findByElectoralOffice(
+      officeId,
+      page,
+      limit,
+      aspirantId,
+    );
   }
 
   async findMapClusters(
     query: IncidentMapClusterQueryDto,
+    aspirantId?: number,
   ): Promise<Incident[]> {
-    return this.incidentRepository.findMapClusters(query);
+    return this.incidentRepository.findMapClusters(query, aspirantId);
   }
 
   async updateStatus(

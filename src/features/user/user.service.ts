@@ -380,8 +380,8 @@ export class UserService {
     return filteredResult;
   }
 
-  async findAll(queryDto?: UserQueryDto) {
-    return this.repo.findAll(queryDto);
+  async findAll(queryDto?: UserQueryDto, aspirantId?: number) {
+    return this.repo.findAll(queryDto, aspirantId);
   }
 
   async findOne(id: number) {

@@ -47,9 +47,14 @@ export class ReportService {
    * Fetches a high-performance aggregated count of all major actors and administrative boundaries.
    * Leverages Redis caching with a 60-second TTL and executes parallel DB aggregate counts on cache miss.
    */
-  async getSystemActorsSummary(): Promise<SystemActorsSummaryDto> {
+  async getSystemActorsSummary(
+    aspirantId?: number,
+  ): Promise<SystemActorsSummaryDto> {
+    const cacheKey = aspirantId
+      ? `${REPORT_CACHE_KEY}:${aspirantId}`
+      : REPORT_CACHE_KEY;
     const cached =
-      await this.cacheManager.get<SystemActorsSummaryDto>(REPORT_CACHE_KEY);
+      await this.cacheManager.get<SystemActorsSummaryDto>(cacheKey);
     if (cached) {
       return cached;
     }
@@ -71,7 +76,7 @@ export class ReportService {
       this.wardRepository.count(),
       this.pollingUnitRepository.count(),
       this.aspirantRepository.countAspirants(),
-      this.userRepository.countCoordinatorsAndAgents(),
+      this.userRepository.countCoordinatorsAndAgents(aspirantId),
       this.politicalPartyRepository.count(),
       this.electoralOfficeRepository.count(),
       this.adminRepository.countAdminSummary(),
@@ -91,7 +96,7 @@ export class ReportService {
       admins,
     };
 
-    await this.cacheManager.set(REPORT_CACHE_KEY, summary, REPORT_CACHE_TTL);
+    await this.cacheManager.set(cacheKey, summary, REPORT_CACHE_TTL);
 
     return summary;
   }
@@ -102,9 +107,11 @@ export class ReportService {
    */
   async getSubmissionsAndIncidents(
     filterDto: SubmissionsAndIncidentsFilterDto,
+    aspirantId?: number,
   ): Promise<SubmissionsAndIncidentsResponseDto> {
     const page = filterDto.page || 1;
     const limit = filterDto.limit || 20;
+    const effectiveAspirantId = aspirantId ?? filterDto.aspirantId;
 
     const [submissions, incidents] = await Promise.all([
       this.resultRepository.findSubmissionsForActivity({
@@ -114,6 +121,7 @@ export class ReportService {
         endDate: filterDto.endDate,
         page,
         limit,
+        aspirantId: effectiveAspirantId,
       }),
       this.incidentRepository.findIncidentsForActivity({
         electoralOfficeId: filterDto.electoralOfficeId,
@@ -122,6 +130,7 @@ export class ReportService {
         endDate: filterDto.endDate,
         page,
         limit,
+        aspirantId: effectiveAspirantId,
       }),
     ]);
 
@@ -135,18 +144,23 @@ export class ReportService {
    * Fetches all-time aggregated metrics for submissions and incidents:
    * Total counts, peak activity dates and counts, and daily averages.
    */
-  async getAllTimeIncidentSubmissionStats(): Promise<AllTimeIncidentSubmissionStatsDto> {
+  async getAllTimeIncidentSubmissionStats(
+    aspirantId?: number,
+  ): Promise<AllTimeIncidentSubmissionStatsDto> {
+    const cacheKey = aspirantId
+      ? `${REPORT_STATS_CACHE_KEY}:${aspirantId}`
+      : REPORT_STATS_CACHE_KEY;
     const cached =
       await this.cacheManager.get<AllTimeIncidentSubmissionStatsDto>(
-        REPORT_STATS_CACHE_KEY,
+        cacheKey,
       );
     if (cached) {
       return cached;
     }
 
     const [submissions, incidents] = await Promise.all([
-      this.resultRepository.getSubmissionStatsOverview(),
-      this.incidentRepository.getIncidentStatsOverview(),
+      this.resultRepository.getSubmissionStatsOverview(aspirantId),
+      this.incidentRepository.getIncidentStatsOverview(aspirantId),
     ]);
 
     const stats: AllTimeIncidentSubmissionStatsDto = {
@@ -155,7 +169,7 @@ export class ReportService {
     };
 
     await this.cacheManager.set(
-      REPORT_STATS_CACHE_KEY,
+      cacheKey,
       stats,
       REPORT_CACHE_TTL,
     );

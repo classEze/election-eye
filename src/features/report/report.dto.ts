@@ -56,6 +56,11 @@ export class SubmissionsAndIncidentsFilterDto {
 
   @IsOptional()
   @IsInt()
+  @Type(() => Number)
+  aspirantId?: number;
+
+  @IsOptional()
+  @IsInt()
   @Min(1)
   @Type(() => Number)
   page: number = 1;

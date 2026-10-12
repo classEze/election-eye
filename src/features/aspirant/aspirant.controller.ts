@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CreateAspirantDto, AspirantQueryDto } from './aspirant.dto';
 import { AspirantService } from './aspirant.service';
@@ -24,6 +25,10 @@ import { GetUser } from 'src/shared/decorators/get-user.decorator';
 import { RoleCode } from '../role/role.enum';
 import { Admin } from '../admin/admin.entity';
 import { User } from '../user/user.entity';
+import {
+  isPlatformAdmin,
+  getEffectiveAspirantId,
+} from '../../shared/utils/tenant-context.util';
 
 @Controller('aspirants')
 export class AspirantController {
@@ -264,14 +269,7 @@ export class AspirantController {
     return this.userService.removeForAdmin(+id, admin);
   }
 
-  @Allowed([
-    RoleCode.SUPER_ADMIN,
-    RoleCode.SYSTEM_ADMIN,
-    RoleCode.ASPIRANT,
-    RoleCode.CLIENT_USER,
-    RoleCode.LGA_COORDINATOR,
-    RoleCode.WARD_COORDINATOR,
-  ])
+  @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Get('stats')
   getStats() {
     return this.aspirantService.getStats();
@@ -286,7 +284,15 @@ export class AspirantController {
     RoleCode.WARD_COORDINATOR,
   ])
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string, @GetUser() user: User) {
+    if (!isPlatformAdmin(user)) {
+      const myAspirantId = getEffectiveAspirantId(user);
+      if (myAspirantId && myAspirantId !== +id) {
+        throw new ForbiddenException(
+          'Access denied to details outside your campaign.',
+        );
+      }
+    }
     return this.aspirantService.findOne(+id);
   }
 }

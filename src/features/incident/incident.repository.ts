@@ -56,13 +56,16 @@ export class IncidentRepository {
         pollingUnit: { ward: { lga: { state: true } } },
         ward: { lga: { state: true } },
         lga: { state: true },
-        reportedByUser: { role: true },
+        reportedByUser: { role: true, aspirant: true },
+        aspirant: true,
+        politicalParty: true,
       },
     });
   }
 
   async findAll(
     filters: IncidentFilterDto,
+    aspirantId?: number,
   ): Promise<{ data: Incident[]; total: number; page: number; limit: number }> {
     const qb = this.repository
       .createQueryBuilder('i')
@@ -74,7 +77,17 @@ export class IncidentRepository {
       .leftJoinAndSelect('directWard.lga', 'directWardLga')
       .leftJoinAndSelect('i.lga', 'directLga')
       .leftJoinAndSelect('i.reportedByUser', 'user')
-      .leftJoinAndSelect('user.role', 'role');
+      .leftJoinAndSelect('user.role', 'role')
+      .leftJoinAndSelect('i.aspirant', 'aspirant')
+      .leftJoinAndSelect('i.politicalParty', 'party');
+
+    const effectiveAspirantId = aspirantId ?? filters.aspirantId;
+    if (effectiveAspirantId) {
+      qb.andWhere(
+        '(i.aspirant_id = :aspirantId OR user.aspirant_id = :aspirantId)',
+        { aspirantId: effectiveAspirantId },
+      );
+    }
 
     if (filters.categoryId) {
       qb.andWhere('i.category_id = :catId', { catId: filters.categoryId });
@@ -129,6 +142,7 @@ export class IncidentRepository {
     officeId: number,
     page = 1,
     limit = 20,
+    aspirantId?: number,
   ): Promise<{ data: Incident[]; total: number; page: number; limit: number }> {
     const qb = this.repository
       .createQueryBuilder('i')
@@ -137,6 +151,7 @@ export class IncidentRepository {
       .innerJoinAndSelect('pu.ward', 'ward')
       .innerJoinAndSelect('ward.lga', 'lga')
       .leftJoinAndSelect('i.reportedByUser', 'user')
+      .leftJoinAndSelect('i.aspirant', 'aspirant')
       .where((subQb) => {
         // Match either by office_lgas or office_wards
         const subQueryLga = subQb
@@ -157,6 +172,13 @@ export class IncidentRepository {
       })
       .setParameter('officeId', officeId);
 
+    if (aspirantId) {
+      qb.andWhere(
+        '(i.aspirant_id = :aspirantId OR user.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
+
     const total = await qb.getCount();
     const skip = (page - 1) * limit;
 
@@ -172,11 +194,13 @@ export class IncidentRepository {
   // Geolocation bounding-box spatial query taking advantage of idx_incidents_geolocation
   async findMapClusters(
     query: IncidentMapClusterQueryDto,
+    aspirantId?: number,
   ): Promise<Incident[]> {
-    return this.repository
+    const qb = this.repository
       .createQueryBuilder('i')
       .leftJoinAndSelect('i.category', 'cat')
       .leftJoinAndSelect('i.pollingUnit', 'pu')
+      .leftJoinAndSelect('i.reportedByUser', 'user')
       .where(
         'i.geolocation_lat BETWEEN :minLat AND :maxLat AND i.geolocation_lng BETWEEN :minLng AND :maxLng',
         {
@@ -185,9 +209,17 @@ export class IncidentRepository {
           minLng: query.minLng,
           maxLng: query.maxLng,
         },
-      )
-      .orderBy('i.createdAt', 'DESC')
-      .getMany();
+      );
+
+    const effectiveAspirantId = aspirantId ?? query.aspirantId;
+    if (effectiveAspirantId) {
+      qb.andWhere(
+        '(i.aspirant_id = :aspirantId OR user.aspirant_id = :aspirantId)',
+        { aspirantId: effectiveAspirantId },
+      );
+    }
+
+    return qb.orderBy('i.createdAt', 'DESC').getMany();
   }
 
   async updateStatus(
@@ -210,6 +242,7 @@ export class IncidentRepository {
     endDate?: string;
     page: number;
     limit: number;
+    aspirantId?: number;
   }): Promise<{
     data: Incident[];
     total: number;
@@ -224,6 +257,13 @@ export class IncidentRepository {
       .leftJoinAndSelect('ward.lga', 'lga')
       .leftJoinAndSelect('lga.state', 'state')
       .leftJoinAndSelect('i.reportedByUser', 'user');
+
+    if (params.aspirantId) {
+      qb.andWhere(
+        '(i.aspirant_id = :aspirantId OR user.aspirant_id = :aspirantId)',
+        { aspirantId: params.aspirantId },
+      );
+    }
 
     if (params.electoralOfficeId) {
       qb.andWhere((subQb) => {
@@ -289,27 +329,41 @@ export class IncidentRepository {
     return qb.orderBy('incident.created_at', 'DESC').getMany();
   }
 
-  async getIncidentStatsOverview(): Promise<{
+  async getIncidentStatsOverview(aspirantId?: number): Promise<{
     total: number;
     peakDay: string | null;
     peakCount: number;
     averagePerDay: number;
   }> {
-    const rawCounts = await this.repository
+    const rawCountsQb = this.repository
       .createQueryBuilder('i')
+      .leftJoin('i.reportedByUser', 'user')
       .select('COUNT(*)::int', 'total')
-      .addSelect('COUNT(DISTINCT DATE(i.created_at))::int', 'active_days')
-      .getRawOne<{ total: number; active_days: number }>();
+      .addSelect('COUNT(DISTINCT DATE(i.created_at))::int', 'active_days');
 
-    const peakRaw = await this.repository
+    const peakQb = this.repository
       .createQueryBuilder('i')
+      .leftJoin('i.reportedByUser', 'user')
       .select("TO_CHAR(i.created_at, 'YYYY-MM-DD')", 'day')
       .addSelect('COUNT(*)::int', 'count')
       .groupBy("TO_CHAR(i.created_at, 'YYYY-MM-DD')")
       .orderBy('count', 'DESC')
       .addOrderBy('day', 'DESC')
-      .limit(1)
-      .getRawOne<{ day: string; count: number }>();
+      .limit(1);
+
+    if (aspirantId) {
+      rawCountsQb.where(
+        '(i.aspirant_id = :aspirantId OR user.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+      peakQb.where(
+        '(i.aspirant_id = :aspirantId OR user.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
+
+    const rawCounts = await rawCountsQb.getRawOne<{ total: number; active_days: number }>();
+    const peakRaw = await peakQb.getRawOne<{ day: string; count: number }>();
 
     const total = Number(rawCounts?.total || 0);
     const activeDays = Number(rawCounts?.active_days || 0);

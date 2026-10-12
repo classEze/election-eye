@@ -30,6 +30,10 @@ import { User } from '../user/user.entity';
 import { SubmissionWindowGuard } from '../../shared/guards/submission-window.guard';
 import { Result } from './result.entity';
 import { Audit } from '../../shared/decorators/audit.decorator';
+import {
+  isPlatformAdmin,
+  resolveTenantAspirantId,
+} from '../../shared/utils/tenant-context.util';
 
 @Controller('results')
 export class ResultController {
@@ -70,38 +74,47 @@ export class ResultController {
   }
 
   @Get()
-  async findAll(@Query() query: ResultFilterDto) {
-    return this.resultService.findAll(query);
+  async findAll(@Query() query: ResultFilterDto, @GetUser() user: User) {
+    const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
+    return this.resultService.findAll(query, effectiveAspirantId);
   }
 
   @Get('polling-unit/:puId')
-  async findByPollingUnit(@Param('puId') puId: string): Promise<Result[]> {
-    return this.resultService.findByPollingUnit(+puId);
+  async findByPollingUnit(
+    @Param('puId') puId: string,
+    @Query('aspirantId') queryAspirantId: string | undefined,
+    @GetUser() user: User,
+  ): Promise<Result[]> {
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      queryAspirantId ? +queryAspirantId : undefined,
+    );
+    return this.resultService.findByPollingUnit(+puId, effectiveAspirantId);
   }
 
   @Get('electoral-office/:officeId/summary')
   async getOfficeSummary(
     @Param('officeId') officeId: string,
+    @Query('aspirantId') queryAspirantId: string | undefined,
+    @Query('politicalPartyId') queryPartyId: string | undefined,
     @GetUser() user: User,
   ) {
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
-      ? undefined
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      queryAspirantId ? +queryAspirantId : undefined,
+    );
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
+      ? queryPartyId
+        ? +queryPartyId
+        : undefined
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
-
-    const userAspirantId = isPlatformAdmin
-      ? undefined
-      : user.aspirant?.id || user.aspirantAccount?.id;
 
     return this.resultService.getOfficePartySummary(
       +officeId,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -122,25 +135,18 @@ export class ResultController {
     @Query() query: SituationRoomFilterDto,
     @GetUser() user: User,
   ) {
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? query.politicalPartyId
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
-
-    const userAspirantId = isPlatformAdmin
-      ? query.aspirantId
-      : user.aspirant?.id || user.aspirantAccount?.id;
 
     return this.resultService.getSituationRoomData(
       +officeId,
       query,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -159,25 +165,18 @@ export class ResultController {
     @Query() query: SituationRoomFilterDto,
     @GetUser() user: User,
   ) {
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? query.politicalPartyId
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
-
-    const userAspirantId = isPlatformAdmin
-      ? query.aspirantId
-      : user.aspirant?.id || user.aspirantAccount?.id;
 
     return this.resultService.getSituationRoomStandings(
       +officeId,
       query,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -196,25 +195,18 @@ export class ResultController {
     @Query() query: SituationRoomFilterDto,
     @GetUser() user: User,
   ) {
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? query.politicalPartyId
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
-
-    const userAspirantId = isPlatformAdmin
-      ? query.aspirantId
-      : user.aspirant?.id || user.aspirantAccount?.id;
 
     return this.resultService.getSituationRoomLiveSnapshot(
       +officeId,
       query,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -233,25 +225,18 @@ export class ResultController {
     @Query() query: RecentSubmissionsFilterDto,
     @GetUser() user: User,
   ) {
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? query.politicalPartyId
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
-
-    const userAspirantId = isPlatformAdmin
-      ? query.aspirantId
-      : user.aspirant?.id || user.aspirantAccount?.id;
 
     return this.resultService.getRecentSubmissions(
       +officeId,
       query,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -270,25 +255,18 @@ export class ResultController {
     @Query() query: SituationRoomFilterDto,
     @GetUser() user: User,
   ) {
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? query.politicalPartyId
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
-
-    const userAspirantId = isPlatformAdmin
-      ? query.aspirantId
-      : user.aspirant?.id || user.aspirantAccount?.id;
 
     return this.resultService.getOfficeUploadProgress(
       +officeId,
       query,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -310,31 +288,29 @@ export class ResultController {
     @Query('aspirantId') queryAspirantId?: string,
     @GetUser() user?: User,
   ) {
-    const isPlatformAdmin =
-      !user ||
-      user.role?.code === RoleCode.SUPER_ADMIN ||
-      user.role?.code === RoleCode.SYSTEM_ADMIN ||
-      user.role?.code === RoleCode.CLIENT_USER;
+    const effectiveAspirantId = user
+      ? resolveTenantAspirantId(
+          user,
+          queryAspirantId ? +queryAspirantId : undefined,
+        )
+      : queryAspirantId
+        ? +queryAspirantId
+        : undefined;
 
-    const userPartyId = isPlatformAdmin
+    const isAdmin = user ? isPlatformAdmin(user) : true;
+    const userPartyId = isAdmin
       ? queryPartyId
         ? +queryPartyId
         : undefined
       : user?.aspirant?.politicalParty?.id ||
         user?.aspirantAccount?.politicalParty?.id;
 
-    const userAspirantId = isPlatformAdmin
-      ? queryAspirantId
-        ? +queryAspirantId
-        : undefined
-      : user?.aspirant?.id || user?.aspirantAccount?.id;
-
     return this.resultService.getOfficeEc8aForms(
       +officeId,
       +page,
       +limit,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -372,29 +348,23 @@ export class ResultController {
       );
     }
 
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      aspirantIdStr ? parseInt(aspirantIdStr, 10) : undefined,
+    );
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? partyIdStr
         ? parseInt(partyIdStr, 10)
         : undefined
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
 
-    const userAspirantId = isPlatformAdmin
-      ? aspirantIdStr
-        ? parseInt(aspirantIdStr, 10)
-        : undefined
-      : user.aspirant?.id || user.aspirantAccount?.id;
-
     return this.resultService.getOfficePollingUnitReport(
       officeId,
       puId,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -432,30 +402,24 @@ export class ResultController {
       );
     }
 
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      aspirantIdStr ? parseInt(aspirantIdStr, 10) : undefined,
+    );
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? partyIdStr
         ? parseInt(partyIdStr, 10)
         : undefined
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
 
-    const userAspirantId = isPlatformAdmin
-      ? aspirantIdStr
-        ? parseInt(aspirantIdStr, 10)
-        : undefined
-      : user.aspirant?.id || user.aspirantAccount?.id;
-
     const format = formatStr?.toLowerCase() === 'csv' ? 'csv' : 'pdf';
     const exportResult = await this.resultService.exportOfficePollingUnitReport(
       officeId,
       puId,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
       format,
     );
 
@@ -498,29 +462,23 @@ export class ResultController {
       throw new ForbiddenException('Access denied to this Ward report.');
     }
 
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      aspirantIdStr ? parseInt(aspirantIdStr, 10) : undefined,
+    );
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? partyIdStr
         ? parseInt(partyIdStr, 10)
         : undefined
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
 
-    const userAspirantId = isPlatformAdmin
-      ? aspirantIdStr
-        ? parseInt(aspirantIdStr, 10)
-        : undefined
-      : user.aspirant?.id || user.aspirantAccount?.id;
-
     return this.resultService.getOfficeWardReport(
       officeId,
       wardId,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -556,30 +514,24 @@ export class ResultController {
       throw new ForbiddenException('Access denied to this Ward report export.');
     }
 
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      aspirantIdStr ? parseInt(aspirantIdStr, 10) : undefined,
+    );
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? partyIdStr
         ? parseInt(partyIdStr, 10)
         : undefined
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
 
-    const userAspirantId = isPlatformAdmin
-      ? aspirantIdStr
-        ? parseInt(aspirantIdStr, 10)
-        : undefined
-      : user.aspirant?.id || user.aspirantAccount?.id;
-
     const format = formatStr?.toLowerCase() === 'csv' ? 'csv' : 'pdf';
     const exportResult = await this.resultService.exportOfficeWardReport(
       officeId,
       wardId,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
       format,
     );
 
@@ -621,29 +573,23 @@ export class ResultController {
       throw new ForbiddenException('Access denied to this LGA report.');
     }
 
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      aspirantIdStr ? parseInt(aspirantIdStr, 10) : undefined,
+    );
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? partyIdStr
         ? parseInt(partyIdStr, 10)
         : undefined
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
 
-    const userAspirantId = isPlatformAdmin
-      ? aspirantIdStr
-        ? parseInt(aspirantIdStr, 10)
-        : undefined
-      : user.aspirant?.id || user.aspirantAccount?.id;
-
     return this.resultService.getOfficeLgaReport(
       officeId,
       lgaId,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -678,30 +624,24 @@ export class ResultController {
       throw new ForbiddenException('Access denied to this LGA report export.');
     }
 
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      aspirantIdStr ? parseInt(aspirantIdStr, 10) : undefined,
+    );
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? partyIdStr
         ? parseInt(partyIdStr, 10)
         : undefined
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
 
-    const userAspirantId = isPlatformAdmin
-      ? aspirantIdStr
-        ? parseInt(aspirantIdStr, 10)
-        : undefined
-      : user.aspirant?.id || user.aspirantAccount?.id;
-
     const format = formatStr?.toLowerCase() === 'csv' ? 'csv' : 'pdf';
     const exportResult = await this.resultService.exportOfficeLgaReport(
       officeId,
       lgaId,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
       format,
     );
 
@@ -740,29 +680,23 @@ export class ResultController {
     if (!officeId || !stateId)
       throw new BadRequestException('Office ID and State ID are required.');
 
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      aspirantIdStr ? parseInt(aspirantIdStr, 10) : undefined,
+    );
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? partyIdStr
         ? parseInt(partyIdStr, 10)
         : undefined
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
 
-    const userAspirantId = isPlatformAdmin
-      ? aspirantIdStr
-        ? parseInt(aspirantIdStr, 10)
-        : undefined
-      : user.aspirant?.id || user.aspirantAccount?.id;
-
     return this.resultService.getOfficeStateReport(
       officeId,
       stateId,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
     );
   }
 
@@ -793,30 +727,24 @@ export class ResultController {
     if (!officeId || !stateId)
       throw new BadRequestException('Office ID and State ID are required.');
 
-    const isPlatformAdmin =
-      user.role.code === RoleCode.SUPER_ADMIN ||
-      user.role.code === RoleCode.SYSTEM_ADMIN ||
-      user.role.code === RoleCode.CLIENT_USER;
-
-    const userPartyId = isPlatformAdmin
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      aspirantIdStr ? parseInt(aspirantIdStr, 10) : undefined,
+    );
+    const isAdmin = isPlatformAdmin(user);
+    const userPartyId = isAdmin
       ? partyIdStr
         ? parseInt(partyIdStr, 10)
         : undefined
       : user.aspirant?.politicalParty?.id ||
         user.aspirantAccount?.politicalParty?.id;
 
-    const userAspirantId = isPlatformAdmin
-      ? aspirantIdStr
-        ? parseInt(aspirantIdStr, 10)
-        : undefined
-      : user.aspirant?.id || user.aspirantAccount?.id;
-
     const format = formatStr?.toLowerCase() === 'csv' ? 'csv' : 'pdf';
     const exportResult = await this.resultService.exportOfficeStateReport(
       officeId,
       stateId,
       userPartyId,
-      userAspirantId,
+      effectiveAspirantId,
       format,
     );
 
@@ -830,8 +758,11 @@ export class ResultController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Result> {
-    return this.resultService.findOne(+id);
+  async findOne(
+    @Param('id') id: string,
+    @GetUser() user: User,
+  ): Promise<Result> {
+    return this.resultService.findOne(+id, user);
   }
 
   // Result verification / approval is strictly restricted to Platform Admins, Aspirants, and Campaign Directors

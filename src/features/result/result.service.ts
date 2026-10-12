@@ -33,6 +33,10 @@ import {
 } from '../../shared/storage/storage.service';
 import { ResultExportService, ReportExportData } from './result-export.service';
 import { ResultAnomalyDetector } from './result-anomaly.detector';
+import {
+  isPlatformAdmin,
+  getEffectiveAspirantId,
+} from '../../shared/utils/tenant-context.util';
 
 @Injectable()
 export class ResultService {
@@ -162,11 +166,12 @@ export class ResultService {
       );
     }
 
-    // 3. Pre-election report lookup & Anomaly Detection
+    // 3. Pre-election report lookup & Anomaly Detection (scoped to aspirant)
     const preElectionReport = await this.preElectionReportRepo.findOne({
       where: {
         pollingUnit: { id: puId },
         electoralOffice: { id: dto.electoralOfficeId },
+        ...(aspirantId ? { aspirant: { id: aspirantId } } : {}),
       },
     });
 
@@ -176,16 +181,17 @@ export class ResultService {
     );
 
     // 4. Check for Existing Submissions / Handle Re-submission on REJECTED
-    const existing = await this.resultRepository.findByPollingUnitOfficeAndParty(
-      puId,
-      dto.electoralOfficeId,
-      partyId,
-    );
+    const existing =
+      await this.resultRepository.findByPollingUnitOfficeAndAspirant(
+        puId,
+        dto.electoralOfficeId,
+        aspirantId,
+      );
 
     if (existing) {
       if (existing.auditStatus !== ResultAuditStatus.REJECTED) {
         throw new ConflictException(
-          `A result has already been submitted for Polling Unit #${puId} and Electoral Office #${dto.electoralOfficeId} for Party #${partyId} with status '${existing.auditStatus}'. Duplicate submissions are blocked.`,
+          `A result has already been submitted for Polling Unit #${puId} and Electoral Office #${dto.electoralOfficeId} for your campaign with status '${existing.auditStatus}'. Duplicate submissions are blocked.`,
         );
       }
 
@@ -279,10 +285,25 @@ export class ResultService {
     return savedResult;
   }
 
-  async findOne(id: number): Promise<Result> {
+  async findOne(id: number, user?: User): Promise<Result> {
     const result = await this.resultRepository.findById(id);
     if (!result) {
       throw new NotFoundException(`Result with ID #${id} not found.`);
+    }
+
+    if (user && !isPlatformAdmin(user)) {
+      const userAspirantId = getEffectiveAspirantId(user);
+      const resultAspirantId =
+        result.aspirant?.id || (result.uploadedByUser as any)?.aspirant?.id;
+      if (
+        resultAspirantId &&
+        userAspirantId &&
+        resultAspirantId !== userAspirantId
+      ) {
+        throw new ForbiddenException(
+          'You do not have permission to view results from another campaign.',
+        );
+      }
     }
 
     // Generate secure short-lived URLs for media
@@ -300,14 +321,18 @@ export class ResultService {
     } as Result;
   }
 
-  async findByPollingUnit(pollingUnitId: number): Promise<Result[]> {
-    return this.resultRepository.findByPollingUnit(pollingUnitId);
+  async findByPollingUnit(
+    pollingUnitId: number,
+    aspirantId?: number,
+  ): Promise<Result[]> {
+    return this.resultRepository.findByPollingUnit(pollingUnitId, aspirantId);
   }
 
   async findAll(
     filters: ResultFilterDto,
+    aspirantId?: number,
   ): Promise<{ data: Result[]; total: number; page: number; limit: number }> {
-    return this.resultRepository.findAll(filters);
+    return this.resultRepository.findAll(filters, aspirantId);
   }
 
   async verifyResult(

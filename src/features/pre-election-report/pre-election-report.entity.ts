@@ -17,8 +17,8 @@ import { MaterialsArrivedStatus } from './materials-arrived.enum';
 
 @Entity('pre_election_reports')
 @Index(
-  'idx_pre_election_pu_office_unique',
-  ['pollingUnit', 'electoralOffice'],
+  'idx_pre_election_pu_office_aspirant_unique',
+  ['pollingUnit', 'electoralOffice', 'aspirant'],
   {
     unique: true,
   },

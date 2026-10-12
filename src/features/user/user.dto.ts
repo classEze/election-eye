@@ -124,6 +124,11 @@ export class UserQueryDto {
   @IsOptional()
   @IsEnum(UserStatus)
   status?: UserStatus;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  aspirantId?: number;
 }
 
 export class AspirantUsersQueryDto {
