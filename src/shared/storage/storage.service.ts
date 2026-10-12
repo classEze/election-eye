@@ -28,7 +28,7 @@ export class StorageService {
   private bucketName: string;
   private endpointUrl: string;
 
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     this.bucketName = this.configService.get<string>('storage.bucketName')!;
     this.endpointUrl = this.configService.get<string>('storage.endpointUrl')!;
 
@@ -41,6 +41,8 @@ export class StorageService {
           'storage.secretAccessKey',
         )!,
       },
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
     });
   }
 
@@ -189,7 +191,14 @@ export class StorageService {
     contentType: string,
     maxSizeBytes?: number,
     originalFilename?: string,
-  ) {
+  ): Promise<{
+    uploadUrl: string;
+    method: 'PUT';
+    fileKey: string;
+    key: string;
+    publicUrl: string | null;
+    expiresIn: number;
+  }> {
     let extension = originalFilename?.split('.').pop()?.toLowerCase();
     if (!extension) {
       if (contentType === 'image/jpeg') extension = 'jpg';
