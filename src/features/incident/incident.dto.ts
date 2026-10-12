@@ -173,3 +173,27 @@ export class IncidentMapClusterQueryDto {
   @Type(() => Number)
   maxLng!: number;
 }
+
+export class IncidentMediaUploadUrlsDto {
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(2)
+  @Type(() => Number)
+  requestPhotoCount?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(2)
+  @Type(() => Number)
+  requestVideoCount?: number;
+
+  @IsOptional()
+  @IsString()
+  photoContentType?: string;
+
+  @IsOptional()
+  @IsString()
+  videoContentType?: string;
+}

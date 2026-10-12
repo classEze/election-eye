@@ -1,7 +1,6 @@
 import {
   IsInt,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   IsArray,
@@ -262,3 +261,24 @@ export class RecentSubmissionsFilterDto {
   @Type(() => Number)
   limit?: number = 10;
 }
+
+export class ResultMediaUploadUrlsDto {
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === true || value === 'true')
+  requestPhoto?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === true || value === 'true')
+  requestVideo?: boolean;
+
+  @IsOptional()
+  @IsString()
+  photoContentType?: string;
+
+  @IsOptional()
+  @IsString()
+  videoContentType?: string;
+}
+

@@ -13,6 +13,8 @@ import { v4 as uuidv4 } from 'uuid';
 export enum FileContext {
   POLITICAL_PARTY_LOGO = 'political-party-logos',
   INCIDENT_MEDIA = 'incident-media',
+  INCIDENT_PICTURE = 'incidents/pictures',
+  INCIDENT_VIDEO = 'incidents/videos',
   RESULT_DOCUMENT = 'result-documents',
 }
 
@@ -188,8 +190,12 @@ export class StorageService {
     maxSizeBytes?: number,
     originalFilename?: string,
   ) {
-    const extension =
-      originalFilename?.split('.').pop() || contentType.split('/')[1] || 'bin';
+    let extension = originalFilename?.split('.').pop()?.toLowerCase();
+    if (!extension) {
+      if (contentType === 'image/jpeg') extension = 'jpg';
+      else if (contentType === 'image/svg+xml') extension = 'svg';
+      else extension = contentType.split('/')[1]?.split(';')[0]?.toLowerCase() || 'bin';
+    }
     const key = `${context}/${uuidv4()}.${extension}`;
 
     const command = new PutObjectCommand({
@@ -210,7 +216,9 @@ export class StorageService {
 
     return {
       uploadUrl,
+      method: 'PUT' as const,
       fileKey: key,
+      key,
       publicUrl,
       expiresIn: 900,
     };

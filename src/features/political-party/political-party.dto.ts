@@ -84,3 +84,15 @@ export class PoliticalPartyQueryDto {
   @IsString()
   search?: string;
 }
+
+export class PartyLogoUploadUrlDto {
+  @IsNotEmpty({
+    message: 'contentType is required (e.g. image/png, image/jpeg).',
+  })
+  @IsString()
+  contentType!: string;
+
+  @IsOptional()
+  @IsString()
+  originalFilename?: string;
+}

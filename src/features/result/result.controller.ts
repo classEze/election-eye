@@ -21,6 +21,7 @@ import {
   VerifyResultDto,
   SituationRoomFilterDto,
   RecentSubmissionsFilterDto,
+  ResultMediaUploadUrlsDto,
 } from './result.dto';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
 import { RoleCode } from '../role/role.enum';
@@ -55,21 +56,17 @@ export class ResultController {
     RoleCode.PU_AGENT,
     RoleCode.WARD_COORDINATOR,
     RoleCode.LGA_COORDINATOR,
+    RoleCode.ASPIRANT,
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_USER,
   ])
   @Post('media-upload-urls')
   @HttpCode(HttpStatus.OK)
   async getMediaUploadUrls(
-    @Body('requestPhoto') requestPhoto: boolean,
-    @Body('requestVideo') requestVideo: boolean,
-    @Body('photoContentType') photoContentType?: string,
-    @Body('videoContentType') videoContentType?: string,
+    @Body() dto: ResultMediaUploadUrlsDto,
   ) {
-    return this.resultService.getMediaUploadUrls(
-      requestPhoto,
-      requestVideo,
-      photoContentType,
-      videoContentType,
-    );
+    return this.resultService.getMediaUploadUrls(dto);
   }
 
   @Get()

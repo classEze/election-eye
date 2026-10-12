@@ -3549,7 +3549,7 @@
               "raw": "{\n    \"requestPhoto\": true,\n    \"requestVideo\": true,\n    \"photoContentType\": \"image/jpeg\",\n    \"videoContentType\": \"video/mp4\"\n}"
             },
             "url": "{{election-eye-base-url}}/results/media-upload-urls",
-            "description": "Generates presigned single-shot PUT upload URLs for result media (EC8A photo form and/or optional video evidence). The frontend uploads raw file binaries directly to S3/R2 using HTTP PUT with the matching `Content-Type`, then submits the returned `fileKey`s in `Submit Result` (`ec8aPhotoKey`, `videoKey`)."
+            "description": "Generates presigned single-shot PUT upload URLs for result media (EC8A photo form and/or optional video evidence) compatible with Cloudflare R2. The frontend uploads raw file binaries directly to R2 using HTTP PUT with the matching Content-Type header, then submits the returned fileKey in Submit Result (ec8aPhotoKey, videoKey)."
           },
           "response": [
             {
@@ -3577,7 +3577,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n    \"photo\": {\n        \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/results/documents/ec8a_uuid_photo.jpg?X-Amz-Algorithm=...\",\n        \"fileKey\": \"results/documents/ec8a_uuid_photo.jpg\",\n        \"expiresIn\": 900\n    },\n    \"video\": {\n        \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/results/documents/video_uuid_evidence.mp4?X-Amz-Algorithm=...\",\n        \"fileKey\": \"results/documents/video_uuid_evidence.mp4\",\n        \"expiresIn\": 900\n    }\n}"
+              "body": "{\n    \"photo\": {\n        \"uploadUrl\": \"https://<account_id>.r2.cloudflarestorage.com/election-eye/result-documents/ec8a_uuid_photo.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&...\",\n        \"method\": \"PUT\",\n        \"fileKey\": \"result-documents/ec8a_uuid_photo.jpg\",\n        \"key\": \"result-documents/ec8a_uuid_photo.jpg\",\n        \"publicUrl\": null,\n        \"expiresIn\": 900\n    },\n    \"video\": {\n        \"uploadUrl\": \"https://<account_id>.r2.cloudflarestorage.com/election-eye/result-documents/video_uuid_evidence.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&...\",\n        \"method\": \"PUT\",\n        \"fileKey\": \"result-documents/video_uuid_evidence.mp4\",\n        \"key\": \"result-documents/video_uuid_evidence.mp4\",\n        \"publicUrl\": null,\n        \"expiresIn\": 900\n    }\n}"
             }
           ]
         },
@@ -3603,7 +3603,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"pollingUnitId\": 1,\n  \"electoralOfficeId\": 1,\n  \"politicalPartyId\": 1,\n  \"totalAccreditedVoters\": 800,\n  \"totalValidVotes\": 750,\n  \"rejectedVotes\": 50,\n  \"materialsArrived\": 2,\n  \"ec8aPhotoKey\": \"results/ec8a/test.jpg\",\n  \"videoKey\": \"results/videos/test.mp4\",\n  \"partyBreakdown\": [\n    {\n      \"politicalPartyId\": 1,\n      \"votesReceived\": 500\n    },\n    {\n      \"politicalPartyId\": 2,\n      \"votesReceived\": 250\n    }\n  ]\n}",
+              "raw": "{\n  \"pollingUnitId\": 1,\n  \"electoralOfficeId\": 1,\n  \"politicalPartyId\": 1,\n  \"totalAccreditedVoters\": 800,\n  \"totalValidVotes\": 750,\n  \"rejectedVotes\": 50,\n  \"materialsArrived\": \"FULL\",\n  \"ec8aPhotoKey\": \"result-documents/sample_ec8a_uuid.jpg\",\n  \"videoKey\": \"result-documents/sample_video_uuid.mp4\",\n  \"partyBreakdown\": [\n    {\n      \"politicalPartyId\": 1,\n      \"votes\": 500\n    },\n    {\n      \"politicalPartyId\": 2,\n      \"votes\": 250\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4333,47 +4333,35 @@
                 }
               ]
             },
-            "header": [],
-            "url": {
-              "raw": "{{election-eye-base-url}}/incidents/media-upload-urls?requestPhotoCount=2&requestVideoCount=1&photoContentType=image/jpeg&videoContentType=video/mp4",
-              "host": [
-                "{{election-eye-base-url}}"
-              ],
-              "path": [
-                "incidents",
-                "media-upload-urls"
-              ],
-              "query": [
-                {
-                  "key": "requestPhotoCount",
-                  "value": "2",
-                  "description": "Number of photo upload URLs requested (Max 2)"
-                },
-                {
-                  "key": "requestVideoCount",
-                  "value": "1",
-                  "description": "Number of video upload URLs requested (Max 2)"
-                },
-                {
-                  "key": "photoContentType",
-                  "value": "image/jpeg",
-                  "description": "MIME type for photos (e.g. image/jpeg, image/png)"
-                },
-                {
-                  "key": "videoContentType",
-                  "value": "video/mp4",
-                  "description": "MIME type for videos (e.g. video/mp4)"
-                }
-              ]
-            },
-            "description": "Generates presigned direct-to-S3/R2 PUT upload URLs for incident evidence (up to 2 photos and up to 2 videos). Upload raw binaries via HTTP PUT with matching `Content-Type` headers, then pass the returned `fileKey`s in `Report Incident` (`mediaPictureKeys` and `mediaVideoKeys` arrays)."
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{election-eye-base-url}}/incidents/media-upload-urls",
+            "description": "Generates presigned direct-to-R2 PUT upload URLs for incident evidence (up to 2 photos and up to 2 videos). Upload raw binaries via HTTP PUT with matching Content-Type headers, then pass the returned fileKey in Report Incident (mediaPictureKeys and mediaVideoKeys arrays).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"requestPhotoCount\": 2,\n    \"requestVideoCount\": 1,\n    \"photoContentType\": \"image/jpeg\",\n    \"videoContentType\": \"video/mp4\"\n}"
+            }
           },
           "response": [
             {
               "name": "Successful Presigned URLs Generation (2 Photos + 1 Video)",
               "originalRequest": {
                 "method": "POST",
-                "url": "{{election-eye-base-url}}/incidents/media-upload-urls?requestPhotoCount=2&requestVideoCount=1&photoContentType=image/jpeg&videoContentType=video/mp4"
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"requestPhotoCount\": 2,\n    \"requestVideoCount\": 1,\n    \"photoContentType\": \"image/jpeg\",\n    \"videoContentType\": \"video/mp4\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/incidents/media-upload-urls"
               },
               "status": "OK",
               "code": 200,
@@ -4384,7 +4372,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n    \"photos\": [\n        {\n            \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/incidents/pictures/incident_uuid_1.jpg?X-Amz-Algorithm=...\",\n            \"fileKey\": \"incidents/pictures/incident_uuid_1.jpg\",\n            \"expiresIn\": 900\n        },\n        {\n            \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/incidents/pictures/incident_uuid_2.jpg?X-Amz-Algorithm=...\",\n            \"fileKey\": \"incidents/pictures/incident_uuid_2.jpg\",\n            \"expiresIn\": 900\n        }\n    ],\n    \"videos\": [\n        {\n            \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/incidents/videos/incident_uuid_v1.mp4?X-Amz-Algorithm=...\",\n            \"fileKey\": \"incidents/videos/incident_uuid_v1.mp4\",\n            \"expiresIn\": 900\n        }\n    ]\n}"
+              "body": "{\n    \"photos\": [\n        {\n            \"uploadUrl\": \"https://<account_id>.r2.cloudflarestorage.com/election-eye/incidents/pictures/incident_uuid_1.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&...\",\n            \"method\": \"PUT\",\n            \"fileKey\": \"incidents/pictures/incident_uuid_1.jpg\",\n            \"key\": \"incidents/pictures/incident_uuid_1.jpg\",\n            \"publicUrl\": null,\n            \"expiresIn\": 900\n        },\n        {\n            \"uploadUrl\": \"https://<account_id>.r2.cloudflarestorage.com/election-eye/incidents/pictures/incident_uuid_2.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&...\",\n            \"method\": \"PUT\",\n            \"fileKey\": \"incidents/pictures/incident_uuid_2.jpg\",\n            \"key\": \"incidents/pictures/incident_uuid_2.jpg\",\n            \"publicUrl\": null,\n            \"expiresIn\": 900\n        }\n    ],\n    \"videos\": [\n        {\n            \"uploadUrl\": \"https://<account_id>.r2.cloudflarestorage.com/election-eye/incidents/videos/incident_uuid_v1.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&...\",\n            \"method\": \"PUT\",\n            \"fileKey\": \"incidents/videos/incident_uuid_v1.mp4\",\n            \"key\": \"incidents/videos/incident_uuid_v1.mp4\",\n            \"publicUrl\": null,\n            \"expiresIn\": 900\n        }\n    ]\n}"
             }
           ]
         },
@@ -4818,7 +4806,7 @@
               "raw": "{\n    \"contentType\": \"image/png\",\n    \"originalFilename\": \"pdp-logo.png\"\n}"
             },
             "url": "{{election-eye-base-url}}/political-parties/logo-upload-url",
-            "description": "Generates a direct-to-bucket presigned PUT URL for uploading a political party logo (Cloudflare R2 compatible). The frontend should perform an HTTP PUT request with the raw binary file and the exact matching `Content-Type` header (e.g. `image/png`)."
+            "description": "Generates a direct-to-bucket presigned PUT URL for uploading a political party logo (Cloudflare R2 compatible). The frontend should perform an HTTP PUT request with the raw binary file and the exact matching Content-Type header (e.g. image/png)."
           },
           "response": [
             {
@@ -4846,7 +4834,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n    \"uploadUrl\": \"https://minio.electioneye.ng/election-eye/political-party-logos/logo_uuid.png?X-Amz-Algorithm=...\",\n    \"fileKey\": \"political-party-logos/logo_uuid.png\",\n    \"publicUrl\": \"https://minio.electioneye.ng/election-eye/political-party-logos/logo_uuid.png\",\n    \"expiresIn\": 900\n}"
+              "body": "{\n    \"uploadUrl\": \"https://<account_id>.r2.cloudflarestorage.com/election-eye/political-party-logos/logo_uuid.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&...\",\n    \"method\": \"PUT\",\n    \"fileKey\": \"political-party-logos/logo_uuid.png\",\n    \"key\": \"political-party-logos/logo_uuid.png\",\n    \"publicUrl\": \"https://<account_id>.r2.cloudflarestorage.com/election-eye/political-party-logos/logo_uuid.png\",\n    \"expiresIn\": 900\n}"
             }
           ]
         },
