@@ -13,6 +13,7 @@ import { PreElectionReportRepository } from './pre-election-report.repository';
 import {
   CreatePreElectionReportDto,
   PreElectionReportFilterDto,
+  PaginatedPreElectionReportsResponse,
 } from './pre-election-report.dto';
 import { PreElectionReport } from './pre-election-report.entity';
 import { User } from '../user/user.entity';
@@ -223,7 +224,21 @@ export class PreElectionReportService {
   async findAll(
     filters: PreElectionReportFilterDto,
     aspirantId?: number,
-  ): Promise<{ data: PreElectionReport[]; total: number; page: number; limit: number }> {
-    return this.preElectionReportRepository.findAll(filters, aspirantId);
+    user?: User,
+  ): Promise<PaginatedPreElectionReportsResponse> {
+    const effectiveFilters = { ...filters };
+
+    // Default electoralOfficeId if not explicitly provided and user belongs to an aspirant campaign
+    if (!effectiveFilters.electoralOfficeId && user && !isPlatformAdmin(user)) {
+      const officeId =
+        user.aspirant?.electoralOffice?.id ||
+        user.aspirantAccount?.electoralOffice?.id;
+      if (officeId) {
+        effectiveFilters.electoralOfficeId = officeId;
+      }
+    }
+
+    return this.preElectionReportRepository.findAll(effectiveFilters, aspirantId);
   }
 }
+

@@ -3434,28 +3434,64 @@
               "query": [
                 {
                   "key": "electoralOfficeId",
-                  "value": "{{office-id}}"
+                  "value": "{{office-id}}",
+                  "description": "Optional: Filter by electoral office. Automatically defaults to campaign aspirant's contested office if omitted."
                 },
                 {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "20"
+                  "key": "stateId",
+                  "value": "{{state-id}}",
+                  "disabled": true,
+                  "description": "Optional: Filter reports by State ID."
                 },
                 {
                   "key": "lgaId",
                   "value": "{{lga-id}}",
-                  "disabled": true
+                  "disabled": true,
+                  "description": "Optional: Filter reports by Local Government Area ID."
                 },
                 {
                   "key": "wardId",
                   "value": "{{ward-id}}",
-                  "disabled": true
+                  "disabled": true,
+                  "description": "Optional: Filter reports by Ward ID."
+                },
+                {
+                  "key": "pollingUnitId",
+                  "value": "{{pu-id}}",
+                  "disabled": true,
+                  "description": "Optional: Filter reports by Polling Unit ID."
+                },
+                {
+                  "key": "materialsArrived",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Optional: Filter by arrival status (0: NONE, 1: PARTIAL, 2: FULL)."
+                },
+                {
+                  "key": "politicalPartyId",
+                  "value": "{{party-id}}",
+                  "disabled": true,
+                  "description": "Optional: Platform Admin party-wide oversight filter."
+                },
+                {
+                  "key": "aspirantId",
+                  "value": "{{aspirant-id}}",
+                  "disabled": true,
+                  "description": "Optional: Platform Admin candidate filter. Campaign members are strictly scoped to their own aspirant."
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)."
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Page size limit (default: 20)."
                 }
               ]
-            }
+            },
+            "description": "Fetches paginated pre-election situation reports with nested geographic hierarchy (state, lga, ward, polling unit), submitter profile, and aggregate situation room summary KPIs (totalReports, materialsFullCount, materialsPartialCount, materialsNoneCount, totalRegisteredVoters, totalAccreditedVoters). Strict multi-tenant isolation guarantees campaign teams only access data for their assigned aspirant and contested office."
           },
           "response": [
             {
@@ -3463,7 +3499,7 @@
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"materialsArrived\": 2,\n      \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n      \"totalRegisteredVoters\": 1000,\n      \"totalAccreditedVoters\": 420,\n      \"comments\": \"INEC polling materials arrived complete.\",\n      \"pollingUnit\": {\n        \"id\": 5001,\n        \"name\": \"PU 001 Alausa Secretariat\",\n        \"puCode\": \"PU-LA-001\"\n      },\n      \"electoralOffice\": {\n        \"id\": 1,\n        \"title\": \"Lagos State Governorship Election\"\n      }\n    }\n  ],\n  \"total\": 1,\n  \"page\": 1,\n  \"limit\": 20\n}"
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"materialsArrived\": 2,\n      \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n      \"totalRegisteredVoters\": 1000,\n      \"totalAccreditedVoters\": 420,\n      \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\",\n      \"clientSubmittedAt\": \"2026-10-11T08:20:00.000Z\",\n      \"serverReceivedAt\": \"2026-10-11T08:20:02.124Z\",\n      \"updatedAt\": \"2026-10-11T08:20:02.124Z\",\n      \"pollingUnit\": {\n        \"id\": 5001,\n        \"name\": \"PU 001 Alausa Secretariat\",\n        \"puCode\": \"PU-LA-001\",\n        \"registeredVoters\": 1000,\n        \"ward\": {\n          \"id\": 101,\n          \"name\": \"Alausa Ward\",\n          \"lga\": {\n            \"id\": 11,\n            \"name\": \"Ikeja\",\n            \"state\": {\n              \"id\": 24,\n              \"name\": \"Lagos\"\n            }\n          }\n        }\n      },\n      \"electoralOffice\": {\n        \"id\": 1,\n        \"title\": \"Lagos State Governorship Election\"\n      },\n      \"uploadedByUser\": {\n        \"id\": 42,\n        \"firstName\": \"Adewale\",\n        \"lastName\": \"Obafemi\",\n        \"phoneNumber\": \"+2348012345678\",\n        \"emailAddress\": \"agent@campaign.ng\"\n      },\n      \"politicalParty\": {\n        \"id\": 2,\n        \"name\": \"All Progressives Congress\",\n        \"abbreviation\": \"APC\"\n      },\n      \"aspirant\": {\n        \"id\": 5,\n        \"firstName\": \"Babajide\",\n        \"lastName\": \"Sanwo-Olu\"\n      }\n    }\n  ],\n  \"total\": 1,\n  \"page\": 1,\n  \"limit\": 20,\n  \"totalPages\": 1,\n  \"summary\": {\n    \"totalReports\": 1,\n    \"materialsFullCount\": 1,\n    \"materialsPartialCount\": 0,\n    \"materialsNoneCount\": 0,\n    \"totalRegisteredVoters\": 1000,\n    \"totalAccreditedVoters\": 420\n  }\n}"
             }
           ]
         },
