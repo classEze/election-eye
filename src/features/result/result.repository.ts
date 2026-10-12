@@ -770,8 +770,8 @@ export class ResultRepository {
       .addSelect('lga.id', 'lgaId')
       .addSelect('lga.name', 'lgaName')
       .addSelect('uploader.id', 'uploaderId')
-      .addSelect('uploader.full_name', 'uploaderFullName')
-      .addSelect('uploader.email', 'uploaderEmail')
+      .addSelect("TRIM(CONCAT(COALESCE(uploader.first_name, ''), ' ', COALESCE(uploader.last_name, '')))", 'uploaderFullName')
+      .addSelect('uploader.email_address', 'uploaderEmail')
       .addSelect('party.id', 'partyId')
       .addSelect('party.name', 'partyName')
       .addSelect('party.code', 'partyCode')
@@ -932,7 +932,7 @@ export class ResultRepository {
       .addSelect('pu.pu_code', 'puCode')
       .addSelect('ward.name', 'wardName')
       .addSelect('lga.name', 'lgaName')
-      .addSelect('uploader.full_name', 'uploaderName')
+      .addSelect("TRIM(CONCAT(COALESCE(uploader.first_name, ''), ' ', COALESCE(uploader.last_name, '')))", 'uploaderName')
       .addSelect('r.server_received_at', 'submittedAt')
       .where('r.electoral_office_id = :officeId', { officeId });
 
