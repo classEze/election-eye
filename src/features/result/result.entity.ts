@@ -17,12 +17,9 @@ import { ElectoralOffice } from '../electoral-office/electoral-office.entity';
 import { Aspirant } from '../aspirant/aspirant.entity';
 import { PoliticalParty } from '../political-party/political-party.entity';
 import { PreElectionReport } from '../pre-election-report/pre-election-report.entity';
+import { MaterialsArrivedStatus } from '../pre-election-report/materials-arrived.enum';
 
-export enum MaterialsArrivedStatus {
-  NONE = 0,
-  PARTIAL = 1,
-  FULL = 2,
-}
+export { MaterialsArrivedStatus };
 
 export enum ResultAuditStatus {
   PENDING = 'PENDING',

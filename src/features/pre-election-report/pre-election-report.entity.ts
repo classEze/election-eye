@@ -13,12 +13,16 @@ import { User } from '../user/user.entity';
 import { ElectoralOffice } from '../electoral-office/electoral-office.entity';
 import { Aspirant } from '../aspirant/aspirant.entity';
 import { PoliticalParty } from '../political-party/political-party.entity';
-import { MaterialsArrivedStatus } from '../result/result.entity';
+import { MaterialsArrivedStatus } from './materials-arrived.enum';
 
 @Entity('pre_election_reports')
-@Index('idx_pre_election_pu_office_unique', ['pollingUnit', 'electoralOffice'], {
-  unique: true,
-})
+@Index(
+  'idx_pre_election_pu_office_unique',
+  ['pollingUnit', 'electoralOffice'],
+  {
+    unique: true,
+  },
+)
 export class PreElectionReport {
   @PrimaryGeneratedColumn()
   id!: number;
