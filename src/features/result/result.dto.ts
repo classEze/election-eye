@@ -192,6 +192,15 @@ export class SituationRoomFilterDto {
   @IsOptional()
   @IsString()
   status?: string;
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.toUpperCase() : value,
+  )
+  @IsEnum(ResultAuditStatus, {
+    message: 'auditStatus must be one of: PENDING, VERIFIED, FLAGGED, REJECTED',
+  })
+  auditStatus?: ResultAuditStatus;
 }
 
 export class RecentSubmissionsFilterDto {
@@ -214,6 +223,24 @@ export class RecentSubmissionsFilterDto {
   @IsInt()
   @Type(() => Number)
   pollingUnitId?: number;
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.toUpperCase() : value,
+  )
+  @IsEnum(ResultAuditStatus, {
+    message: 'auditStatus must be one of: PENDING, VERIFIED, FLAGGED, REJECTED',
+  })
+  auditStatus?: ResultAuditStatus;
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.toUpperCase() : value,
+  )
+  @IsEnum(ResultAuditStatus, {
+    message: 'status must be one of: PENDING, VERIFIED, FLAGGED, REJECTED',
+  })
+  status?: ResultAuditStatus | string;
 
   @IsOptional()
   @IsInt()
