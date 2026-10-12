@@ -195,6 +195,16 @@ export class SituationRoomFilterDto {
     message: 'auditStatus must be one of: PENDING, VERIFIED, FLAGGED, REJECTED',
   })
   auditStatus?: ResultAuditStatus;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  politicalPartyId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  aspirantId?: number;
 }
 
 export class RecentSubmissionsFilterDto {
@@ -235,6 +245,16 @@ export class RecentSubmissionsFilterDto {
     message: 'status must be one of: PENDING, VERIFIED, FLAGGED, REJECTED',
   })
   status?: ResultAuditStatus | string;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  politicalPartyId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  aspirantId?: number;
 
   @IsOptional()
   @IsInt()

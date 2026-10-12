@@ -196,12 +196,16 @@ export class ResultRepository {
     return this.findById(id);
   }
 
-  // Aggregate party totals across an entire electoral office (Approved results only)
-  async getOfficePartySummary(officeId: number, partyId?: number): Promise<any[]> {
+  async getOfficePartySummary(
+    officeId: number,
+    partyId?: number,
+    aspirantId?: number,
+  ): Promise<any[]> {
     const qb = this.resultDetailRepository
       .createQueryBuilder('rd')
       .innerJoin('rd.result', 'r')
       .innerJoin('rd.politicalParty', 'party')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('party.id', 'partyId')
       .addSelect('party.name', 'partyName')
       .addSelect('party.code', 'partyCode')
@@ -212,8 +216,18 @@ export class ResultRepository {
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('r.is_verified = true');
 
-    if (partyId) {
+    if (aspirantId && partyId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId, partyId },
+      );
+    } else if (partyId) {
       qb.andWhere('r.political_party_id = :partyId', { partyId });
+    } else if (aspirantId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
     }
 
     return qb.groupBy('party.id')
@@ -226,12 +240,18 @@ export class ResultRepository {
   }
 
   // Report: Electoral office result aggregated for a specific Polling Unit (Approved results only)
-  async getOfficePollingUnitReport(officeId: number, puId: number, partyId?: number): Promise<any> {
+  async getOfficePollingUnitReport(
+    officeId: number,
+    puId: number,
+    partyId?: number,
+    aspirantId?: number,
+  ): Promise<any> {
     const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
       .innerJoin('rd.result', 'r')
       .innerJoin('r.pollingUnit', 'pu')
       .innerJoin('rd.politicalParty', 'party')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('party.id', 'partyId')
       .addSelect('party.name', 'partyName')
       .addSelect('party.party_acronym', 'partyAcronym')
@@ -239,8 +259,20 @@ export class ResultRepository {
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('pu.id = :puId', { puId })
       .andWhere('r.is_verified = true');
-      
-    if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    if (aspirantId && partyId) {
+      rdQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId, partyId },
+      );
+    } else if (partyId) {
+      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+    } else if (aspirantId) {
+      rdQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
 
     const partyBreakdown = await rdQb
       .groupBy('party.id')
@@ -252,6 +284,7 @@ export class ResultRepository {
     const totalsQb = this.repository
       .createQueryBuilder('r')
       .innerJoin('r.pollingUnit', 'pu')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
       .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
       .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
@@ -260,8 +293,20 @@ export class ResultRepository {
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('pu.id = :puId', { puId })
       .andWhere('r.is_verified = true');
-      
-    if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    if (aspirantId && partyId) {
+      totalsQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId, partyId },
+      );
+    } else if (partyId) {
+      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+    } else if (aspirantId) {
+      totalsQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
 
     const totals = await totalsQb.getRawOne();
 
@@ -274,12 +319,18 @@ export class ResultRepository {
   }
 
   // Report: Electoral office result aggregated for a specific Ward (Approved results only)
-  async getOfficeWardReport(officeId: number, wardId: number, partyId?: number): Promise<any> {
+  async getOfficeWardReport(
+    officeId: number,
+    wardId: number,
+    partyId?: number,
+    aspirantId?: number,
+  ): Promise<any> {
     const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
       .innerJoin('rd.result', 'r')
       .innerJoin('r.pollingUnit', 'pu')
       .innerJoin('rd.politicalParty', 'party')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('party.id', 'partyId')
       .addSelect('party.name', 'partyName')
       .addSelect('party.party_acronym', 'partyAcronym')
@@ -287,8 +338,20 @@ export class ResultRepository {
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('pu.ward_id = :wardId', { wardId })
       .andWhere('r.is_verified = true');
-      
-    if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    if (aspirantId && partyId) {
+      rdQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId, partyId },
+      );
+    } else if (partyId) {
+      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+    } else if (aspirantId) {
+      rdQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
 
     const partyBreakdown = await rdQb
       .groupBy('party.id')
@@ -300,6 +363,7 @@ export class ResultRepository {
     const totalsQb = this.repository
       .createQueryBuilder('r')
       .innerJoin('r.pollingUnit', 'pu')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
       .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
       .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
@@ -308,8 +372,20 @@ export class ResultRepository {
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('pu.ward_id = :wardId', { wardId })
       .andWhere('r.is_verified = true');
-      
-    if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    if (aspirantId && partyId) {
+      totalsQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId, partyId },
+      );
+    } else if (partyId) {
+      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+    } else if (aspirantId) {
+      totalsQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
 
     const totals = await totalsQb.getRawOne();
 
@@ -322,13 +398,19 @@ export class ResultRepository {
   }
 
   // Report: Electoral office result aggregated for a specific LGA (Approved results only)
-  async getOfficeLgaReport(officeId: number, lgaId: number, partyId?: number): Promise<any> {
+  async getOfficeLgaReport(
+    officeId: number,
+    lgaId: number,
+    partyId?: number,
+    aspirantId?: number,
+  ): Promise<any> {
     const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
       .innerJoin('rd.result', 'r')
       .innerJoin('r.pollingUnit', 'pu')
       .innerJoin('pu.ward', 'ward')
       .innerJoin('rd.politicalParty', 'party')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('party.id', 'partyId')
       .addSelect('party.name', 'partyName')
       .addSelect('party.party_acronym', 'partyAcronym')
@@ -336,8 +418,20 @@ export class ResultRepository {
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('ward.lga_id = :lgaId', { lgaId })
       .andWhere('r.is_verified = true');
-      
-    if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    if (aspirantId && partyId) {
+      rdQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId, partyId },
+      );
+    } else if (partyId) {
+      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+    } else if (aspirantId) {
+      rdQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
 
     const partyBreakdown = await rdQb
       .groupBy('party.id')
@@ -350,6 +444,7 @@ export class ResultRepository {
       .createQueryBuilder('r')
       .innerJoin('r.pollingUnit', 'pu')
       .innerJoin('pu.ward', 'ward')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
       .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
       .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
@@ -358,8 +453,20 @@ export class ResultRepository {
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('ward.lga_id = :lgaId', { lgaId })
       .andWhere('r.is_verified = true');
-      
-    if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    if (aspirantId && partyId) {
+      totalsQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId, partyId },
+      );
+    } else if (partyId) {
+      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+    } else if (aspirantId) {
+      totalsQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
 
     const totals = await totalsQb.getRawOne();
 
@@ -372,7 +479,12 @@ export class ResultRepository {
   }
 
   // Report: Electoral office result aggregated for a specific State (Approved results only)
-  async getOfficeStateReport(officeId: number, stateId: number, partyId?: number): Promise<any> {
+  async getOfficeStateReport(
+    officeId: number,
+    stateId: number,
+    partyId?: number,
+    aspirantId?: number,
+  ): Promise<any> {
     const rdQb = this.resultDetailRepository
       .createQueryBuilder('rd')
       .innerJoin('rd.result', 'r')
@@ -380,6 +492,7 @@ export class ResultRepository {
       .innerJoin('pu.ward', 'ward')
       .innerJoin('ward.lga', 'lga')
       .innerJoin('rd.politicalParty', 'party')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('party.id', 'partyId')
       .addSelect('party.name', 'partyName')
       .addSelect('party.party_acronym', 'partyAcronym')
@@ -387,8 +500,20 @@ export class ResultRepository {
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('lga.state_id = :stateId', { stateId })
       .andWhere('r.is_verified = true');
-      
-    if (partyId) rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    if (aspirantId && partyId) {
+      rdQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId, partyId },
+      );
+    } else if (partyId) {
+      rdQb.andWhere('r.political_party_id = :partyId', { partyId });
+    } else if (aspirantId) {
+      rdQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
 
     const partyBreakdown = await rdQb
       .groupBy('party.id')
@@ -402,6 +527,7 @@ export class ResultRepository {
       .innerJoin('r.pollingUnit', 'pu')
       .innerJoin('pu.ward', 'ward')
       .innerJoin('ward.lga', 'lga')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('COALESCE(SUM(r.total_valid_votes), 0)::int', 'totalValidVotes')
       .addSelect('COALESCE(SUM(r.rejected_votes), 0)::int', 'totalRejectedVotes')
       .addSelect('COALESCE(SUM(r.total_accredited_voters), 0)::int', 'totalAccreditedVoters')
@@ -410,8 +536,20 @@ export class ResultRepository {
       .where('r.electoral_office_id = :officeId', { officeId })
       .andWhere('lga.state_id = :stateId', { stateId })
       .andWhere('r.is_verified = true');
-      
-    if (partyId) totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+
+    if (aspirantId && partyId) {
+      totalsQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId, partyId },
+      );
+    } else if (partyId) {
+      totalsQb.andWhere('r.political_party_id = :partyId', { partyId });
+    } else if (aspirantId) {
+      totalsQb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
 
     const totals = await totalsQb.getRawOne();
 
@@ -427,6 +565,8 @@ export class ResultRepository {
   async getOfficeUploadProgress(
     officeId: number,
     filters: SituationRoomFilterDto = {},
+    partyId?: number,
+    aspirantId?: number,
   ): Promise<{
     officeId: number;
     totalLgas: number;
@@ -527,6 +667,24 @@ export class ResultRepository {
       resFilterSql += ` AND pu.id = $${resQueryParams.length}`;
     }
 
+    const targetPartyId = partyId || filters.politicalPartyId;
+    const targetAspirantId = aspirantId || filters.aspirantId;
+
+    if (targetAspirantId && targetPartyId) {
+      resQueryParams.push(targetAspirantId);
+      const aspIdx = resQueryParams.length;
+      resQueryParams.push(targetPartyId);
+      const partyIdx = resQueryParams.length;
+      resFilterSql += ` AND (r.aspirant_id = $${aspIdx} OR r.political_party_id = $${partyIdx} OR uploader.aspirant_id = $${aspIdx})`;
+    } else if (targetPartyId) {
+      resQueryParams.push(targetPartyId);
+      resFilterSql += ` AND r.political_party_id = $${resQueryParams.length}`;
+    } else if (targetAspirantId) {
+      resQueryParams.push(targetAspirantId);
+      const aspIdx = resQueryParams.length;
+      resFilterSql += ` AND (r.aspirant_id = $${aspIdx} OR uploader.aspirant_id = $${aspIdx})`;
+    }
+
     const resStats = await this.repository.manager.query(
       `
       SELECT 
@@ -551,6 +709,7 @@ export class ResultRepository {
       JOIN polling_units pu ON pu.id = r.polling_unit_id
       JOIN wards w ON w.id = pu.ward_id
       JOIN lgas l ON l.id = w.lga_id
+      LEFT JOIN users uploader ON uploader.id = r.uploaded_by_user_id
       WHERE r.electoral_office_id = $1
       ${resFilterSql}
       `,
@@ -609,6 +768,7 @@ export class ResultRepository {
     officeId: number,
     filters: SituationRoomFilterDto = {},
     partyId?: number,
+    aspirantId?: number,
   ): Promise<{
     totalValidVotes: number;
     leadingParty: {
@@ -642,6 +802,7 @@ export class ResultRepository {
       .innerJoin('r.pollingUnit', 'pu')
       .innerJoin('pu.ward', 'ward')
       .innerJoin('ward.lga', 'lga')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('party.id', 'partyId')
       .addSelect('party.name', 'partyName')
       .addSelect('party.code', 'partyCode')
@@ -676,8 +837,22 @@ export class ResultRepository {
         puId: filters.pollingUnitId,
       });
     }
-    if (partyId) {
-      qb.andWhere('party.id = :partyId', { partyId });
+
+    const targetPartyId = partyId || filters.politicalPartyId;
+    const targetAspirantId = aspirantId || filters.aspirantId;
+
+    if (targetAspirantId && targetPartyId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: targetAspirantId, partyId: targetPartyId },
+      );
+    } else if (targetPartyId) {
+      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
+    } else if (targetAspirantId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: targetAspirantId },
+      );
     }
 
     const rawStandings = await qb
@@ -727,6 +902,8 @@ export class ResultRepository {
   async getRecentSubmissions(
     officeId: number,
     filters: RecentSubmissionsFilterDto = {},
+    partyId?: number,
+    aspirantId?: number,
   ): Promise<
     Array<{
       resultId: number;
@@ -792,6 +969,23 @@ export class ResultRepository {
       qb.andWhere('r.polling_unit_id = :puId', {
         puId: filters.pollingUnitId,
       });
+    }
+
+    const targetPartyId = partyId || filters.politicalPartyId;
+    const targetAspirantId = aspirantId || filters.aspirantId;
+
+    if (targetAspirantId && targetPartyId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: targetAspirantId, partyId: targetPartyId },
+      );
+    } else if (targetPartyId) {
+      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
+    } else if (targetAspirantId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: targetAspirantId },
+      );
     }
 
     const auditStatusFilter = filters.auditStatus || filters.status;
@@ -862,6 +1056,8 @@ export class ResultRepository {
   async countIncidentsForOffice(
     officeId: number,
     filters: SituationRoomFilterDto = {},
+    partyId?: number,
+    aspirantId?: number,
   ): Promise<number> {
     const queryParams: any[] = [officeId];
     let filterSql = '';
@@ -882,6 +1078,24 @@ export class ResultRepository {
       filterSql += ` AND pu.id = $${queryParams.length}`;
     }
 
+    const targetPartyId = partyId || filters.politicalPartyId;
+    const targetAspirantId = aspirantId || filters.aspirantId;
+
+    if (targetAspirantId && targetPartyId) {
+      queryParams.push(targetAspirantId);
+      const aspIdx = queryParams.length;
+      queryParams.push(targetPartyId);
+      const partyIdx = queryParams.length;
+      filterSql += ` AND (i.aspirant_id = $${aspIdx} OR i.political_party_id = $${partyIdx} OR reporter.aspirant_id = $${aspIdx})`;
+    } else if (targetPartyId) {
+      queryParams.push(targetPartyId);
+      filterSql += ` AND i.political_party_id = $${queryParams.length}`;
+    } else if (targetAspirantId) {
+      queryParams.push(targetAspirantId);
+      const aspIdx = queryParams.length;
+      filterSql += ` AND (i.aspirant_id = $${aspIdx} OR reporter.aspirant_id = $${aspIdx})`;
+    }
+
     const result = await this.repository.manager.query(
       `
       SELECT COUNT(DISTINCT i.id)::int AS total_incidents
@@ -889,6 +1103,7 @@ export class ResultRepository {
       LEFT JOIN polling_units pu ON pu.id = i.polling_unit_id
       LEFT JOIN wards w ON w.id = COALESCE(i.ward_id, pu.ward_id)
       LEFT JOIN lgas l ON l.id = COALESCE(i.lga_id, w.lga_id)
+      LEFT JOIN users reporter ON reporter.id = i.reported_by_user_id
       JOIN electoral_offices eo ON eo.id = $1
       LEFT JOIN office_lgas ol ON ol.office_id = eo.id AND ol.lga_id = l.id
       LEFT JOIN office_wards ow ON ow.office_id = eo.id AND ow.ward_id = w.id
@@ -910,6 +1125,8 @@ export class ResultRepository {
   async getLastSubmission(
     officeId: number,
     filters: SituationRoomFilterDto = {},
+    partyId?: number,
+    aspirantId?: number,
   ): Promise<{
     pollingUnitId: number;
     pollingUnitName: string;
@@ -951,6 +1168,23 @@ export class ResultRepository {
       });
     }
 
+    const targetPartyId = partyId || filters.politicalPartyId;
+    const targetAspirantId = aspirantId || filters.aspirantId;
+
+    if (targetAspirantId && targetPartyId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: targetAspirantId, partyId: targetPartyId },
+      );
+    } else if (targetPartyId) {
+      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
+    } else if (targetAspirantId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: targetAspirantId },
+      );
+    }
+
     const raw = await qb
       .orderBy('r.server_received_at', 'DESC')
       .limit(1)
@@ -988,7 +1222,11 @@ export class ResultRepository {
     officeId: number,
     filters: SituationRoomFilterDto = {},
     partyId?: number,
+    aspirantId?: number,
   ) {
+    const targetPartyId = partyId || filters.politicalPartyId;
+    const targetAspirantId = aspirantId || filters.aspirantId;
+
     const [
       progress,
       standingsData,
@@ -996,18 +1234,20 @@ export class ResultRepository {
       incidentsReported,
       lastSubmission,
     ] = await Promise.all([
-      this.getOfficeUploadProgress(officeId, filters),
-      this.getSituationRoomStandings(officeId, filters, partyId),
+      this.getOfficeUploadProgress(officeId, filters, targetPartyId, targetAspirantId),
+      this.getSituationRoomStandings(officeId, filters, targetPartyId, targetAspirantId),
       this.getRecentSubmissions(officeId, {
         stateId: filters.stateId,
         lgaId: filters.lgaId,
         wardId: filters.wardId,
         pollingUnitId: filters.pollingUnitId,
         auditStatus: filters.auditStatus,
+        politicalPartyId: targetPartyId,
+        aspirantId: targetAspirantId,
         limit: 10,
-      }),
-      this.countIncidentsForOffice(officeId, filters),
-      this.getLastSubmission(officeId, filters),
+      }, targetPartyId, targetAspirantId),
+      this.countIncidentsForOffice(officeId, filters, targetPartyId, targetAspirantId),
+      this.getLastSubmission(officeId, filters, targetPartyId, targetAspirantId),
     ]);
 
     const cards = {
@@ -1062,6 +1302,8 @@ export class ResultRepository {
     officeId: number,
     page = 1,
     limit = 20,
+    partyId?: number,
+    aspirantId?: number,
   ): Promise<{
     data: Record<string, unknown>[];
     total: number;
@@ -1073,6 +1315,7 @@ export class ResultRepository {
       .innerJoin('r.pollingUnit', 'pu')
       .innerJoin('pu.ward', 'ward')
       .innerJoin('ward.lga', 'lga')
+      .leftJoin('r.uploadedByUser', 'uploader')
       .select('r.id', 'resultId')
       .addSelect('r.ec8a_photo_url', 'ec8aPhotoUrl')
       .addSelect('r.total_valid_votes', 'totalValidVotes')
@@ -1088,6 +1331,23 @@ export class ResultRepository {
       .addSelect('lga.id', 'lgaId')
       .addSelect('lga.name', 'lgaName')
       .where('r.electoral_office_id = :officeId', { officeId });
+
+    const targetPartyId = partyId;
+    const targetAspirantId = aspirantId;
+
+    if (targetAspirantId && targetPartyId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR r.political_party_id = :partyId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: targetAspirantId, partyId: targetPartyId },
+      );
+    } else if (targetPartyId) {
+      qb.andWhere('r.political_party_id = :partyId', { partyId: targetPartyId });
+    } else if (targetAspirantId) {
+      qb.andWhere(
+        '(r.aspirant_id = :aspirantId OR uploader.aspirant_id = :aspirantId)',
+        { aspirantId: targetAspirantId },
+      );
+    }
 
     const total = await qb.getCount();
     const skip = (page - 1) * limit;
