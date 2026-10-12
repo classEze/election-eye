@@ -17,6 +17,7 @@ import {
   VerifyResultDto,
   SituationRoomFilterDto,
   RecentSubmissionsFilterDto,
+  ResultMediaUploadUrlsDto,
 } from './result.dto';
 import { Result, ResultAuditStatus, MaterialsArrivedStatus } from './result.entity';
 import { PreElectionReport } from '../pre-election-report/pre-election-report.entity';
@@ -24,7 +25,12 @@ import { User } from '../user/user.entity';
 import { RoleCode } from '../role/role.enum';
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
 import { ElectoralOfficeService } from '../electoral-office/electoral-office.service';
-import { StorageService, FileContext } from '../../shared/storage/storage.service';
+import {
+  StorageService,
+  FileContext,
+  MAX_IMAGE_SIZE_BYTES,
+  MAX_VIDEO_SIZE_BYTES,
+} from '../../shared/storage/storage.service';
 import { ResultExportService, ReportExportData } from './result-export.service';
 import { ResultAnomalyDetector } from './result-anomaly.detector';
 
@@ -589,36 +595,69 @@ export class ResultService {
   }
 
   async getMediaUploadUrls(
-    requestPhoto: boolean,
-    requestVideo: boolean,
+    dtoOrPhoto: ResultMediaUploadUrlsDto | boolean,
+    requestVideo?: boolean,
     photoContentType?: string,
     videoContentType?: string,
-  ) {
+  ): Promise<{
+    photo?: {
+      uploadUrl: string;
+      method: 'PUT';
+      fileKey: string;
+      key: string;
+      publicUrl: string | null;
+      expiresIn: number;
+    };
+    video?: {
+      uploadUrl: string;
+      method: 'PUT';
+      fileKey: string;
+      key: string;
+      publicUrl: string | null;
+      expiresIn: number;
+    };
+  }> {
+    const isDto = typeof dtoOrPhoto === 'object' && dtoOrPhoto !== null;
+    const reqPhoto = isDto ? !!dtoOrPhoto.requestPhoto : !!dtoOrPhoto;
+    const reqVideo = isDto ? !!dtoOrPhoto.requestVideo : !!requestVideo;
+    const photoType = isDto ? dtoOrPhoto.photoContentType : photoContentType;
+    const videoType = isDto ? dtoOrPhoto.videoContentType : videoContentType;
+
     const response: any = {};
-    
-    if (requestPhoto && photoContentType) {
-      if (!photoContentType.startsWith('image/')) {
-        throw new BadRequestException('EC8A photo must be an image type.');
+
+    if (reqPhoto) {
+      if (!photoType) {
+        throw new BadRequestException(
+          'photoContentType is required when requestPhoto is true.',
+        );
+      }
+      if (!photoType.startsWith('image/')) {
+        throw new BadRequestException('EC8A photo must be an image type (e.g. image/jpeg, image/png).');
       }
       response.photo = await this.storageService.getPresignedUploadUrl(
         FileContext.RESULT_DOCUMENT,
-        photoContentType,
-        10 * 1024 * 1024, // 10MB limit for photos
-      );
-    }
-    
-    if (requestVideo && videoContentType) {
-      if (!videoContentType.startsWith('video/')) {
-        throw new BadRequestException('Video evidence must be a video type.');
-      }
-      response.video = await this.storageService.getPresignedUploadUrl(
-        FileContext.RESULT_DOCUMENT,
-        videoContentType,
-        50 * 1024 * 1024, // 50MB limit for videos
+        photoType,
+        MAX_IMAGE_SIZE_BYTES,
       );
     }
 
-    if (Object.keys(response).length === 0) {
+    if (reqVideo) {
+      if (!videoType) {
+        throw new BadRequestException(
+          'videoContentType is required when requestVideo is true.',
+        );
+      }
+      if (!videoType.startsWith('video/')) {
+        throw new BadRequestException('Video evidence must be a video type (e.g. video/mp4).');
+      }
+      response.video = await this.storageService.getPresignedUploadUrl(
+        FileContext.RESULT_DOCUMENT,
+        videoType,
+        MAX_VIDEO_SIZE_BYTES,
+      );
+    }
+
+    if (!response.photo && !response.video) {
       throw new BadRequestException(
         'You must request at least one media upload URL (photo or video) with a valid content type.',
       );

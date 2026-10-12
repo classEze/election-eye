@@ -18,6 +18,7 @@ import {
   PoliticalPartyQueryDto,
   UpdatePartyLogoDto,
   UpdatePoliticalPartyDto,
+  PartyLogoUploadUrlDto,
 } from './political-party.dto';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
 import { RoleCode } from '../role/role.enum';
@@ -110,18 +111,16 @@ export class PoliticalPartyController {
   @Audit({ skip: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('logo-upload-url')
-  async getLogoUploadUrl(
-    @Body('contentType') contentType: string,
-    @Body('originalFilename') originalFilename?: string,
-  ) {
-    if (!contentType || !contentType.startsWith('image/')) {
+  @HttpCode(HttpStatus.OK)
+  async getLogoUploadUrl(@Body() dto: PartyLogoUploadUrlDto) {
+    if (!dto.contentType || !dto.contentType.startsWith('image/')) {
       throw new BadRequestException(
-        'Content type must be an image type (e.g. image/png)',
+        'Content type must be an image type (e.g. image/png, image/jpeg)',
       );
     }
     return this.politicalPartyService.getLogoUploadUrl(
-      contentType,
-      originalFilename,
+      dto.contentType,
+      dto.originalFilename,
     );
   }
 }

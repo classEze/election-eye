@@ -19,6 +19,7 @@ import {
   IncidentFilterDto,
   IncidentMapClusterQueryDto,
   UpdateIncidentStatusDto,
+  IncidentMediaUploadUrlsDto,
 } from './incident.dto';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
 import { RoleCode } from '../role/role.enum';
@@ -62,22 +63,31 @@ export class IncidentController {
     RoleCode.PU_AGENT,
     RoleCode.WARD_COORDINATOR,
     RoleCode.LGA_COORDINATOR,
+    RoleCode.ASPIRANT,
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_USER,
   ])
   @UseGuards(SubmissionWindowGuard)
   @Post('media-upload-urls')
   @HttpCode(HttpStatus.OK)
   async getMediaUploadUrls(
-    @Query('requestPhotoCount') requestPhotoCount = '0',
-    @Query('requestVideoCount') requestVideoCount = '0',
-    @Query('photoContentType') photoContentType?: string,
-    @Query('videoContentType') videoContentType?: string,
+    @Body() bodyDto: IncidentMediaUploadUrlsDto,
+    @Query() queryDto: IncidentMediaUploadUrlsDto,
   ) {
-    return this.incidentService.getMediaUploadUrls(
-      parseInt(requestPhotoCount, 10),
-      parseInt(requestVideoCount, 10),
-      photoContentType,
-      videoContentType,
-    );
+    const mergedDto: IncidentMediaUploadUrlsDto = {
+      requestPhotoCount:
+        bodyDto?.requestPhotoCount !== undefined
+          ? bodyDto.requestPhotoCount
+          : (queryDto?.requestPhotoCount ? parseInt(queryDto.requestPhotoCount as any, 10) : 0),
+      requestVideoCount:
+        bodyDto?.requestVideoCount !== undefined
+          ? bodyDto.requestVideoCount
+          : (queryDto?.requestVideoCount ? parseInt(queryDto.requestVideoCount as any, 10) : 0),
+      photoContentType: bodyDto?.photoContentType || queryDto?.photoContentType,
+      videoContentType: bodyDto?.videoContentType || queryDto?.videoContentType,
+    };
+    return this.incidentService.getMediaUploadUrls(mergedDto);
   }
 
   @Get('map-clusters')

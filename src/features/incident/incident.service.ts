@@ -12,6 +12,7 @@ import {
   IncidentFilterDto,
   IncidentMapClusterQueryDto,
   UpdateIncidentStatusDto,
+  IncidentMediaUploadUrlsDto,
 } from './incident.dto';
 import { Incident, IncidentStatus } from './incident.entity';
 import { IncidentCategory } from '../../shared/entities/incident-category.entity';
@@ -21,7 +22,7 @@ import { PollingUnit } from '../polling-unit/polling-unit.entity';
 import { Ward } from '../ward/ward.entity';
 import { Lga } from '../lga/lga.entity';
 import { ElectoralOfficeService } from '../electoral-office/electoral-office.service';
-import { StorageService } from '../../shared/storage/storage.service';
+import { StorageService, FileContext } from '../../shared/storage/storage.service';
 
 const MAX_VIDEO_COUNT = 2;
 const MAX_PICTURE_COUNT = 2;
@@ -235,7 +236,30 @@ export class IncidentService {
     if (!incident) {
       throw new NotFoundException(`Incident with ID #${id} not found.`);
     }
-    return incident;
+
+    const resolvedPictureUrls = await Promise.all(
+      (incident.mediaPictureUrls || []).map(async (keyOrUrl) => {
+        if (!keyOrUrl || keyOrUrl.startsWith('http://') || keyOrUrl.startsWith('https://')) {
+          return keyOrUrl;
+        }
+        return this.storageService.getPresignedDownloadUrl(keyOrUrl);
+      }),
+    );
+
+    const resolvedVideoUrls = await Promise.all(
+      (incident.mediaVideoUrls || []).map(async (keyOrUrl) => {
+        if (!keyOrUrl || keyOrUrl.startsWith('http://') || keyOrUrl.startsWith('https://')) {
+          return keyOrUrl;
+        }
+        return this.storageService.getPresignedDownloadUrl(keyOrUrl);
+      }),
+    );
+
+    return {
+      ...incident,
+      mediaPictureUrls: resolvedPictureUrls,
+      mediaVideoUrls: resolvedVideoUrls,
+    } as Incident;
   }
 
   async findAll(filters: IncidentFilterDto) {
@@ -314,45 +338,98 @@ export class IncidentService {
     return { message: `Incident #${id} successfully removed.` };
   }
 
-  async getMediaUploadUrls(requestPhotoCount: number, requestVideoCount: number, photoContentType?: string, videoContentType?: string) {
-    const response: any = { photos: [], videos: [] };
-    
-    if (requestPhotoCount > 0 && photoContentType) {
-      if (!photoContentType.startsWith('image/')) {
-        throw new BadRequestException('Incident photos must be an image type.');
+  async getMediaUploadUrls(
+    dtoOrPhotoCount: IncidentMediaUploadUrlsDto | number,
+    requestVideoCount?: number,
+    photoContentType?: string,
+    videoContentType?: string,
+  ): Promise<{
+    photos: Array<{
+      uploadUrl: string;
+      method: 'PUT';
+      fileKey: string;
+      key: string;
+      publicUrl: string | null;
+      expiresIn: number;
+    }>;
+    videos: Array<{
+      uploadUrl: string;
+      method: 'PUT';
+      fileKey: string;
+      key: string;
+      publicUrl: string | null;
+      expiresIn: number;
+    }>;
+  }> {
+    const isDto = typeof dtoOrPhotoCount === 'object' && dtoOrPhotoCount !== null;
+    const photoCount = isDto ? (dtoOrPhotoCount.requestPhotoCount ?? 0) : (dtoOrPhotoCount ?? 0);
+    const videoCount = isDto ? (dtoOrPhotoCount.requestVideoCount ?? 0) : (requestVideoCount ?? 0);
+    const photoType = isDto ? dtoOrPhotoCount.photoContentType : photoContentType;
+    const videoType = isDto ? dtoOrPhotoCount.videoContentType : videoContentType;
+
+    const response: {
+      photos: Array<{
+        uploadUrl: string;
+        method: 'PUT';
+        fileKey: string;
+        key: string;
+        publicUrl: string | null;
+        expiresIn: number;
+      }>;
+      videos: Array<{
+        uploadUrl: string;
+        method: 'PUT';
+        fileKey: string;
+        key: string;
+        publicUrl: string | null;
+        expiresIn: number;
+      }>;
+    } = { photos: [], videos: [] };
+
+    if (photoCount > 0) {
+      if (!photoType) {
+        throw new BadRequestException('photoContentType is required when requestPhotoCount > 0.');
       }
-      if (requestPhotoCount > MAX_PICTURE_COUNT) {
+      if (!photoType.startsWith('image/')) {
+        throw new BadRequestException('Incident photos must be an image MIME type (e.g. image/jpeg, image/png).');
+      }
+      if (photoCount > MAX_PICTURE_COUNT) {
         throw new BadRequestException(`Maximum allowed is ${MAX_PICTURE_COUNT} photos.`);
       }
-      for (let i = 0; i < requestPhotoCount; i++) {
-        const url = await this.storageService.getPresignedUploadUrl(
-          'incidents/pictures' as any, // FileContext equivalent
-          photoContentType,
+      for (let i = 0; i < photoCount; i++) {
+        const urlObj = await this.storageService.getPresignedUploadUrl(
+          FileContext.INCIDENT_PICTURE,
+          photoType,
           10 * 1024 * 1024,
         );
-        response.photos.push(url);
+        response.photos.push(urlObj);
       }
     }
-    
-    if (requestVideoCount > 0 && videoContentType) {
-      if (!videoContentType.startsWith('video/')) {
-        throw new BadRequestException('Incident videos must be a video type.');
+
+    if (videoCount > 0) {
+      if (!videoType) {
+        throw new BadRequestException('videoContentType is required when requestVideoCount > 0.');
       }
-      if (requestVideoCount > MAX_VIDEO_COUNT) {
+      if (!videoType.startsWith('video/')) {
+        throw new BadRequestException('Incident videos must be a video MIME type (e.g. video/mp4).');
+      }
+      if (videoCount > MAX_VIDEO_COUNT) {
         throw new BadRequestException(`Maximum allowed is ${MAX_VIDEO_COUNT} videos.`);
       }
-      for (let i = 0; i < requestVideoCount; i++) {
-        const url = await this.storageService.getPresignedUploadUrl(
-          'incidents/videos' as any, // FileContext equivalent
-          videoContentType,
+      for (let i = 0; i < videoCount; i++) {
+        const urlObj = await this.storageService.getPresignedUploadUrl(
+          FileContext.INCIDENT_VIDEO,
+          videoType,
           50 * 1024 * 1024,
         );
-        response.videos.push(url);
+        response.videos.push(urlObj);
       }
     }
 
     if (response.photos.length === 0 && response.videos.length === 0) {
-      throw new BadRequestException('You must request at least one media upload URL (photo or video) with a valid content type.');
+      throw new BadRequestException(
+        'You must request at least one media upload URL (photo or video) with a valid content type.',
+      );
     }
 
     return response;
