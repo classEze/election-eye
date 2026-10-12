@@ -21,6 +21,7 @@ import { User } from '../user/user.entity';
 import { SubmissionWindowGuard } from '../../shared/guards/submission-window.guard';
 import { PreElectionReport } from './pre-election-report.entity';
 import { Audit } from '../../shared/decorators/audit.decorator';
+import { resolveTenantAspirantId } from '../../shared/utils/tenant-context.util';
 
 @Controller('pre-election-reports')
 export class PreElectionReportController {
@@ -58,8 +59,12 @@ export class PreElectionReportController {
     RoleCode.PU_AGENT,
   ])
   @Get()
-  async findAll(@Query() query: PreElectionReportFilterDto) {
-    return this.preElectionReportService.findAll(query);
+  async findAll(
+    @Query() query: PreElectionReportFilterDto,
+    @GetUser() user: User,
+  ) {
+    const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
+    return this.preElectionReportService.findAll(query, effectiveAspirantId);
   }
 
   @Allowed([
@@ -75,10 +80,17 @@ export class PreElectionReportController {
   async findByPollingUnit(
     @Param('puId') puId: string,
     @Query('officeId') officeId: string,
+    @Query('aspirantId') queryAspirantId: string,
+    @GetUser() user: User,
   ): Promise<PreElectionReport | null> {
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      queryAspirantId ? +queryAspirantId : undefined,
+    );
     return this.preElectionReportService.findByPollingUnitAndOffice(
       +puId,
       +officeId,
+      effectiveAspirantId,
     );
   }
 
@@ -92,7 +104,10 @@ export class PreElectionReportController {
     RoleCode.PU_AGENT,
   ])
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<PreElectionReport> {
-    return this.preElectionReportService.findOne(+id);
+  async findOne(
+    @Param('id') id: string,
+    @GetUser() user: User,
+  ): Promise<PreElectionReport> {
+    return this.preElectionReportService.findOne(+id, user);
   }
 }

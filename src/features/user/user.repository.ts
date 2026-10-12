@@ -183,7 +183,10 @@ export class UserRepository {
     }
   }
 
-  async findAll(queryDto?: UserQueryDto): Promise<{
+  async findAll(
+    queryDto?: UserQueryDto,
+    aspirantId?: number,
+  ): Promise<{
     data: User[];
     meta: { total: number; page: number; limit: number; totalPages: number };
   }> {
@@ -197,6 +200,14 @@ export class UserRepository {
       .leftJoinAndSelect('user.aspirantAccount', 'aspirantAccount')
       .leftJoinAndSelect('user.onboardedByUser', 'onboardedByUser')
       .leftJoinAndSelect('user.createdByAdmin', 'createdByAdmin');
+
+    const effectiveAspirantId = aspirantId ?? queryDto?.aspirantId;
+    if (effectiveAspirantId) {
+      qb.andWhere(
+        '(user.aspirant_id = :aspirantId OR user.aspirant_account_id = :aspirantId)',
+        { aspirantId: effectiveAspirantId },
+      );
+    }
 
     if (queryDto?.search) {
       qb.andWhere(
@@ -449,12 +460,12 @@ export class UserRepository {
     }
   }
 
-  async countCoordinatorsAndAgents(): Promise<{
+  async countCoordinatorsAndAgents(aspirantId?: number): Promise<{
     lgaCoordinators: number;
     wardCoordinators: number;
     puAgents: number;
   }> {
-    const raw = await this.repo
+    const qb = this.repo
       .createQueryBuilder('user')
       .innerJoin('user.role', 'role')
       .select(
@@ -473,8 +484,16 @@ export class UserRepository {
         lgaCoord: RoleCode.LGA_COORDINATOR,
         wardCoord: RoleCode.WARD_COORDINATOR,
         puAgent: RoleCode.PU_AGENT,
-      })
-      .getRawOne<CoordinatorAgentCountSummaryRaw>();
+      });
+
+    if (aspirantId) {
+      qb.andWhere(
+        '(user.aspirant_id = :aspirantId OR user.aspirant_account_id = :aspirantId)',
+        { aspirantId },
+      );
+    }
+
+    const raw = await qb.getRawOne<CoordinatorAgentCountSummaryRaw>();
 
     return {
       lgaCoordinators: Number(raw?.lgaCoordinators || 0),

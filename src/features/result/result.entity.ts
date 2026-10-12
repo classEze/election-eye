@@ -29,9 +29,9 @@ export enum ResultAuditStatus {
 }
 
 @Entity('results')
-@Index('idx_results_pu_office_unique', ['pollingUnit', 'electoralOffice'], {
+@Index('idx_results_pu_office_aspirant_unique', ['pollingUnit', 'electoralOffice', 'aspirant'], {
   unique: true,
-}) // Prevents multiple submissions for the same office at the same PU
+}) // Prevents multiple submissions for the same office and PU per campaign team
 @Index('idx_results_office_verified', ['electoralOffice', 'isVerified'])
 export class Result {
   @PrimaryGeneratedColumn()

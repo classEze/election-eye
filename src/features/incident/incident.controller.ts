@@ -28,6 +28,7 @@ import { User } from '../user/user.entity';
 import { SubmissionWindowGuard } from '../../shared/guards/submission-window.guard';
 import { Incident } from './incident.entity';
 import { Audit } from '../../shared/decorators/audit.decorator';
+import { resolveTenantAspirantId } from '../../shared/utils/tenant-context.util';
 
 @Controller('incidents')
 export class IncidentController {
@@ -91,8 +92,12 @@ export class IncidentController {
   }
 
   @Get('map-clusters')
-  async getMapClusters(@Query() query: IncidentMapClusterQueryDto) {
-    return this.incidentService.findMapClusters(query);
+  async getMapClusters(
+    @Query() query: IncidentMapClusterQueryDto,
+    @GetUser() user: User,
+  ) {
+    const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
+    return this.incidentService.findMapClusters(query, effectiveAspirantId);
   }
 
   @Get('electoral-office/:officeId')
@@ -100,18 +105,33 @@ export class IncidentController {
     @Param('officeId') officeId: string,
     @Query('page') page = '1',
     @Query('limit') limit = '20',
+    @Query('aspirantId') queryAspirantId: string | undefined,
+    @GetUser() user: User,
   ) {
-    return this.incidentService.findByElectoralOffice(+officeId, +page, +limit);
+    const effectiveAspirantId = resolveTenantAspirantId(
+      user,
+      queryAspirantId ? +queryAspirantId : undefined,
+    );
+    return this.incidentService.findByElectoralOffice(
+      +officeId,
+      +page,
+      +limit,
+      effectiveAspirantId,
+    );
   }
 
   @Get()
-  async findAll(@Query() query: IncidentFilterDto) {
-    return this.incidentService.findAll(query);
+  async findAll(@Query() query: IncidentFilterDto, @GetUser() user: User) {
+    const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
+    return this.incidentService.findAll(query, effectiveAspirantId);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Incident> {
-    return this.incidentService.findOne(+id);
+  async findOne(
+    @Param('id') id: string,
+    @GetUser() user: User,
+  ): Promise<Incident> {
+    return this.incidentService.findOne(+id, user);
   }
 
   @Audit({

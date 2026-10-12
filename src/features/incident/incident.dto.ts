@@ -141,6 +141,11 @@ export class IncidentFilterDto {
 
   @IsOptional()
   @IsInt()
+  @Type(() => Number)
+  aspirantId?: number;
+
+  @IsOptional()
+  @IsInt()
   @Min(1)
   @Type(() => Number)
   page: number = 1;
@@ -172,6 +177,11 @@ export class IncidentMapClusterQueryDto {
   @IsNumber()
   @Type(() => Number)
   maxLng!: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  aspirantId?: number;
 }
 
 export class IncidentMediaUploadUrlsDto {

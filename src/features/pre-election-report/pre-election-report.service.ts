@@ -20,6 +20,10 @@ import { RoleCode } from '../role/role.enum';
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
 import { ElectoralOfficeService } from '../electoral-office/electoral-office.service';
 import { Result } from '../result/result.entity';
+import {
+  isPlatformAdmin,
+  getEffectiveAspirantId,
+} from 'src/shared/utils/tenant-context.util';
 
 @Injectable()
 export class PreElectionReportService {
@@ -131,7 +135,12 @@ export class PreElectionReportService {
     }
 
     const aspirantId =
-      user.aspirant?.id || user.aspirantAccount?.id || dto.aspirantId;
+      user.aspirant?.id || user.aspirantAccount?.id;
+    if (!aspirantId) {
+      throw new BadRequestException(
+        'Authenticated user is not affiliated with any aspirant campaign team.',
+      );
+    }
     const partyId =
       user.aspirant?.politicalParty?.id ||
       user.aspirantAccount?.politicalParty?.id ||
@@ -142,7 +151,7 @@ export class PreElectionReportService {
       pollingUnit: { id: puId } as any,
       uploadedByUser: user,
       politicalParty: partyId ? ({ id: partyId } as any) : null,
-      aspirant: aspirantId ? ({ id: aspirantId } as any) : null,
+      aspirant: { id: aspirantId } as any,
       materialsArrived: dto.materialsArrived,
       materialArrivalTime: dto.materialArrivalTime
         ? new Date(dto.materialArrivalTime)
@@ -157,12 +166,15 @@ export class PreElectionReportService {
 
     const saved = await this.preElectionReportRepository.createOrUpdate(reportData);
 
-    // Link this PreElectionReport to any existing Result records for this PU & Electoral Office
+    // Link this PreElectionReport to any existing Result records for this PU, Electoral Office, and Aspirant
+    const resultUpdateWhere: any = {
+      pollingUnit: { id: puId },
+      electoralOffice: { id: dto.electoralOfficeId },
+      aspirant: { id: aspirantId },
+    };
+
     await this.resultRepository.update(
-      {
-        pollingUnit: { id: puId },
-        electoralOffice: { id: dto.electoralOfficeId },
-      },
+      resultUpdateWhere,
       {
         preElectionReport: saved,
         ...(saved.totalRegisteredVoters != null
@@ -181,24 +193,37 @@ export class PreElectionReportService {
   async findByPollingUnitAndOffice(
     puId: number,
     officeId: number,
+    aspirantId?: number,
   ): Promise<PreElectionReport | null> {
     return this.preElectionReportRepository.findByPollingUnitAndOffice(
       puId,
       officeId,
+      aspirantId,
     );
   }
 
-  async findOne(id: number): Promise<PreElectionReport> {
+  async findOne(id: number, user?: User): Promise<PreElectionReport> {
     const report = await this.preElectionReportRepository.findById(id);
     if (!report) {
       throw new NotFoundException(`Pre-election report with ID #${id} not found.`);
     }
+
+    if (user && !isPlatformAdmin(user)) {
+      const userAspirantId = getEffectiveAspirantId(user);
+      if (report.aspirant?.id && report.aspirant.id !== userAspirantId) {
+        throw new ForbiddenException(
+          'Access denied to this pre-election report.',
+        );
+      }
+    }
+
     return report;
   }
 
   async findAll(
     filters: PreElectionReportFilterDto,
+    aspirantId?: number,
   ): Promise<{ data: PreElectionReport[]; total: number; page: number; limit: number }> {
-    return this.preElectionReportRepository.findAll(filters);
+    return this.preElectionReportRepository.findAll(filters, aspirantId);
   }
 }
