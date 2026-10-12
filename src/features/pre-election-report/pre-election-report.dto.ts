@@ -93,6 +93,16 @@ export class PreElectionReportFilterDto {
 
   @IsOptional()
   @IsInt()
+  @Type(() => Number)
+  politicalPartyId?: number;
+
+  @IsOptional()
+  @IsEnum(MaterialsArrivedStatus)
+  @Type(() => Number)
+  materialsArrived?: MaterialsArrivedStatus;
+
+  @IsOptional()
+  @IsInt()
   @Min(1)
   @Type(() => Number)
   page: number = 1;
@@ -102,4 +112,22 @@ export class PreElectionReportFilterDto {
   @Min(1)
   @Type(() => Number)
   limit: number = 20;
+}
+
+export interface PreElectionReportSummary {
+  totalReports: number;
+  materialsFullCount: number;
+  materialsPartialCount: number;
+  materialsNoneCount: number;
+  totalRegisteredVoters: number;
+  totalAccreditedVoters: number;
+}
+
+export interface PaginatedPreElectionReportsResponse {
+  data: any[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  summary: PreElectionReportSummary;
 }

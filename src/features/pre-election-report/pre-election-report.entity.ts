@@ -23,6 +23,7 @@ import { MaterialsArrivedStatus } from './materials-arrived.enum';
     unique: true,
   },
 )
+@Index('idx_pre_election_office_aspirant', ['electoralOffice', 'aspirant'])
 export class PreElectionReport {
   @PrimaryGeneratedColumn()
   id!: number;

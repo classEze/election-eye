@@ -13,6 +13,7 @@ import { PreElectionReportService } from './pre-election-report.service';
 import {
   CreatePreElectionReportDto,
   PreElectionReportFilterDto,
+  PaginatedPreElectionReportsResponse,
 } from './pre-election-report.dto';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
 import { RoleCode } from '../role/role.enum';
@@ -62,9 +63,9 @@ export class PreElectionReportController {
   async findAll(
     @Query() query: PreElectionReportFilterDto,
     @GetUser() user: User,
-  ) {
+  ): Promise<PaginatedPreElectionReportsResponse> {
     const effectiveAspirantId = resolveTenantAspirantId(user, query.aspirantId);
-    return this.preElectionReportService.findAll(query, effectiveAspirantId);
+    return this.preElectionReportService.findAll(query, effectiveAspirantId, user);
   }
 
   @Allowed([
