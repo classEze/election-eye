@@ -204,7 +204,9 @@ export class ResultRepository {
       .innerJoin('rd.politicalParty', 'party')
       .select('party.id', 'partyId')
       .addSelect('party.name', 'partyName')
-      .addSelect('party.party_acronym', 'partyAcronym')
+      .addSelect('party.code', 'partyCode')
+      .addSelect('party.code', 'partyAcronym')
+      .addSelect('party.party_color_hex', 'partyColorHex')
       .addSelect('party.logo_url', 'logoUrl')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
       .where('r.electoral_office_id = :officeId', { officeId })
@@ -216,7 +218,8 @@ export class ResultRepository {
 
     return qb.groupBy('party.id')
       .addGroupBy('party.name')
-      .addGroupBy('party.party_acronym')
+      .addGroupBy('party.code')
+      .addGroupBy('party.party_color_hex')
       .addGroupBy('party.logo_url')
       .orderBy('SUM(rd.votes)', 'DESC')
       .getRawMany();
@@ -611,7 +614,10 @@ export class ResultRepository {
     leadingParty: {
       partyId: number;
       partyName: string;
+      partyCode: string;
       partyAcronym: string;
+      partyColorHex: string | null;
+      partyColor: string | null;
       logoUrl: string | null;
       totalVotes: number;
       percentage: number;
@@ -620,7 +626,10 @@ export class ResultRepository {
       rank: number;
       partyId: number;
       partyName: string;
+      partyCode: string;
       partyAcronym: string;
+      partyColorHex: string | null;
+      partyColor: string | null;
       logoUrl: string | null;
       totalVotes: number;
       percentage: number;
@@ -635,7 +644,9 @@ export class ResultRepository {
       .innerJoin('ward.lga', 'lga')
       .select('party.id', 'partyId')
       .addSelect('party.name', 'partyName')
-      .addSelect('party.party_acronym', 'partyAcronym')
+      .addSelect('party.code', 'partyCode')
+      .addSelect('party.code', 'partyAcronym')
+      .addSelect('party.party_color_hex', 'partyColorHex')
       .addSelect('party.logo_url', 'logoUrl')
       .addSelect('COALESCE(SUM(rd.votes), 0)::int', 'totalVotes')
       .where('r.electoral_office_id = :officeId', { officeId });
@@ -672,7 +683,8 @@ export class ResultRepository {
     const rawStandings = await qb
       .groupBy('party.id')
       .addGroupBy('party.name')
-      .addGroupBy('party.party_acronym')
+      .addGroupBy('party.code')
+      .addGroupBy('party.party_color_hex')
       .addGroupBy('party.logo_url')
       .orderBy('SUM(rd.votes)', 'DESC')
       .getRawMany();
@@ -692,7 +704,10 @@ export class ResultRepository {
         rank: index + 1,
         partyId: Number(row.partyId),
         partyName: row.partyName,
-        partyAcronym: row.partyAcronym,
+        partyCode: row.partyCode || row.partyAcronym,
+        partyAcronym: row.partyCode || row.partyAcronym,
+        partyColorHex: row.partyColorHex || null,
+        partyColor: row.partyColorHex || null,
         logoUrl: row.logoUrl,
         totalVotes: votes,
         percentage,
@@ -719,6 +734,14 @@ export class ResultRepository {
       ward: { id: number; name: string };
       lga: { id: number; name: string };
       submittedBy: { id: number; fullName: string; email: string };
+      politicalParty: {
+        id: number;
+        name: string;
+        code: string;
+        partyColorHex: string | null;
+        partyColor: string | null;
+        logoUrl: string | null;
+      } | null;
       auditStatus: ResultAuditStatus;
       isVerified: boolean;
       clientSubmittedAt: Date;
@@ -733,6 +756,7 @@ export class ResultRepository {
       .innerJoin('pu.ward', 'ward')
       .innerJoin('ward.lga', 'lga')
       .innerJoin('r.uploadedByUser', 'uploader')
+      .leftJoin('r.politicalParty', 'party')
       .select('r.id', 'resultId')
       .addSelect('r.audit_status', 'auditStatus')
       .addSelect('r.is_verified', 'isVerified')
@@ -748,6 +772,11 @@ export class ResultRepository {
       .addSelect('uploader.id', 'uploaderId')
       .addSelect('uploader.full_name', 'uploaderFullName')
       .addSelect('uploader.email', 'uploaderEmail')
+      .addSelect('party.id', 'partyId')
+      .addSelect('party.name', 'partyName')
+      .addSelect('party.code', 'partyCode')
+      .addSelect('party.party_color_hex', 'partyColorHex')
+      .addSelect('party.logo_url', 'partyLogoUrl')
       .where('r.electoral_office_id = :officeId', { officeId });
 
     if (filters.stateId) {
@@ -762,6 +791,13 @@ export class ResultRepository {
     if (filters.pollingUnitId) {
       qb.andWhere('r.polling_unit_id = :puId', {
         puId: filters.pollingUnitId,
+      });
+    }
+
+    const auditStatusFilter = filters.auditStatus || filters.status;
+    if (auditStatusFilter) {
+      qb.andWhere('r.audit_status = :auditStatus', {
+        auditStatus: auditStatusFilter,
       });
     }
 
@@ -803,6 +839,16 @@ export class ResultRepository {
           fullName: row.uploaderFullName,
           email: row.uploaderEmail,
         },
+        politicalParty: row.partyId
+          ? {
+              id: Number(row.partyId),
+              name: row.partyName,
+              code: row.partyCode,
+              partyColorHex: row.partyColorHex || null,
+              partyColor: row.partyColorHex || null,
+              logoUrl: row.partyLogoUrl,
+            }
+          : null,
         auditStatus: row.auditStatus as ResultAuditStatus,
         isVerified: Boolean(row.isVerified),
         clientSubmittedAt: row.clientSubmittedAt,
@@ -952,7 +998,14 @@ export class ResultRepository {
     ] = await Promise.all([
       this.getOfficeUploadProgress(officeId, filters),
       this.getSituationRoomStandings(officeId, filters, partyId),
-      this.getRecentSubmissions(officeId, { ...filters, limit: 10 }),
+      this.getRecentSubmissions(officeId, {
+        stateId: filters.stateId,
+        lgaId: filters.lgaId,
+        wardId: filters.wardId,
+        pollingUnitId: filters.pollingUnitId,
+        auditStatus: filters.auditStatus,
+        limit: 10,
+      }),
       this.countIncidentsForOffice(officeId, filters),
       this.getLastSubmission(officeId, filters),
     ]);
@@ -976,7 +1029,10 @@ export class ResultRepository {
       parties: standingsData.standings.map((s) => ({
         partyId: s.partyId,
         partyName: s.partyName,
+        partyCode: s.partyCode,
         partyAcronym: s.partyAcronym,
+        partyColorHex: s.partyColorHex,
+        partyColor: s.partyColor,
         logoUrl: s.logoUrl,
         totalVotes: s.totalVotes,
         percentage: s.percentage,

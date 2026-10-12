@@ -458,7 +458,10 @@ export class ResultService {
       parties: standingsData.standings.map((s: any) => ({
         partyId: s.partyId,
         partyName: s.partyName,
-        partyAcronym: s.partyAcronym,
+        partyCode: s.partyCode || s.partyAcronym,
+        partyAcronym: s.partyAcronym || s.partyCode,
+        partyColorHex: s.partyColorHex || null,
+        partyColor: s.partyColorHex || null,
         logoUrl: s.logoUrl,
         totalVotes: s.totalVotes,
         percentage: s.percentage,
