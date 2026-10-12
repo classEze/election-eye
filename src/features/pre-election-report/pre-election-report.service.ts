@@ -147,6 +147,7 @@ export class PreElectionReportService {
       materialArrivalTime: dto.materialArrivalTime
         ? new Date(dto.materialArrivalTime)
         : null,
+      totalRegisteredVoters: dto.totalRegisteredVoters ?? null,
       totalAccreditedVoters: dto.totalAccreditedVoters ?? null,
       comments: dto.comments ?? null,
       clientSubmittedAt: dto.clientSubmittedAt
@@ -164,6 +165,9 @@ export class PreElectionReportService {
       },
       {
         preElectionReport: saved,
+        ...(saved.totalRegisteredVoters != null
+          ? { totalRegisteredVoters: saved.totalRegisteredVoters }
+          : {}),
       },
     );
 

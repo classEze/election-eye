@@ -52,12 +52,6 @@ export class CreateResultDto {
   @IsInt()
   @Min(0)
   @Type(() => Number)
-  totalRegisteredVoters?: number;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Type(() => Number)
   totalAccreditedVoters?: number;
 
   @IsNotEmpty()

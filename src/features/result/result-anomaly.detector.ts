@@ -19,7 +19,10 @@ export class ResultAnomalyDetector {
   /**
    * Scans a submitted result for mathematical and statistical irregularities.
    */
-  detect(dto: CreateResultDto): AnomalyReport {
+  detect(
+    dto: CreateResultDto,
+    registeredVotersFallback?: number | null,
+  ): AnomalyReport {
     const flags: AnomalyType[] = [];
     const details: string[] = [];
 
@@ -31,8 +34,8 @@ export class ResultAnomalyDetector {
         ? Number(dto.totalAccreditedVoters)
         : null;
     const registered =
-      dto.totalRegisteredVoters != null
-        ? Number(dto.totalRegisteredVoters)
+      registeredVotersFallback != null
+        ? Number(registeredVotersFallback)
         : null;
 
     // 1. Arithmetic Mismatch: Sum of individual party breakdown votes vs totalValidVotes

@@ -68,10 +68,7 @@ export class ResultService {
       await this.storageService.validateMediaFile(dto.videoKey, 'video');
     }
 
-    // 2. Statistical & Arithmetic Anomaly Detection
-    const anomalyReport = this.anomalyDetector.detect(dto);
-
-    // 3. Hierarchical Boundary Validations
+    // 2. Hierarchical Boundary Validations
     let puId: number;
 
     if (userRoleCode === RoleCode.PU_AGENT) {
@@ -159,19 +156,25 @@ export class ResultService {
       );
     }
 
-    // 4. Check for Existing Submissions / Handle Re-submission on REJECTED
-    const existing = await this.resultRepository.findByPollingUnitOfficeAndParty(
-      puId,
-      dto.electoralOfficeId,
-      partyId,
-    );
-
+    // 3. Pre-election report lookup & Anomaly Detection
     const preElectionReport = await this.preElectionReportRepo.findOne({
       where: {
         pollingUnit: { id: puId },
         electoralOffice: { id: dto.electoralOfficeId },
       },
     });
+
+    const anomalyReport = this.anomalyDetector.detect(
+      dto,
+      preElectionReport?.totalRegisteredVoters,
+    );
+
+    // 4. Check for Existing Submissions / Handle Re-submission on REJECTED
+    const existing = await this.resultRepository.findByPollingUnitOfficeAndParty(
+      puId,
+      dto.electoralOfficeId,
+      partyId,
+    );
 
     if (existing) {
       if (existing.auditStatus !== ResultAuditStatus.REJECTED) {
@@ -182,7 +185,10 @@ export class ResultService {
 
       // Re-submission / Correction for previously rejected result
       const updateData: Partial<Result> = {
-        totalRegisteredVoters: dto.totalRegisteredVoters ?? null,
+        totalRegisteredVoters:
+          preElectionReport?.totalRegisteredVoters ??
+          existing.totalRegisteredVoters ??
+          null,
         totalAccreditedVoters:
           dto.totalAccreditedVoters ??
           preElectionReport?.totalAccreditedVoters ??
@@ -228,7 +234,8 @@ export class ResultService {
       politicalParty: { id: partyId } as any,
       aspirant: aspirantId ? ({ id: aspirantId } as any) : null,
       preElectionReport: preElectionReport || null,
-      totalRegisteredVoters: dto.totalRegisteredVoters ?? null,
+      totalRegisteredVoters:
+        preElectionReport?.totalRegisteredVoters ?? null,
       totalAccreditedVoters:
         dto.totalAccreditedVoters ??
         preElectionReport?.totalAccreditedVoters ??
