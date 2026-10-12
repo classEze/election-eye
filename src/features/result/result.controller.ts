@@ -19,6 +19,8 @@ import {
   CreateResultDto,
   ResultFilterDto,
   VerifyResultDto,
+  SituationRoomFilterDto,
+  RecentSubmissionsFilterDto,
 } from './result.dto';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
 import { RoleCode } from '../role/role.enum';
@@ -95,9 +97,136 @@ export class ResultController {
     return this.resultService.getOfficePartySummary(+officeId, userPartyId);
   }
 
+  // --- Situation Room Endpoints ---
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_USER,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.PU_AGENT,
+  ])
+  @Get('electoral-office/:officeId/situation-room')
+  async getSituationRoomData(
+    @Param('officeId') officeId: string,
+    @Query() query: SituationRoomFilterDto,
+    @GetUser() user: User,
+  ) {
+    const isPlatformAdmin =
+      user.role.code === RoleCode.SUPER_ADMIN ||
+      user.role.code === RoleCode.SYSTEM_ADMIN ||
+      user.role.code === RoleCode.CLIENT_USER;
+
+    const userPartyId = isPlatformAdmin
+      ? undefined
+      : user.aspirant?.politicalParty?.id ||
+        user.aspirantAccount?.politicalParty?.id;
+
+    return this.resultService.getSituationRoomData(
+      +officeId,
+      query,
+      userPartyId,
+    );
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_USER,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.PU_AGENT,
+  ])
+  @Get('electoral-office/:officeId/standings')
+  async getSituationRoomStandings(
+    @Param('officeId') officeId: string,
+    @Query() query: SituationRoomFilterDto,
+    @GetUser() user: User,
+  ) {
+    const isPlatformAdmin =
+      user.role.code === RoleCode.SUPER_ADMIN ||
+      user.role.code === RoleCode.SYSTEM_ADMIN ||
+      user.role.code === RoleCode.CLIENT_USER;
+
+    const userPartyId = isPlatformAdmin
+      ? undefined
+      : user.aspirant?.politicalParty?.id ||
+        user.aspirantAccount?.politicalParty?.id;
+
+    return this.resultService.getSituationRoomStandings(
+      +officeId,
+      query,
+      userPartyId,
+    );
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_USER,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.PU_AGENT,
+  ])
+  @Get('electoral-office/:officeId/live-snapshot')
+  async getSituationRoomLiveSnapshot(
+    @Param('officeId') officeId: string,
+    @Query() query: SituationRoomFilterDto,
+    @GetUser() user: User,
+  ) {
+    const isPlatformAdmin =
+      user.role.code === RoleCode.SUPER_ADMIN ||
+      user.role.code === RoleCode.SYSTEM_ADMIN ||
+      user.role.code === RoleCode.CLIENT_USER;
+
+    const userPartyId = isPlatformAdmin
+      ? undefined
+      : user.aspirant?.politicalParty?.id ||
+        user.aspirantAccount?.politicalParty?.id;
+
+    return this.resultService.getSituationRoomLiveSnapshot(
+      +officeId,
+      query,
+      userPartyId,
+    );
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_USER,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.PU_AGENT,
+  ])
+  @Get('electoral-office/:officeId/recent-submissions')
+  async getRecentSubmissions(
+    @Param('officeId') officeId: string,
+    @Query() query: RecentSubmissionsFilterDto,
+  ) {
+    return this.resultService.getRecentSubmissions(+officeId, query);
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_USER,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.PU_AGENT,
+  ])
   @Get('electoral-office/:officeId/progress')
-  async getOfficeProgress(@Param('officeId') officeId: string) {
-    return this.resultService.getOfficeUploadProgress(+officeId);
+  async getOfficeProgress(
+    @Param('officeId') officeId: string,
+    @Query() query: SituationRoomFilterDto,
+  ) {
+    return this.resultService.getOfficeUploadProgress(+officeId, query);
   }
 
   @Get('electoral-office/:officeId/forms')

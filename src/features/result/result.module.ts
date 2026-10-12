@@ -12,10 +12,11 @@ import { SystemConfigurationModule } from '../system-configuration/system-config
 
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
 import { ElectoralOfficeModule } from '../electoral-office/electoral-office.module';
+import { PreElectionReport } from '../pre-election-report/pre-election-report.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Result, ResultDetail, PollingUnit]),
+    TypeOrmModule.forFeature([Result, ResultDetail, PollingUnit, PreElectionReport]),
     StorageModule,
     SystemConfigurationModule,
     ElectoralOfficeModule,

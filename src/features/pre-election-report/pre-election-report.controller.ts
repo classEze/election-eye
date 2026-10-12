@@ -1,0 +1,98 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  HttpStatus,
+  HttpCode,
+} from '@nestjs/common';
+import { PreElectionReportService } from './pre-election-report.service';
+import {
+  CreatePreElectionReportDto,
+  PreElectionReportFilterDto,
+} from './pre-election-report.dto';
+import { Allowed } from '../../shared/decorators/allowed.decorator';
+import { RoleCode } from '../role/role.enum';
+import { GetUser } from '../../shared/decorators/get-user.decorator';
+import { User } from '../user/user.entity';
+import { SubmissionWindowGuard } from '../../shared/guards/submission-window.guard';
+import { PreElectionReport } from './pre-election-report.entity';
+import { Audit } from '../../shared/decorators/audit.decorator';
+
+@Controller('pre-election-reports')
+export class PreElectionReportController {
+  constructor(
+    private readonly preElectionReportService: PreElectionReportService,
+  ) {}
+
+  @Audit({
+    action: 'PRE_ELECTION.SUBMIT',
+    entityName: 'PreElectionReport',
+    logFailures: true,
+  })
+  @Allowed([
+    RoleCode.PU_AGENT,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.LGA_COORDINATOR,
+  ])
+  @UseGuards(SubmissionWindowGuard)
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async submitReport(
+    @Body() dto: CreatePreElectionReportDto,
+    @GetUser() user: User,
+  ): Promise<PreElectionReport> {
+    return this.preElectionReportService.submitPreElectionReport(dto, user);
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_USER,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.PU_AGENT,
+  ])
+  @Get()
+  async findAll(@Query() query: PreElectionReportFilterDto) {
+    return this.preElectionReportService.findAll(query);
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_USER,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.PU_AGENT,
+  ])
+  @Get('polling-unit/:puId')
+  async findByPollingUnit(
+    @Param('puId') puId: string,
+    @Query('officeId') officeId: string,
+  ): Promise<PreElectionReport | null> {
+    return this.preElectionReportService.findByPollingUnitAndOffice(
+      +puId,
+      +officeId,
+    );
+  }
+
+  @Allowed([
+    RoleCode.SUPER_ADMIN,
+    RoleCode.SYSTEM_ADMIN,
+    RoleCode.CLIENT_USER,
+    RoleCode.ASPIRANT,
+    RoleCode.LGA_COORDINATOR,
+    RoleCode.WARD_COORDINATOR,
+    RoleCode.PU_AGENT,
+  ])
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<PreElectionReport> {
+    return this.preElectionReportService.findOne(+id);
+  }
+}

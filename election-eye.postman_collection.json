@@ -57,6 +57,10 @@
     {
       "key": "party-id",
       "value": "1"
+    },
+    {
+      "key": "pre-election-report-id",
+      "value": "1"
     }
   ],
   "item": [
@@ -3347,6 +3351,177 @@
       ]
     },
     {
+      "name": "Pre-Election Reports",
+      "item": [
+        {
+          "name": "Submit Pre-Election Report",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"electoralOfficeId\": {{office-id}},\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{election-eye-base-url}}/pre-election-reports",
+            "description": "Submits or updates a pre-election report for a polling unit (materials arrival, arrival time, accredited voters, comments). Submitted once per polling unit by PU agents or Ward/LGA coordinators. Automatically upserts if an entry already exists."
+          },
+          "response": [
+            {
+              "name": "Submit Pre-Election Report - Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"electoralOfficeId\": 1,\n  \"pollingUnitId\": 5001,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\"\n}"
+                },
+                "url": "{{election-eye-base-url}}/pre-election-reports"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 1,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\",\n  \"clientSubmittedAt\": \"2026-10-11T08:20:00.000Z\",\n  \"serverReceivedAt\": \"2026-10-11T08:20:02.124Z\",\n  \"updatedAt\": \"2026-10-11T08:20:02.124Z\",\n  \"electoralOffice\": {\n    \"id\": 1,\n    \"title\": \"Lagos State Governorship Election\"\n  },\n  \"pollingUnit\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\",\n    \"puCode\": \"PU-LA-001\"\n  },\n  \"uploadedByUser\": {\n    \"id\": 42,\n    \"fullName\": \"Adewale Obafemi\",\n    \"email\": \"agent@campaign.ng\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Pre-Election Reports",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/pre-election-reports?electoralOfficeId={{office-id}}&page=1&limit=20",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "pre-election-reports"
+              ],
+              "query": [
+                {
+                  "key": "electoralOfficeId",
+                  "value": "{{office-id}}"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "lgaId",
+                  "value": "{{lga-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "wardId",
+                  "value": "{{ward-id}}",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Get All Pre-Election Reports - Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"materialsArrived\": 2,\n      \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n      \"totalAccreditedVoters\": 420,\n      \"comments\": \"INEC polling materials arrived complete.\",\n      \"pollingUnit\": {\n        \"id\": 5001,\n        \"name\": \"PU 001 Alausa Secretariat\",\n        \"puCode\": \"PU-LA-001\"\n      },\n      \"electoralOffice\": {\n        \"id\": 1,\n        \"title\": \"Lagos State Governorship Election\"\n      }\n    }\n  ],\n  \"total\": 1,\n  \"page\": 1,\n  \"limit\": 20\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Pre-Election Report by Polling Unit",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/pre-election-reports/polling-unit/{{polling-unit-id}}?officeId={{office-id}}"
+          },
+          "response": [
+            {
+              "name": "Get Pre-Election Report by Polling Unit - Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 1,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete.\",\n  \"pollingUnit\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\",\n    \"puCode\": \"PU-LA-001\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Pre-Election Report by ID",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{election-eye-base-url}}/pre-election-reports/{{pre-election-report-id}}"
+          },
+          "response": [
+            {
+              "name": "Get Pre-Election Report by ID - Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 1,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete.\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Results",
       "item": [
         {
@@ -3458,7 +3633,7 @@
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 101,\n  \"electoralOffice\": { \"id\": 2, \"title\": \"Lagos State Governorship Election\" },\n  \"pollingUnit\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"totalValidVotes\": 650,\n  \"rejectedVotes\": 25,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/pu5001-ec8a.jpg\",\n  \"isVerified\": false,\n  \"auditStatus\": \"PENDING\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 101,\n  \"electoralOffice\": { \"id\": 2, \"title\": \"Lagos State Governorship Election\" },\n  \"pollingUnit\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"totalValidVotes\": 650,\n  \"rejectedVotes\": 25,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/pu5001-ec8a.jpg\",\n  \"isVerified\": false,\n  \"auditStatus\": \"PENDING\",\n  \"preElectionData\": {\n    \"id\": 1,\n    \"materialsArrived\": 2,\n    \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n    \"totalAccreditedVoters\": 420,\n    \"comments\": \"INEC polling materials arrived complete.\"\n  },\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
             },
             {
               "name": "Scenario 2: Detailed Result Submission with Registered & Accredited Voters & Aspirant Link",
@@ -3479,7 +3654,7 @@
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 102,\n  \"electoralOffice\": { \"id\": 2, \"title\": \"Lagos State Governorship Election\" },\n  \"pollingUnit\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"aspirant\": { \"id\": 12, \"firstName\": \"Ifeanyi\", \"lastName\": \"Nwosu\" },\n  \"totalRegisteredVoters\": 1200,\n  \"totalAccreditedVoters\": 750,\n  \"totalValidVotes\": 700,\n  \"rejectedVotes\": 30,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/pu5001-ec8a.jpg\",\n  \"isVerified\": false,\n  \"auditStatus\": \"PENDING\",\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
+              "body": "{\n  \"id\": 102,\n  \"electoralOffice\": { \"id\": 2, \"title\": \"Lagos State Governorship Election\" },\n  \"pollingUnit\": { \"id\": 5001, \"name\": \"PU 001 Alausa Secretariat\" },\n  \"aspirant\": { \"id\": 12, \"firstName\": \"Ifeanyi\", \"lastName\": \"Nwosu\" },\n  \"totalRegisteredVoters\": 1200,\n  \"totalAccreditedVoters\": 750,\n  \"totalValidVotes\": 700,\n  \"rejectedVotes\": 30,\n  \"ec8aPhotoUrl\": \"https://s3.eu-west-1.amazonaws.com/election-eye-storage/ec8a-forms/pu5001-ec8a.jpg\",\n  \"isVerified\": false,\n  \"auditStatus\": \"PENDING\",\n  \"preElectionData\": null,\n  \"createdAt\": \"2026-09-26T10:00:00.000Z\"\n}"
             },
             {
               "name": "Submit Result (Without Media)",
@@ -3607,6 +3782,263 @@
           }
         },
         {
+          "name": "Get Situation Room Dashboard (Unified)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/results/electoral-office/{{office-id}}/situation-room?includeUnverified=false",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "results",
+                "electoral-office",
+                "{{office-id}}",
+                "situation-room"
+              ],
+              "query": [
+                {
+                  "key": "stateId",
+                  "value": "{{state-id}}",
+                  "description": "Filter by State ID covered in the electoral office",
+                  "disabled": true
+                },
+                {
+                  "key": "lgaId",
+                  "value": "{{lga-id}}",
+                  "description": "Filter by specific LGA",
+                  "disabled": true
+                },
+                {
+                  "key": "wardId",
+                  "value": "{{ward-id}}",
+                  "description": "Filter by specific Ward",
+                  "disabled": true
+                },
+                {
+                  "key": "pollingUnitId",
+                  "value": "{{polling-unit-id}}",
+                  "description": "Filter by specific Polling Unit",
+                  "disabled": true
+                },
+                {
+                  "key": "includeUnverified",
+                  "value": "false",
+                  "description": "Set to true to show real-time live unverified submissions; false for verified only"
+                },
+                {
+                  "key": "status",
+                  "value": "verified",
+                  "description": "Alternative query flag: 'verified' (default) or 'all'",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Unified Situation Room endpoint delivering top metric cards, live results snapshot, party standings, submission progress, and recent submissions stream in a single cached payload."
+          },
+          "response": [
+            {
+              "name": "Situation Room Dashboard - Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"officeId\": 1,\n  \"cards\": {\n    \"wardsAssigned\": 35,\n    \"puAssigned\": 2225,\n    \"totalSubmissions\": 1113,\n    \"submissionPercentage\": 50.02,\n    \"pendingSubmissions\": 1112,\n    \"pendingReviewSubmissions\": 226,\n    \"totalVotesCounted\": 1051942,\n    \"leadingParty\": {\n      \"partyId\": 1,\n      \"partyName\": \"All Progressives Congress\",\n      \"partyAcronym\": \"APC\",\n      \"logoUrl\": \"https://s3.amazonaws.com/election-eye/apc.png\",\n      \"totalVotes\": 510911,\n      \"percentage\": 48.6\n    },\n    \"incidentsReported\": 37,\n    \"lastSubmission\": {\n      \"pollingUnitId\": 12,\n      \"pollingUnitName\": \"PU 012 - Ikeja Ward 5\",\n      \"puCode\": \"PU-LA-IK-012\",\n      \"wardName\": \"Ikeja Ward 5\",\n      \"lgaName\": \"Ikeja\",\n      \"uploaderName\": \"Adewale Obafemi\",\n      \"submittedAt\": \"2026-10-11T12:05:00.000Z\",\n      \"timeAgoMinutes\": 2,\n      \"timeAgo\": \"2 min ago\"\n    }\n  },\n  \"liveResultsSnapshot\": {\n    \"totalValidVotes\": 1051942,\n    \"leadingParty\": {\n      \"partyId\": 1,\n      \"partyName\": \"All Progressives Congress\",\n      \"partyAcronym\": \"APC\",\n      \"percentage\": 48.6\n    },\n    \"parties\": [\n      {\n        \"partyId\": 1,\n        \"partyName\": \"All Progressives Congress\",\n        \"partyAcronym\": \"APC\",\n        \"logoUrl\": \"https://s3.amazonaws.com/election-eye/apc.png\",\n        \"totalVotes\": 510911,\n        \"percentage\": 48.6\n      },\n      {\n        \"partyId\": 2,\n        \"partyName\": \"Peoples Democratic Party\",\n        \"partyAcronym\": \"PDP\",\n        \"logoUrl\": \"https://s3.amazonaws.com/election-eye/pdp.png\",\n        \"totalVotes\": 388935,\n        \"percentage\": 37.0\n      },\n      {\n        \"partyId\": 3,\n        \"partyName\": \"Labour Party\",\n        \"partyAcronym\": \"LP\",\n        \"logoUrl\": \"https://s3.amazonaws.com/election-eye/lp.png\",\n        \"totalVotes\": 101715,\n        \"percentage\": 9.7\n      },\n      {\n        \"partyId\": 4,\n        \"partyName\": \"New Nigeria Peoples Party\",\n        \"partyAcronym\": \"NNPP\",\n        \"logoUrl\": null,\n        \"totalVotes\": 50381,\n        \"percentage\": 4.8\n      }\n    ]\n  },\n  \"partyStandings\": [\n    {\n      \"rank\": 1,\n      \"partyId\": 1,\n      \"partyName\": \"All Progressives Congress\",\n      \"partyAcronym\": \"APC\",\n      \"logoUrl\": \"https://s3.amazonaws.com/election-eye/apc.png\",\n      \"totalVotes\": 510911,\n      \"percentage\": 48.6\n    },\n    {\n      \"rank\": 2,\n      \"partyId\": 2,\n      \"partyName\": \"Peoples Democratic Party\",\n      \"partyAcronym\": \"PDP\",\n      \"logoUrl\": \"https://s3.amazonaws.com/election-eye/pdp.png\",\n      \"totalVotes\": 388935,\n      \"percentage\": 37.0\n    },\n    {\n      \"rank\": 3,\n      \"partyId\": 3,\n      \"partyName\": \"Labour Party\",\n      \"partyAcronym\": \"LP\",\n      \"logoUrl\": \"https://s3.amazonaws.com/election-eye/lp.png\",\n      \"totalVotes\": 101715,\n      \"percentage\": 9.7\n    },\n    {\n      \"rank\": 4,\n      \"partyId\": 4,\n      \"partyName\": \"New Nigeria Peoples Party\",\n      \"partyAcronym\": \"NNPP\",\n      \"logoUrl\": null,\n      \"totalVotes\": 50381,\n      \"percentage\": 4.8\n    }\n  ],\n  \"submissionProgress\": {\n    \"totalPollingUnits\": 2225,\n    \"submittedPollingUnits\": 1113,\n    \"pendingPollingUnits\": 1112,\n    \"submissionPercentage\": 50.02,\n    \"approvedPollingUnits\": 887,\n    \"approvalPercentage\": 39.87,\n    \"auditStatusBreakdown\": {\n      \"verified\": 887,\n      \"pending\": 226,\n      \"flagged\": 12,\n      \"rejected\": 8\n    }\n  },\n  \"recentSubmissions\": [\n    {\n      \"resultId\": 420,\n      \"pollingUnit\": {\n        \"id\": 12,\n        \"name\": \"PU 012 - Ikeja Ward 5\",\n        \"puCode\": \"PU-LA-IK-012\"\n      },\n      \"ward\": {\n        \"id\": 5,\n        \"name\": \"Ikeja Ward 5\"\n      },\n      \"lga\": {\n        \"id\": 1,\n        \"name\": \"Ikeja\"\n      },\n      \"submittedBy\": {\n        \"id\": 18,\n        \"fullName\": \"Adewale Obafemi\",\n        \"email\": \"agent12@campaign.ng\"\n      },\n      \"auditStatus\": \"VERIFIED\",\n      \"isVerified\": true,\n      \"clientSubmittedAt\": \"2026-10-11T12:04:00.000Z\",\n      \"serverReceivedAt\": \"2026-10-11T12:05:00.000Z\",\n      \"timeAgo\": \"2 min ago\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Situation Room Party Standings",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/results/electoral-office/{{office-id}}/standings?includeUnverified=false",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "results",
+                "electoral-office",
+                "{{office-id}}",
+                "standings"
+              ],
+              "query": [
+                {
+                  "key": "stateId",
+                  "value": "{{state-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "lgaId",
+                  "value": "{{lga-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "wardId",
+                  "value": "{{ward-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "pollingUnitId",
+                  "value": "{{polling-unit-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "includeUnverified",
+                  "value": "false"
+                }
+              ]
+            },
+            "description": "Party Standings ranked leaderboard (#1, #2, #3, ...) for the situation room with vote counts and percentage shares. Supports boundary filters (State, LGA, Ward, Polling Unit)."
+          },
+          "response": [
+            {
+              "name": "Party Standings - Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"totalValidVotes\": 1051942,\n  \"leadingParty\": {\n    \"partyId\": 1,\n    \"partyName\": \"All Progressives Congress\",\n    \"partyAcronym\": \"APC\",\n    \"logoUrl\": \"https://s3.amazonaws.com/election-eye/apc.png\",\n    \"totalVotes\": 510911,\n    \"percentage\": 48.6\n  },\n  \"standings\": [\n    {\n      \"rank\": 1,\n      \"partyId\": 1,\n      \"partyName\": \"All Progressives Congress\",\n      \"partyAcronym\": \"APC\",\n      \"logoUrl\": \"https://s3.amazonaws.com/election-eye/apc.png\",\n      \"totalVotes\": 510911,\n      \"percentage\": 48.6\n    },\n    {\n      \"rank\": 2,\n      \"partyId\": 2,\n      \"partyName\": \"Peoples Democratic Party\",\n      \"partyAcronym\": \"PDP\",\n      \"logoUrl\": \"https://s3.amazonaws.com/election-eye/pdp.png\",\n      \"totalVotes\": 388935,\n      \"percentage\": 37.0\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Situation Room Live Results Snapshot",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/results/electoral-office/{{office-id}}/live-snapshot?includeUnverified=false",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "results",
+                "electoral-office",
+                "{{office-id}}",
+                "live-snapshot"
+              ],
+              "query": [
+                {
+                  "key": "stateId",
+                  "value": "{{state-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "lgaId",
+                  "value": "{{lga-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "wardId",
+                  "value": "{{ward-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "includeUnverified",
+                  "value": "false"
+                }
+              ]
+            },
+            "description": "Live Results Snapshot horizontal bar chart data with aggregated votes, percentages, and leading party details."
+          },
+          "response": [
+            {
+              "name": "Live Results Snapshot - Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"totalValidVotes\": 1051942,\n  \"leadingParty\": {\n    \"partyId\": 1,\n    \"partyName\": \"All Progressives Congress\",\n    \"partyAcronym\": \"APC\",\n    \"totalVotes\": 510911,\n    \"percentage\": 48.6\n  },\n  \"parties\": [\n    {\n      \"partyId\": 1,\n      \"partyName\": \"All Progressives Congress\",\n      \"partyAcronym\": \"APC\",\n      \"logoUrl\": \"https://s3.amazonaws.com/election-eye/apc.png\",\n      \"totalVotes\": 510911,\n      \"percentage\": 48.6\n    },\n    {\n      \"partyId\": 2,\n      \"partyName\": \"Peoples Democratic Party\",\n      \"partyAcronym\": \"PDP\",\n      \"logoUrl\": \"https://s3.amazonaws.com/election-eye/pdp.png\",\n      \"totalVotes\": 388935,\n      \"percentage\": 37.0\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Situation Room Recent Submissions",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{election-eye-base-url}}/results/electoral-office/{{office-id}}/recent-submissions?limit=10",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "results",
+                "electoral-office",
+                "{{office-id}}",
+                "recent-submissions"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "stateId",
+                  "value": "{{state-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "lgaId",
+                  "value": "{{lga-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "wardId",
+                  "value": "{{ward-id}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Live feed of the latest result submissions for the situation room (polling unit, ward, submitter agent, audit status, relative timestamp)."
+          },
+          "response": [
+            {
+              "name": "Recent Submissions Feed - Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"resultId\": 420,\n    \"pollingUnit\": {\n      \"id\": 12,\n      \"name\": \"PU 012 - Ikeja Ward 5\",\n      \"puCode\": \"PU-LA-IK-012\"\n    },\n    \"ward\": {\n      \"id\": 5,\n      \"name\": \"Ikeja Ward 5\"\n    },\n    \"lga\": {\n      \"id\": 1,\n      \"name\": \"Ikeja\"\n    },\n    \"submittedBy\": {\n      \"id\": 18,\n      \"fullName\": \"Adewale Obafemi\",\n      \"email\": \"agent12@campaign.ng\"\n    },\n    \"auditStatus\": \"VERIFIED\",\n    \"isVerified\": true,\n    \"clientSubmittedAt\": \"2026-10-11T12:04:00.000Z\",\n    \"serverReceivedAt\": \"2026-10-11T12:05:00.000Z\",\n    \"timeAgo\": \"2 min ago\"\n  }\n]"
+            }
+          ]
+        },
+        {
           "name": "Get Electoral Office Upload Progress",
           "request": {
             "method": "GET",
@@ -3620,8 +4052,51 @@
                 }
               ]
             },
-            "url": "{{election-eye-base-url}}/results/electoral-office/{{office-id}}/progress"
-          }
+            "url": {
+              "raw": "{{election-eye-base-url}}/results/electoral-office/{{office-id}}/progress",
+              "host": [
+                "{{election-eye-base-url}}"
+              ],
+              "path": [
+                "results",
+                "electoral-office",
+                "{{office-id}}",
+                "progress"
+              ],
+              "query": [
+                {
+                  "key": "stateId",
+                  "value": "{{state-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "lgaId",
+                  "value": "{{lga-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "wardId",
+                  "value": "{{ward-id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "pollingUnitId",
+                  "value": "{{polling-unit-id}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Upload progress stats and audit breakdown for an electoral office. Supports filtering by state, LGA, Ward, or Polling Unit."
+          },
+          "response": [
+            {
+              "name": "Get Electoral Office Upload Progress - Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"officeId\": 1,\n  \"totalLgas\": 8,\n  \"totalWards\": 35,\n  \"totalPollingUnits\": 2225,\n  \"submittedPollingUnits\": 1113,\n  \"submissionPercentage\": 50.02,\n  \"approvedPollingUnits\": 887,\n  \"approvalPercentage\": 39.87,\n  \"pendingPollingUnits\": 1112,\n  \"pendingAuditPollingUnits\": 226,\n  \"flaggedPollingUnits\": 12,\n  \"rejectedPollingUnits\": 8,\n  \"auditBreakdown\": {\n    \"verified\": 887,\n    \"pending\": 226,\n    \"flagged\": 12,\n    \"rejected\": 8\n  },\n  \"approvedTotals\": {\n    \"totalValidVotes\": 845200,\n    \"totalRejectedVotes\": 19200,\n    \"totalAccreditedVoters\": 870000,\n    \"totalRegisteredVoters\": 1350000\n  },\n  \"submittedTotals\": {\n    \"totalValidVotes\": 1051942,\n    \"totalRejectedVotes\": 23500,\n    \"totalAccreditedVoters\": 1080000,\n    \"totalRegisteredVoters\": 1680000\n  }\n}"
+            }
+          ]
         },
         {
           "name": "Get Electoral Office EC8A Forms",

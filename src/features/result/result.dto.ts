@@ -80,9 +80,9 @@ export class CreateResultDto {
   @IsString()
   videoKey?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(MaterialsArrivedStatus)
-  materialsArrived!: MaterialsArrivedStatus;
+  materialsArrived?: MaterialsArrivedStatus;
 
   @IsOptional()
   @IsDateString()
@@ -161,4 +161,63 @@ export class ResultFilterDto {
   @Min(1)
   @Type(() => Number)
   limit: number = 20;
+}
+
+export class SituationRoomFilterDto {
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  stateId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  lgaId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  wardId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  pollingUnitId?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true || value === '1')
+  includeUnverified?: boolean;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
+}
+
+export class RecentSubmissionsFilterDto {
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  stateId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  lgaId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  wardId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  pollingUnitId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  limit?: number = 10;
 }

@@ -15,8 +15,11 @@ import {
   CreateResultDto,
   ResultFilterDto,
   VerifyResultDto,
+  SituationRoomFilterDto,
+  RecentSubmissionsFilterDto,
 } from './result.dto';
-import { Result, ResultAuditStatus } from './result.entity';
+import { Result, ResultAuditStatus, MaterialsArrivedStatus } from './result.entity';
+import { PreElectionReport } from '../pre-election-report/pre-election-report.entity';
 import { User } from '../user/user.entity';
 import { RoleCode } from '../role/role.enum';
 import { PollingUnit } from '../polling-unit/polling-unit.entity';
@@ -31,6 +34,8 @@ export class ResultService {
     private readonly resultRepository: ResultRepository,
     @InjectRepository(PollingUnit)
     private readonly puRepository: Repository<PollingUnit>,
+    @InjectRepository(PreElectionReport)
+    private readonly preElectionReportRepo: Repository<PreElectionReport>,
     private readonly electoralOfficeService: ElectoralOfficeService,
     private readonly storageService: StorageService,
     private readonly exportService: ResultExportService,
@@ -161,6 +166,13 @@ export class ResultService {
       partyId,
     );
 
+    const preElectionReport = await this.preElectionReportRepo.findOne({
+      where: {
+        pollingUnit: { id: puId },
+        electoralOffice: { id: dto.electoralOfficeId },
+      },
+    });
+
     if (existing) {
       if (existing.auditStatus !== ResultAuditStatus.REJECTED) {
         throw new ConflictException(
@@ -171,12 +183,20 @@ export class ResultService {
       // Re-submission / Correction for previously rejected result
       const updateData: Partial<Result> = {
         totalRegisteredVoters: dto.totalRegisteredVoters ?? null,
-        totalAccreditedVoters: dto.totalAccreditedVoters ?? null,
+        totalAccreditedVoters:
+          dto.totalAccreditedVoters ??
+          preElectionReport?.totalAccreditedVoters ??
+          null,
         totalValidVotes: Number(dto.totalValidVotes),
         rejectedVotes: Number(dto.rejectedVotes || 0),
         ec8aPhotoUrl: dto.ec8aPhotoKey || existing.ec8aPhotoUrl,
         videoUrl: dto.videoKey || null,
-        materialsArrived: dto.materialsArrived,
+        materialsArrived:
+          dto.materialsArrived ??
+          preElectionReport?.materialsArrived ??
+          existing.materialsArrived ??
+          MaterialsArrivedStatus.FULL,
+        preElectionReport: preElectionReport || existing.preElectionReport,
         uploadedByUser: user,
         clientSubmittedAt: dto.clientSubmittedAt
           ? new Date(dto.clientSubmittedAt)
@@ -207,13 +227,20 @@ export class ResultService {
       pollingUnit: { id: puId } as any,
       politicalParty: { id: partyId } as any,
       aspirant: aspirantId ? ({ id: aspirantId } as any) : null,
+      preElectionReport: preElectionReport || null,
       totalRegisteredVoters: dto.totalRegisteredVoters ?? null,
-      totalAccreditedVoters: dto.totalAccreditedVoters ?? null,
+      totalAccreditedVoters:
+        dto.totalAccreditedVoters ??
+        preElectionReport?.totalAccreditedVoters ??
+        null,
       totalValidVotes: Number(dto.totalValidVotes),
       rejectedVotes: Number(dto.rejectedVotes || 0),
       ec8aPhotoUrl: dto.ec8aPhotoKey,
       videoUrl: dto.videoKey || null,
-      materialsArrived: dto.materialsArrived,
+      materialsArrived:
+        dto.materialsArrived ??
+        preElectionReport?.materialsArrived ??
+        MaterialsArrivedStatus.FULL,
       uploadedByUser: user,
       clientSubmittedAt: dto.clientSubmittedAt
         ? new Date(dto.clientSubmittedAt)
@@ -379,15 +406,100 @@ export class ResultService {
     return report;
   }
 
-  async getOfficeUploadProgress(officeId: number): Promise<any> {
-    const cacheKey = `office:progress:${officeId}`;
+  async getOfficeUploadProgress(
+    officeId: number,
+    filters: SituationRoomFilterDto = {},
+  ): Promise<any> {
+    const filterKey = JSON.stringify(filters);
+    const cacheKey = `office:progress:${officeId}:${filterKey}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
-    const progress =
-      await this.resultRepository.getOfficeUploadProgress(officeId);
+    const progress = await this.resultRepository.getOfficeUploadProgress(
+      officeId,
+      filters,
+    );
     await this.cacheManager.set(cacheKey, progress, 1000 * 30);
     return progress;
+  }
+
+  async getSituationRoomStandings(
+    officeId: number,
+    filters: SituationRoomFilterDto = {},
+    partyId?: number,
+  ): Promise<any> {
+    const filterKey = JSON.stringify(filters);
+    const cacheKey = `office:standings:${officeId}:${filterKey}:${partyId || 'all'}`;
+    const cached = await this.cacheManager.get(cacheKey);
+    if (cached) return cached;
+
+    const standings = await this.resultRepository.getSituationRoomStandings(
+      officeId,
+      filters,
+      partyId,
+    );
+    await this.cacheManager.set(cacheKey, standings, 1000 * 30);
+    return standings;
+  }
+
+  async getSituationRoomLiveSnapshot(
+    officeId: number,
+    filters: SituationRoomFilterDto = {},
+    partyId?: number,
+  ): Promise<any> {
+    const standingsData = await this.getSituationRoomStandings(
+      officeId,
+      filters,
+      partyId,
+    );
+    return {
+      totalValidVotes: standingsData.totalValidVotes,
+      leadingParty: standingsData.leadingParty,
+      parties: standingsData.standings.map((s: any) => ({
+        partyId: s.partyId,
+        partyName: s.partyName,
+        partyAcronym: s.partyAcronym,
+        logoUrl: s.logoUrl,
+        totalVotes: s.totalVotes,
+        percentage: s.percentage,
+      })),
+    };
+  }
+
+  async getRecentSubmissions(
+    officeId: number,
+    filters: RecentSubmissionsFilterDto = {},
+  ): Promise<any> {
+    const filterKey = JSON.stringify(filters);
+    const cacheKey = `office:recent:${officeId}:${filterKey}`;
+    const cached = await this.cacheManager.get(cacheKey);
+    if (cached) return cached;
+
+    const recent = await this.resultRepository.getRecentSubmissions(
+      officeId,
+      filters,
+    );
+    await this.cacheManager.set(cacheKey, recent, 1000 * 15);
+    return recent;
+  }
+
+  async getSituationRoomData(
+    officeId: number,
+    filters: SituationRoomFilterDto = {},
+    partyId?: number,
+  ): Promise<any> {
+    const filterKey = JSON.stringify(filters);
+    const cacheKey = `office:situation-room:${officeId}:${filterKey}:${partyId || 'all'}`;
+    const cached = await this.cacheManager.get(cacheKey);
+    if (cached) return cached;
+
+    const data = await this.resultRepository.getSituationRoomData(
+      officeId,
+      filters,
+      partyId,
+    );
+    await this.cacheManager.set(cacheKey, data, 1000 * 30);
+    return data;
   }
 
   async getOfficeEc8aForms(
