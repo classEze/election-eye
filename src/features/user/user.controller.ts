@@ -16,6 +16,7 @@ import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto, UserQueryDto } from './user.dto';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
 import { GetUser } from 'src/shared/decorators/get-user.decorator';
+import { Audit } from 'src/shared/decorators/audit.decorator';
 import { RoleCode } from '../role/role.enum';
 import { Admin } from '../admin/admin.entity';
 import { User } from './user.entity';
@@ -29,6 +30,7 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Audit({ action: 'USER.CREATE', entityName: 'User', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('aspirant/:aspirantId')
   @HttpCode(HttpStatus.CREATED)
@@ -40,6 +42,7 @@ export class UserController {
     return this.userService.createForAdmin(+aspirantId, createUserDto, admin);
   }
 
+  @Audit({ action: 'USER.CREATE', entityName: 'User', logFailures: true })
   @Allowed([
     RoleCode.ASPIRANT,
     RoleCode.CLIENT_USER,
@@ -86,6 +89,7 @@ export class UserController {
     return target;
   }
 
+  @Audit({ action: 'USER.UPDATE', entityName: 'User', logFailures: true })
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,
@@ -103,6 +107,7 @@ export class UserController {
     return this.userService.update(+id, updateUserDto, actor);
   }
 
+  @Audit({ action: 'USER.UPDATE', entityName: 'User', logFailures: true })
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,
@@ -120,6 +125,7 @@ export class UserController {
     return this.userService.update(+id, updateUserDto, actor);
   }
 
+  @Audit({ action: 'USER.DELETE', entityName: 'User', logFailures: true })
   @Allowed([
     RoleCode.SUPER_ADMIN,
     RoleCode.SYSTEM_ADMIN,

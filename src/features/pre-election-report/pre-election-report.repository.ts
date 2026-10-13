@@ -93,6 +93,14 @@ export class PreElectionReportRepository {
             reportData.comments !== undefined
               ? reportData.comments
               : existing.comments,
+          mediaPictureUrls:
+            reportData.mediaPictureUrls !== undefined
+              ? reportData.mediaPictureUrls
+              : existing.mediaPictureUrls,
+          mediaVideoUrls:
+            reportData.mediaVideoUrls !== undefined
+              ? reportData.mediaVideoUrls
+              : existing.mediaVideoUrls,
           uploadedByUser: reportData.uploadedByUser ?? existing.uploadedByUser,
           politicalParty: reportData.politicalParty ?? existing.politicalParty,
           aspirant: reportData.aspirant ?? existing.aspirant,

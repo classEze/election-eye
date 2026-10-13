@@ -10,6 +10,7 @@ import { SystemConfigurationService } from './system-configuration.service';
 import { UpdateSystemConfigurationDto } from './system-configuration.dto';
 import { SystemConfiguration } from './system-configuration.entity';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
+import { Audit } from '../../shared/decorators/audit.decorator';
 import { RoleCode } from '../role/role.enum';
 import { GetUser } from '../../shared/decorators/get-user.decorator';
 import { Admin } from '../admin/admin.entity';
@@ -25,6 +26,11 @@ export class SystemConfigurationController {
     return this.systemConfigService.getConfiguration();
   }
 
+  @Audit({
+    action: 'SYSTEM_CONFIGURATION.UPDATE',
+    entityName: 'SystemConfiguration',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Patch()
   @HttpCode(HttpStatus.OK)

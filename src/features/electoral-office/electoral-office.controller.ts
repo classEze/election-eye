@@ -23,6 +23,7 @@ import {
   ElectoralOfficeQueryDto,
 } from './electoral-office.dto';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
+import { Audit } from '../../shared/decorators/audit.decorator';
 import { RoleCode } from '../role/role.enum';
 import { ElectoralOffice, OfficeCategory } from './electoral-office.entity';
 import { State } from '../state/state.entity';
@@ -41,6 +42,11 @@ export class ElectoralOfficeController {
     return this.electoralOfficeService.getCategories();
   }
 
+  @Audit({
+    action: 'ELECTORAL_OFFICE.CREATE',
+    entityName: 'ElectoralOffice',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -114,6 +120,11 @@ export class ElectoralOfficeController {
     return this.electoralOfficeService.findOne(+id);
   }
 
+  @Audit({
+    action: 'ELECTORAL_OFFICE.UPDATE',
+    entityName: 'ElectoralOffice',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Put(':id')
   async update(
@@ -123,6 +134,11 @@ export class ElectoralOfficeController {
     return this.electoralOfficeService.update(+id, updateDto);
   }
 
+  @Audit({
+    action: 'ELECTORAL_OFFICE.DELETE',
+    entityName: 'ElectoralOffice',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<ElectoralOffice> {

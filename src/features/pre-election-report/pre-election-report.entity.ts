@@ -79,6 +79,20 @@ export class PreElectionReport {
   })
   totalAccreditedVoters!: number | null;
 
+  @Column({
+    type: 'jsonb',
+    name: 'media_picture_urls',
+    default: () => "'[]'",
+  })
+  mediaPictureUrls!: string[];
+
+  @Column({
+    type: 'jsonb',
+    name: 'media_video_urls',
+    default: () => "'[]'",
+  })
+  mediaVideoUrls!: string[];
+
   @Column({ name: 'comments', type: 'text', nullable: true })
   comments!: string | null;
 

@@ -20,6 +20,7 @@ import {
   UpdatePollingUnitDto,
 } from './polling-unit.dto';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
+import { Audit } from '../../shared/decorators/audit.decorator';
 import { RoleCode } from '../role/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PollingUnit } from './polling-unit.entity';
@@ -52,6 +53,11 @@ export class PollingUnitController {
     return csv;
   }
 
+  @Audit({
+    action: 'POLLING_UNIT.BATCH_CREATE',
+    entityName: 'PollingUnit',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('batch')
   @HttpCode(HttpStatus.CREATED)
@@ -61,6 +67,11 @@ export class PollingUnitController {
     return this.pollingUnitService.createMultiple(createPollingUnitArrayDto);
   }
 
+  @Audit({
+    action: 'POLLING_UNIT.CSV_UPLOAD',
+    entityName: 'PollingUnit',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('upload')
   @HttpCode(HttpStatus.OK)
@@ -83,6 +94,11 @@ export class PollingUnitController {
     return this.pollingUnitService.uploadPollingUnits(file, +wardId, user);
   }
 
+  @Audit({
+    action: 'POLLING_UNIT.GENERIC_CSV_UPLOAD',
+    entityName: 'PollingUnit',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('upload-generic')
   @HttpCode(HttpStatus.OK)
@@ -119,6 +135,11 @@ export class PollingUnitController {
     return this.pollingUnitService.findOne(+id);
   }
 
+  @Audit({
+    action: 'POLLING_UNIT.UPDATE',
+    entityName: 'PollingUnit',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Put(':id')
   async update(
@@ -128,6 +149,11 @@ export class PollingUnitController {
     return this.pollingUnitService.update(+id, updatePollingUnitDto);
   }
 
+  @Audit({
+    action: 'POLLING_UNIT.DELETE',
+    entityName: 'PollingUnit',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<PollingUnit> {
