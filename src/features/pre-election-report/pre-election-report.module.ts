@@ -9,11 +9,14 @@ import { Result } from '../result/result.entity';
 import { ElectoralOfficeModule } from '../electoral-office/electoral-office.module';
 import { SystemConfigurationModule } from '../system-configuration/system-configuration.module';
 
+import { StorageModule } from '../../shared/storage/storage.module';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([PreElectionReport, PollingUnit, Result]),
     ElectoralOfficeModule,
     SystemConfigurationModule,
+    StorageModule,
   ],
   controllers: [PreElectionReportController],
   providers: [PreElectionReportService, PreElectionReportRepository],

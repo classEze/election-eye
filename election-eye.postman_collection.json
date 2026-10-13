@@ -3354,6 +3354,48 @@
       "name": "Pre-Election Reports",
       "item": [
         {
+          "name": "Get Pre-Election Media Upload URLs",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access-token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requestPhotoCount\": 2,\n  \"requestVideoCount\": 1,\n  \"photoContentType\": \"image/jpeg\",\n  \"videoContentType\": \"video/mp4\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{election-eye-base-url}}/pre-election-reports/media-upload-urls",
+            "description": "Generates Cloudflare R2 presigned PUT upload URLs for pre-election report photo and video attachments. Allows client to upload raw media directly to R2 bucket before submitting the report."
+          },
+          "response": [
+            {
+              "name": "Get Pre-Election Media Upload URLs - Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"photos\": [\n    {\n      \"uploadUrl\": \"https://r2.cloudflarestorage.com/electioneye/pre-election-reports/pictures/018b1d7f-94ad-4c40-9a3c-1b7713426e95.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&...\",\n      \"method\": \"PUT\",\n      \"fileKey\": \"pre-election-reports/pictures/018b1d7f-94ad-4c40-9a3c-1b7713426e95.jpg\",\n      \"key\": \"pre-election-reports/pictures/018b1d7f-94ad-4c40-9a3c-1b7713426e95.jpg\",\n      \"publicUrl\": null,\n      \"expiresIn\": 900\n    }\n  ],\n  \"videos\": [\n    {\n      \"uploadUrl\": \"https://r2.cloudflarestorage.com/electioneye/pre-election-reports/videos/028c2e8a-05be-5d51-0b4d-2c8824537f06.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&...\",\n      \"method\": \"PUT\",\n      \"fileKey\": \"pre-election-reports/videos/028c2e8a-05be-5d51-0b4d-2c8824537f06.mp4\",\n      \"key\": \"pre-election-reports/videos/028c2e8a-05be-5d51-0b4d-2c8824537f06.mp4\",\n      \"publicUrl\": null,\n      \"expiresIn\": 900\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
           "name": "Submit Pre-Election Report",
           "request": {
             "method": "POST",
@@ -3375,7 +3417,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"electoralOfficeId\": {{office-id}},\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\"\n}",
+              "raw": "{\n  \"electoralOfficeId\": {{office-id}},\n  \"pollingUnitId\": {{polling-unit-id}},\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 420,\n  \"mediaPictureKeys\": [\n    \"pre-election-reports/pictures/018b1d7f-94ad-4c40-9a3c-1b7713426e95.jpg\"\n  ],\n  \"mediaVideoKeys\": [\n    \"pre-election-reports/videos/028c2e8a-05be-5d51-0b4d-2c8824537f06.mp4\"\n  ],\n  \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3383,7 +3425,7 @@
               }
             },
             "url": "{{election-eye-base-url}}/pre-election-reports",
-            "description": "Submits or updates a pre-election report for a polling unit (materials arrival, arrival time, registered voters, accredited voters, comments). Submitted once per polling unit by PU agents or Ward/LGA coordinators. Automatically upserts if an entry already exists."
+            "description": "Submits or updates a pre-election report for a polling unit (materials arrival, arrival time, registered voters, accredited voters, optional picture/video files, comments). Submitted once per polling unit by PU agents or Ward/LGA coordinators. Automatically upserts if an entry already exists."
           },
           "response": [
             {
@@ -3398,14 +3440,14 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"electoralOfficeId\": 1,\n  \"pollingUnitId\": 5001,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\"\n}"
+                  "raw": "{\n  \"electoralOfficeId\": 1,\n  \"pollingUnitId\": 5001,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 420,\n  \"mediaPictureKeys\": [\n    \"pre-election-reports/pictures/018b1d7f-94ad-4c40-9a3c-1b7713426e95.jpg\"\n  ],\n  \"mediaVideoKeys\": [\n    \"pre-election-reports/videos/028c2e8a-05be-5d51-0b4d-2c8824537f06.mp4\"\n  ],\n  \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\"\n}"
                 },
                 "url": "{{election-eye-base-url}}/pre-election-reports"
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 1,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\",\n  \"clientSubmittedAt\": \"2026-10-11T08:20:00.000Z\",\n  \"serverReceivedAt\": \"2026-10-11T08:20:02.124Z\",\n  \"updatedAt\": \"2026-10-11T08:20:02.124Z\",\n  \"electoralOffice\": {\n    \"id\": 1,\n    \"title\": \"Lagos State Governorship Election\"\n  },\n  \"pollingUnit\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\",\n    \"puCode\": \"PU-LA-001\"\n  },\n  \"uploadedByUser\": {\n    \"id\": 42,\n    \"fullName\": \"Adewale Obafemi\",\n    \"email\": \"agent@campaign.ng\"\n  }\n}"
+              "body": "{\n  \"id\": 1,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 420,\n  \"mediaPictureUrls\": [\n    \"pre-election-reports/pictures/018b1d7f-94ad-4c40-9a3c-1b7713426e95.jpg\"\n  ],\n  \"mediaVideoUrls\": [\n    \"pre-election-reports/videos/028c2e8a-05be-5d51-0b4d-2c8824537f06.mp4\"\n  ],\n  \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\",\n  \"clientSubmittedAt\": \"2026-10-11T08:20:00.000Z\",\n  \"serverReceivedAt\": \"2026-10-11T08:20:02.124Z\",\n  \"updatedAt\": \"2026-10-11T08:20:02.124Z\",\n  \"electoralOffice\": {\n    \"id\": 1,\n    \"title\": \"Lagos State Governorship Election\"\n  },\n  \"pollingUnit\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\",\n    \"puCode\": \"PU-LA-001\"\n  },\n  \"uploadedByUser\": {\n    \"id\": 42,\n    \"fullName\": \"Adewale Obafemi\",\n    \"email\": \"agent@campaign.ng\"\n  }\n}"
             }
           ]
         },
@@ -3525,7 +3567,7 @@
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 1,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete.\",\n  \"pollingUnit\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\",\n    \"puCode\": \"PU-LA-001\"\n  }\n}"
+              "body": "{\n  \"id\": 1,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete.\",\n  \"clientSubmittedAt\": \"2026-10-11T08:20:00.000Z\",\n  \"serverReceivedAt\": \"2026-10-11T08:20:02.124Z\",\n  \"updatedAt\": \"2026-10-11T08:20:02.124Z\",\n  \"mediaPictureUrls\": [\n    \"https://r2.cloudflarestorage.com/electioneye/pre-election-reports/pictures/018b1d7f-94ad-4c40-9a3c-1b7713426e95.jpg?X-Amz-Signature=...\"\n  ],\n  \"mediaVideoUrls\": [\n    \"https://r2.cloudflarestorage.com/electioneye/pre-election-reports/videos/028c2e8a-05be-5d51-0b4d-2c8824537f06.mp4?X-Amz-Signature=...\"\n  ],\n  \"pollingUnit\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\",\n    \"puCode\": \"PU-LA-001\",\n    \"registeredVoters\": 1000,\n    \"ward\": {\n      \"id\": 101,\n      \"name\": \"Alausa Ward\",\n      \"lga\": {\n        \"id\": 11,\n        \"name\": \"Ikeja\",\n        \"state\": {\n          \"id\": 24,\n          \"name\": \"Lagos\"\n        }\n      }\n    }\n  },\n  \"electoralOffice\": {\n    \"id\": 1,\n    \"title\": \"Lagos State Governorship Election\"\n  },\n  \"uploadedByUser\": {\n    \"id\": 42,\n    \"firstName\": \"Adewale\",\n    \"lastName\": \"Obafemi\",\n    \"phoneNumber\": \"+2348012345678\",\n    \"emailAddress\": \"agent@campaign.ng\"\n  }\n}"
             }
           ]
         },
@@ -3551,7 +3593,7 @@
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "body": "{\n  \"id\": 1,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete.\"\n}"
+              "body": "{\n  \"id\": 1,\n  \"materialsArrived\": 2,\n  \"materialArrivalTime\": \"2026-10-11T08:15:00.000Z\",\n  \"totalRegisteredVoters\": 1000,\n  \"totalAccreditedVoters\": 420,\n  \"comments\": \"INEC polling materials arrived complete. Accreditation commenced promptly.\",\n  \"clientSubmittedAt\": \"2026-10-11T08:20:00.000Z\",\n  \"serverReceivedAt\": \"2026-10-11T08:20:02.124Z\",\n  \"updatedAt\": \"2026-10-11T08:20:02.124Z\",\n  \"mediaPictureUrls\": [\n    \"https://r2.cloudflarestorage.com/electioneye/pre-election-reports/pictures/018b1d7f-94ad-4c40-9a3c-1b7713426e95.jpg?X-Amz-Signature=...\"\n  ],\n  \"mediaVideoUrls\": [\n    \"https://r2.cloudflarestorage.com/electioneye/pre-election-reports/videos/028c2e8a-05be-5d51-0b4d-2c8824537f06.mp4?X-Amz-Signature=...\"\n  ],\n  \"pollingUnit\": {\n    \"id\": 5001,\n    \"name\": \"PU 001 Alausa Secretariat\",\n    \"puCode\": \"PU-LA-001\",\n    \"registeredVoters\": 1000,\n    \"ward\": {\n      \"id\": 101,\n      \"name\": \"Alausa Ward\",\n      \"lga\": {\n        \"id\": 11,\n        \"name\": \"Ikeja\",\n        \"state\": {\n          \"id\": 24,\n          \"name\": \"Lagos\"\n        }\n      }\n    }\n  },\n  \"electoralOffice\": {\n    \"id\": 1,\n    \"title\": \"Lagos State Governorship Election\"\n  },\n  \"uploadedByUser\": {\n    \"id\": 42,\n    \"firstName\": \"Adewale\",\n    \"lastName\": \"Obafemi\",\n    \"phoneNumber\": \"+2348012345678\",\n    \"emailAddress\": \"agent@campaign.ng\"\n  },\n  \"politicalParty\": {\n    \"id\": 2,\n    \"name\": \"All Progressives Congress\",\n    \"abbreviation\": \"APC\"\n  },\n  \"aspirant\": {\n    \"id\": 5,\n    \"firstName\": \"Babajide\",\n    \"lastName\": \"Sanwo-Olu\"\n  }\n}"
             }
           ]
         }

@@ -17,6 +17,7 @@ import type { Response } from 'express';
 import { WardService } from './ward.service';
 import { CreateWardArrayDto, UpdateWardDto } from './ward.dto';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
+import { Audit } from '../../shared/decorators/audit.decorator';
 import { RoleCode } from '../role/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Ward } from './ward.entity';
@@ -48,6 +49,7 @@ export class WardController {
     return csv;
   }
 
+  @Audit({ action: 'WARD.BATCH_CREATE', entityName: 'Ward', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('batch')
   @HttpCode(HttpStatus.CREATED)
@@ -57,6 +59,7 @@ export class WardController {
     return this.wardService.createMultiple(createWardArrayDto);
   }
 
+  @Audit({ action: 'WARD.CSV_UPLOAD', entityName: 'Ward', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('upload')
   @HttpCode(HttpStatus.OK)
@@ -79,6 +82,7 @@ export class WardController {
     return this.wardService.uploadWards(file, +lgaId, user);
   }
 
+  @Audit({ action: 'WARD.GENERIC_CSV_UPLOAD', entityName: 'Ward', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('upload-generic')
   @HttpCode(HttpStatus.OK)
@@ -115,6 +119,7 @@ export class WardController {
     return this.wardService.findOne(+id);
   }
 
+  @Audit({ action: 'WARD.UPDATE', entityName: 'Ward', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Put(':id')
   async update(
@@ -124,6 +129,7 @@ export class WardController {
     return this.wardService.update(+id, updateWardDto);
   }
 
+  @Audit({ action: 'WARD.DELETE', entityName: 'Ward', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<Ward> {

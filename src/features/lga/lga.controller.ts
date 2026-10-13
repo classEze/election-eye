@@ -17,6 +17,7 @@ import type { Response } from 'express';
 import { LgaService } from './lga.service';
 import { CreateLgaArrayDto, UpdateLgaDto } from './lga.dto';
 import { Allowed } from '../../shared/decorators/allowed.decorator';
+import { Audit } from '../../shared/decorators/audit.decorator';
 import { RoleCode } from '../role/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Lga } from './lga.entity';
@@ -48,6 +49,7 @@ export class LgaController {
     return csv;
   }
 
+  @Audit({ action: 'LGA.BATCH_CREATE', entityName: 'Lga', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('batch')
   @HttpCode(HttpStatus.CREATED)
@@ -57,6 +59,7 @@ export class LgaController {
     return this.lgaService.createMultiple(createLgaArrayDto);
   }
 
+  @Audit({ action: 'LGA.CSV_UPLOAD', entityName: 'Lga', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('upload')
   @HttpCode(HttpStatus.OK)
@@ -79,6 +82,7 @@ export class LgaController {
     return this.lgaService.uploadLgas(file, +stateId, user);
   }
 
+  @Audit({ action: 'LGA.GENERIC_CSV_UPLOAD', entityName: 'Lga', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post('upload-generic')
   @HttpCode(HttpStatus.OK)
@@ -115,6 +119,7 @@ export class LgaController {
     return this.lgaService.findOne(+id);
   }
 
+  @Audit({ action: 'LGA.UPDATE', entityName: 'Lga', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Put(':id')
   async update(
@@ -124,6 +129,7 @@ export class LgaController {
     return this.lgaService.update(+id, updateLgaDto);
   }
 
+  @Audit({ action: 'LGA.DELETE', entityName: 'Lga', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<Lga> {

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { StorageService } from './storage.service';
 import { Public } from '../decorators/public.decorator';
+import { Audit } from '../decorators/audit.decorator';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class StorageValidationWebhookDto {
@@ -30,6 +31,11 @@ export class StorageController {
    * Webhook endpoint triggered on upload or directly by client verification.
    * Validates file size (10MB for images, 50MB for videos) and binary magic bytes.
    */
+  @Audit({
+    action: 'STORAGE.WEBHOOK_VALIDATE',
+    entityName: 'Storage',
+    logFailures: true,
+  })
   @Public()
   @Post('webhook/validate')
   @HttpCode(HttpStatus.OK)

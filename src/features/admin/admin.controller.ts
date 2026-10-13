@@ -15,6 +15,7 @@ import { AdminService } from './admin.service';
 import { CreateAdminDto, UpdateAdminDto, AdminQueryDto } from './admin.dto';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
 import { GetUser } from 'src/shared/decorators/get-user.decorator';
+import { Audit } from 'src/shared/decorators/audit.decorator';
 import { RoleCode } from '../role/role.enum';
 import { Admin } from './admin.entity';
 
@@ -22,6 +23,7 @@ import { Admin } from './admin.entity';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @Audit({ action: 'ADMIN.CREATE', entityName: 'Admin', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -41,6 +43,7 @@ export class AdminController {
     return this.adminService.findOne(+id);
   }
 
+  @Audit({ action: 'ADMIN.UPDATE', entityName: 'Admin', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN])
   @Put(':id')
   updatePut(
@@ -51,6 +54,7 @@ export class AdminController {
     return this.adminService.update(+id, updateAdminDto, currentAdmin);
   }
 
+  @Audit({ action: 'ADMIN.UPDATE', entityName: 'Admin', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN])
   @Patch(':id')
   update(
@@ -61,6 +65,7 @@ export class AdminController {
     return this.adminService.update(+id, updateAdminDto, currentAdmin);
   }
 
+  @Audit({ action: 'ADMIN.DELETE', entityName: 'Admin', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN])
   @Delete(':id')
   remove(@Param('id') id: string, @GetUser() currentAdmin: Admin) {

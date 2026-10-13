@@ -22,6 +22,7 @@ import {
 } from '../user/user.dto';
 import { Allowed } from 'src/shared/decorators/allowed.decorator';
 import { GetUser } from 'src/shared/decorators/get-user.decorator';
+import { Audit } from 'src/shared/decorators/audit.decorator';
 import { RoleCode } from '../role/role.enum';
 import { Admin } from '../admin/admin.entity';
 import { User } from '../user/user.entity';
@@ -37,6 +38,7 @@ export class AspirantController {
     private readonly userService: UserService,
   ) {}
 
+  @Audit({ action: 'ASPIRANT.CREATE', entityName: 'Aspirant', logFailures: true })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -53,6 +55,11 @@ export class AspirantController {
 
   // --- Logged-in Aspirant Campaign Team Endpoints (Must be declared before :id / :aspirantId) ---
 
+  @Audit({
+    action: 'ASPIRANT_TEAM.USER_CREATE',
+    entityName: 'User',
+    logFailures: true,
+  })
   @Allowed([
     RoleCode.ASPIRANT,
     RoleCode.CLIENT_USER,
@@ -130,6 +137,11 @@ export class AspirantController {
     );
   }
 
+  @Audit({
+    action: 'ASPIRANT_TEAM.USER_UPDATE',
+    entityName: 'User',
+    logFailures: true,
+  })
   @Allowed([
     RoleCode.ASPIRANT,
     RoleCode.CLIENT_USER,
@@ -145,6 +157,11 @@ export class AspirantController {
     return this.userService.updateForTeam(+id, dto, user);
   }
 
+  @Audit({
+    action: 'ASPIRANT_TEAM.USER_UPDATE',
+    entityName: 'User',
+    logFailures: true,
+  })
   @Allowed([
     RoleCode.ASPIRANT,
     RoleCode.CLIENT_USER,
@@ -160,6 +177,11 @@ export class AspirantController {
     return this.userService.updateForTeam(+id, dto, user);
   }
 
+  @Audit({
+    action: 'ASPIRANT_TEAM.USER_DELETE',
+    entityName: 'User',
+    logFailures: true,
+  })
   @Allowed([
     RoleCode.ASPIRANT,
     RoleCode.CLIENT_USER,
@@ -173,6 +195,11 @@ export class AspirantController {
 
   // --- Specific Aspirant Campaign Team Endpoints ---
 
+  @Audit({
+    action: 'ASPIRANT_TEAM.ADMIN_USER_CREATE',
+    entityName: 'User',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Post(':aspirantId/users')
   @HttpCode(HttpStatus.CREATED)
@@ -237,6 +264,11 @@ export class AspirantController {
     return this.userService.findAspirantPuAgents(+aspirantId, query);
   }
 
+  @Audit({
+    action: 'ASPIRANT_TEAM.ADMIN_USER_UPDATE',
+    entityName: 'User',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Patch(':aspirantId/users/:id')
   updateAspirantUser(
@@ -248,6 +280,11 @@ export class AspirantController {
     return this.userService.updateForAdmin(+id, dto, admin);
   }
 
+  @Audit({
+    action: 'ASPIRANT_TEAM.ADMIN_USER_UPDATE',
+    entityName: 'User',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Put(':aspirantId/users/:id')
   updateAspirantUserPut(
@@ -259,6 +296,11 @@ export class AspirantController {
     return this.userService.updateForAdmin(+id, dto, admin);
   }
 
+  @Audit({
+    action: 'ASPIRANT_TEAM.ADMIN_USER_DELETE',
+    entityName: 'User',
+    logFailures: true,
+  })
   @Allowed([RoleCode.SUPER_ADMIN, RoleCode.SYSTEM_ADMIN])
   @Delete(':aspirantId/users/:id')
   removeAspirantUser(

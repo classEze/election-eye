@@ -16,6 +16,8 @@ export enum FileContext {
   INCIDENT_PICTURE = 'incidents/pictures',
   INCIDENT_VIDEO = 'incidents/videos',
   RESULT_DOCUMENT = 'result-documents',
+  PRE_ELECTION_PICTURE = 'pre-election-reports/pictures',
+  PRE_ELECTION_VIDEO = 'pre-election-reports/videos',
 }
 
 export const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB

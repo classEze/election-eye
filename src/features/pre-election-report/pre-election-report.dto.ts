@@ -4,11 +4,37 @@ import {
   IsOptional,
   IsString,
   Min,
+  Max,
   IsEnum,
   IsDateString,
+  IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MaterialsArrivedStatus } from './materials-arrived.enum';
+
+export class PreElectionReportMediaUploadUrlsDto {
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(5)
+  @Type(() => Number)
+  requestPhotoCount?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(2)
+  @Type(() => Number)
+  requestVideoCount?: number;
+
+  @IsOptional()
+  @IsString()
+  photoContentType?: string;
+
+  @IsOptional()
+  @IsString()
+  videoContentType?: string;
+}
 
 export class CreatePreElectionReportDto {
   @IsNotEmpty()
@@ -50,6 +76,16 @@ export class CreatePreElectionReportDto {
   @Min(0)
   @Type(() => Number)
   totalAccreditedVoters?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  mediaPictureKeys?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  mediaVideoKeys?: string[];
 
   @IsOptional()
   @IsString()
