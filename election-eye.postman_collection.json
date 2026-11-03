@@ -3747,7 +3747,7 @@
                 "url": "{{election-eye-base-url}}/results",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"pollingUnitId\": 1,\n  \"electoralOfficeId\": 1,\n  \"politicalPartyId\": 1,\n  \"totalAccreditedVoters\": 800,\n  \"totalValidVotes\": 750,\n  \"rejectedVotes\": 50,\n  \"materialsArrived\": 2,\n  \"partyBreakdown\": [\n    {\n      \"politicalPartyId\": 1,\n      \"votesReceived\": 500\n    },\n    {\n      \"politicalPartyId\": 2,\n      \"votesReceived\": 250\n    }\n  ]\n}",
+                  "raw": "{\n  \"pollingUnitId\": 1,\n  \"electoralOfficeId\": 1,\n  \"politicalPartyId\": 1,\n  \"totalAccreditedVoters\": 800,\n  \"totalValidVotes\": 750,\n  \"rejectedVotes\": 50,\n  \"materialsArrived\": 2,\n  \"partyBreakdown\": [\n    {\n      \"politicalPartyId\": 1,\n      \"votes\": 500\n    },\n    {\n      \"politicalPartyId\": 2,\n      \"votes\": 250\n    }\n  ]\n}",
                   "options": {
                     "raw": {
                       "language": "json"
