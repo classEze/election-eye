@@ -166,6 +166,13 @@ export class ResultService {
       );
     }
 
+    const pu = await this.puRepository.findOne({
+      where: { id: puId },
+    });
+    if (!pu) {
+      throw new NotFoundException(`Polling Unit with ID #${puId} not found.`);
+    }
+
     // 3. Pre-election report lookup & Anomaly Detection (scoped to aspirant)
     const preElectionReport = await this.preElectionReportRepo.findOne({
       where: {
@@ -175,12 +182,30 @@ export class ResultService {
       },
     });
 
+    // Prioritize official PollingUnit registeredVoters, then preElectionReport
+    const effectiveRegisteredVoters =
+      pu.registeredVoters != null && Number(pu.registeredVoters) > 0
+        ? Number(pu.registeredVoters)
+        : preElectionReport?.totalRegisteredVoters != null &&
+            Number(preElectionReport.totalRegisteredVoters) > 0
+          ? Number(preElectionReport.totalRegisteredVoters)
+          : null;
+
+    // Resolve accredited voters from DTO or fallback to preElectionReport
+    const effectiveAccreditedVoters =
+      dto.totalAccreditedVoters != null
+        ? Number(dto.totalAccreditedVoters)
+        : preElectionReport?.totalAccreditedVoters != null
+          ? Number(preElectionReport.totalAccreditedVoters)
+          : null;
+
     const anomalyReport = this.anomalyDetector.detect(
       dto,
-      preElectionReport?.totalRegisteredVoters,
+      effectiveRegisteredVoters,
+      effectiveAccreditedVoters,
     );
 
-    // 4. Check for Existing Submissions / Handle Re-submission on REJECTED
+    // 4. Check for Existing Submissions / Handle Re-submission on REJECTED or FLAGGED
     const existing =
       await this.resultRepository.findByPollingUnitOfficeAndAspirant(
         puId,
@@ -189,21 +214,24 @@ export class ResultService {
       );
 
     if (existing) {
-      if (existing.auditStatus !== ResultAuditStatus.REJECTED) {
+      if (
+        existing.auditStatus !== ResultAuditStatus.REJECTED &&
+        existing.auditStatus !== ResultAuditStatus.FLAGGED
+      ) {
         throw new ConflictException(
-          `A result has already been submitted for Polling Unit #${puId} and Electoral Office #${dto.electoralOfficeId} for your campaign with status '${existing.auditStatus}'. Duplicate submissions are blocked.`,
+          `A result has already been submitted for Polling Unit #${puId} and Electoral Office #${dto.electoralOfficeId} for your campaign with status '${existing.auditStatus}'. Duplicate submissions are blocked. Only FLAGGED or REJECTED results can be corrected and resubmitted.`,
         );
       }
 
-      // Re-submission / Correction for previously rejected result
+      // Re-submission / Correction for previously rejected or flagged result
       const updateData: Partial<Result> = {
         totalRegisteredVoters:
-          preElectionReport?.totalRegisteredVoters ??
+          effectiveRegisteredVoters ??
           existing.totalRegisteredVoters ??
           null,
         totalAccreditedVoters:
-          dto.totalAccreditedVoters ??
-          preElectionReport?.totalAccreditedVoters ??
+          effectiveAccreditedVoters ??
+          existing.totalAccreditedVoters ??
           null,
         totalValidVotes: Number(dto.totalValidVotes),
         rejectedVotes: Number(dto.rejectedVotes || 0),
@@ -246,12 +274,8 @@ export class ResultService {
       politicalParty: { id: partyId } as any,
       aspirant: aspirantId ? ({ id: aspirantId } as any) : null,
       preElectionReport: preElectionReport || null,
-      totalRegisteredVoters:
-        preElectionReport?.totalRegisteredVoters ?? null,
-      totalAccreditedVoters:
-        dto.totalAccreditedVoters ??
-        preElectionReport?.totalAccreditedVoters ??
-        null,
+      totalRegisteredVoters: effectiveRegisteredVoters,
+      totalAccreditedVoters: effectiveAccreditedVoters,
       totalValidVotes: Number(dto.totalValidVotes),
       rejectedVotes: Number(dto.rejectedVotes || 0),
       ec8aPhotoUrl: dto.ec8aPhotoKey,

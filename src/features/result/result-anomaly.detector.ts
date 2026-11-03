@@ -22,6 +22,7 @@ export class ResultAnomalyDetector {
   detect(
     dto: CreateResultDto,
     registeredVotersFallback?: number | null,
+    accreditedVotersFallback?: number | null,
   ): AnomalyReport {
     const flags: AnomalyType[] = [];
     const details: string[] = [];
@@ -32,16 +33,24 @@ export class ResultAnomalyDetector {
     const accredited =
       dto.totalAccreditedVoters != null
         ? Number(dto.totalAccreditedVoters)
-        : null;
+        : accreditedVotersFallback != null && Number(accreditedVotersFallback) > 0
+          ? Number(accreditedVotersFallback)
+          : null;
     const registered =
-      registeredVotersFallback != null
+      registeredVotersFallback != null && Number(registeredVotersFallback) > 0
         ? Number(registeredVotersFallback)
         : null;
 
     // 1. Arithmetic Mismatch: Sum of individual party breakdown votes vs totalValidVotes
     if (dto.partyBreakdown && dto.partyBreakdown.length > 0) {
       const partyVotesSum = dto.partyBreakdown.reduce(
-        (acc, item) => acc + Number(item.votes || 0),
+        (acc, item) =>
+          acc +
+          Number(
+            item.votes !== undefined && item.votes !== null
+              ? item.votes
+              : (item as any).votesReceived || 0,
+          ),
         0,
       );
 

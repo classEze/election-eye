@@ -23,7 +23,20 @@ export class PartyVoteDetailDto {
   @IsInt()
   @Min(0)
   @Type(() => Number)
+  @Transform(({ value, obj }) => {
+    if (value !== undefined && value !== null) return Number(value);
+    if (obj?.votesReceived !== undefined && obj?.votesReceived !== null) {
+      return Number(obj.votesReceived);
+    }
+    return value;
+  })
   votes!: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Type(() => Number)
+  votesReceived?: number;
 }
 
 export class CreateResultDto {
